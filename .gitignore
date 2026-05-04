@@ -1,0 +1,5 @@
+node_modules/
+dist/
+public/hengband-*.js
+public/hengband-*.wasm
+public/hengband-*.data
