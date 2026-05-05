@@ -9,3 +9,5 @@ hengband/src/hengband.data
 
 tmp/*
 !tmp/.keep
+
+*.wasm
