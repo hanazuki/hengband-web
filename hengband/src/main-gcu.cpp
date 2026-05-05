@@ -705,7 +705,7 @@ static errr game_term_xtra_gcu_event(int v)
         /* Do not wait for it */
         curses::nodelay(stdscr, true);
 
-        while ((i = getch()) != EOF) {
+        while ((i = curses::getch()) != EOF) {
             if (i == ERR) {
                 exit_game_panic(p_ptr);
             }
@@ -735,7 +735,7 @@ static errr game_term_xtra_gcu_event(int v)
         curses::nodelay(stdscr, true);
 
         /* Check for keypresses */
-        i = getch();
+        i = curses::getch();
 
         /* Wait for it next time */
         curses::nodelay(stdscr, false);

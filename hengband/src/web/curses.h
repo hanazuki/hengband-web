@@ -3,7 +3,8 @@
  * @brief Minimal ncurses-compatible shim for Emscripten WASM builds.
  *
  * main-gcu.cpp wraps this via: namespace curses { #include <curses.h> }
- * Input helpers use extern "C" so they resolve in any namespace context.
+ * The low-level helpers (web_getch_impl etc.) are also declared globally in
+ * system/h-config.h so that bare getch() calls in main-gcu.cpp resolve.
  */
 #pragma once
 
@@ -21,6 +22,7 @@ extern "C" {
 
 #define getch()        web_getch_impl()
 #define nodelay(w, f)  web_getch_setnd(f)
+#define touchwin(win)  (OK)
 
 typedef unsigned int chtype;
 typedef unsigned int attr_t;
