@@ -1,0 +1,6 @@
+[submodule "hengband/lib/xtra"]
+	path = hengband/lib/xtra
+	url = https://github.com/hengband/hengband.xtra
+[submodule "hengband/VisualStudio/Hengband/libcurl"]
+	path = hengband/VisualStudio/Hengband/libcurl
+	url = https://github.com/hengband/libcurl.git
