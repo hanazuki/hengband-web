@@ -6,6 +6,7 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "build": "vite build",
+    "build:wasm": "bash ./build.sh",
     "serve": "vite",
     "lint": "biome check .",
     "lintfix": "biome check --write .",
