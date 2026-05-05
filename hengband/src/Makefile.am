@@ -1442,6 +1442,24 @@ DEFAULT_INCLUDES = \
 	-I. -I$(srcdir) -I$(srcdir)/external-lib/include
 
 CPPFLAGS += $(XFT_CFLAGS) $(libcurl_CFLAGS)
+
+if USE_WEB
+DEFAULT_INCLUDES += -I$(srcdir)/web
+AM_LDFLAGS = \
+	-sEXPORT_ES6=1 \
+	-sMODULARIZE=1 \
+	-sASYNCIFY=1 \
+	-sUSE_ICONV=1 \
+	-sFORCE_FILESYSTEM=1 \
+	-sINITIAL_MEMORY=268435456 \
+	-sALLOW_MEMORY_GROWTH=1 \
+	'-sEXPORTED_FUNCTIONS=_main,_web_push_key,_web_push_string,_web_resize_term' \
+	'-sEXPORTED_RUNTIME_METHODS=callMain,FS' \
+	--preload-file $(top_srcdir)/lib@/lib
+hengband_SOURCES += \
+	web/web-curses.cpp \
+	web/web-input.cpp
+endif
 LIBS += $(XFT_LIBS) $(libcurl_LIBS)
 
 AM_CXXFLAGS =

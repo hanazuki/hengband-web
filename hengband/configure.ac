@@ -84,20 +84,29 @@ AC_ARG_ENABLE([pch],
 enable_pch=no, enable_pch=yes)
 AM_CONDITIONAL([PCH], [test x$enable_pch = xyes])
 
+AC_ARG_ENABLE([web],
+[  --enable-web            build Emscripten/WASM web version], use_web=yes, use_web=no)
+AM_CONDITIONAL([USE_WEB], [test "$use_web" = yes])
+
 dnl Checks for libraries.
 dnl Replace `main' with a function in -lncurses:
-AC_CHECK_LIB(ncursesw, initscr, [AC_DEFINE(USE_GCU, 1, [Allow -mGCU environment]) AC_DEFINE(USE_NCURSES, 1, [Use ncurses]) LIBS="$LIBS -lncursesw"])
-if test "$ac_cv_lib_ncursesw_initscr" != yes; then
-  AC_CHECK_LIB(ncurses, initscr, [AC_DEFINE(USE_GCU, 1, [Allow -mGCU environment]) AC_DEFINE(USE_NCURSES, 1, [Use ncurses]) LIBS="$LIBS -lncurses"])
-  if test "$ac_cv_lib_ncurses_initscr" != yes; then
-    AC_CHECK_LIB(curses, initscr, [AC_DEFINE(USE_GCU, 1, [Allow -mGCU environment]) LIBS="$LIBS -lcurses"])
-    if test "$ac_cv_lib_curses_initscr" != yes; then
-      AC_CHECK_LIB(termcap, tgetent, [AC_DEFINE(USE_CAP, 1, [Allow -mCAP environment]) LIBS="$LIBS -ltermcap"])
+if test "$use_web" = yes; then
+  AC_DEFINE(USE_GCU, 1, [Allow -mGCU environment])
+  AC_DEFINE(USE_WEB, 1, [Allow web environment])
+else
+  AC_CHECK_LIB(ncursesw, initscr, [AC_DEFINE(USE_GCU, 1, [Allow -mGCU environment]) AC_DEFINE(USE_NCURSES, 1, [Use ncurses]) LIBS="$LIBS -lncursesw"])
+  if test "$ac_cv_lib_ncursesw_initscr" != yes; then
+    AC_CHECK_LIB(ncurses, initscr, [AC_DEFINE(USE_GCU, 1, [Allow -mGCU environment]) AC_DEFINE(USE_NCURSES, 1, [Use ncurses]) LIBS="$LIBS -lncurses"])
+    if test "$ac_cv_lib_ncurses_initscr" != yes; then
+      AC_CHECK_LIB(curses, initscr, [AC_DEFINE(USE_GCU, 1, [Allow -mGCU environment]) LIBS="$LIBS -lcurses"])
+      if test "$ac_cv_lib_curses_initscr" != yes; then
+        AC_CHECK_LIB(termcap, tgetent, [AC_DEFINE(USE_CAP, 1, [Allow -mCAP environment]) LIBS="$LIBS -ltermcap"])
+      fi
     fi
   fi
-fi
 
-AC_CHECK_LIB(iconv, iconv_open)
+  AC_CHECK_LIB(iconv, iconv_open)
+fi
 
 if test "$use_net" = no; then
   AC_DEFINE(DISABLE_NET, 1, [Disable networking support])

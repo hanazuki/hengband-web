@@ -42,9 +42,11 @@ constexpr auto MAINTAINER = "echizen@users.sourceforge.jp";
   #endif
 #else
   #define PATH_SEP "/"
+#ifndef __EMSCRIPTEN__
   #define SET_UID
   #define PRIVATE_USER_PATH "~/.angband"
   #define SAVEFILE_USE_UID
+#endif
   
   #if !defined(HAVE_CONFIG_H)
     #define HAVE_USLEEP

@@ -420,6 +420,16 @@ int main(int argc, char *argv[])
     }
 #endif
 
+#ifdef USE_WEB
+    if (!done && (mstr.empty() || (mstr == "web"))) {
+        extern errr init_gcu(int, char **);
+        if (0 == init_gcu(argc, argv)) {
+            ANGBAND_SYS = "web";
+            done = true;
+        }
+    }
+#endif /* USE_WEB */
+
     if (!done) {
         quit("Unable to prepare any 'display module'!");
     }
