@@ -1,0 +1,29 @@
+name: Build test with MSVC
+on:
+  workflow_call:
+
+  # 手動トリガーを許可
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+
+      - name: Restore Nuget Packages
+        run: |
+          NuGet restore .\VisualStudio\Hengband.sln
+
+      - name: Run build test
+        run: |
+          MSBuild -warnAsError .\VisualStudio\Hengband.sln /t:Rebuild /p:Configuration=Debug

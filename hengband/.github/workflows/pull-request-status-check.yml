@@ -1,0 +1,78 @@
+name: Pull Request Status Check
+
+on:
+  # プルリクエストがopen、synchronize、reopenされた時にトリガーする
+  pull_request:
+
+  # 手動トリガーを許可
+  workflow_dispatch:
+
+jobs:
+  check_bom:
+    name: Check the BOM of the source files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: sh ./.github/scripts/check-bom.sh
+
+  check_newline:
+    name: Check the newline of files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: sh ./.github/scripts/check-newline.sh
+
+  check_format:
+    name: Check the format of the source files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check the format of the cpp source and header files
+        run: sh ./.github/scripts/check-cpp-format.sh
+      - name: Check the format of the json/jsonc files
+        run: sh ./.github/scripts/check-json-format.sh
+
+  build_test_clang15_libcpp_without_pch:
+    name: Build Japanese version with clang 15 -stdlib=libc++ (without using pre-compiled headers)
+    uses: ./.github/workflows/build-with-autotools.yml
+    with:
+      runner: ubuntu-22.04
+      cxx: clang++-15
+      cxx-flags: "-pipe -O3 -Werror -Wall -Wextra -stdlib=libc++"
+      configure-opts: "--disable-pch"
+      use-ccache: true
+
+  build_test_clang14_without_pch:
+    name: Build Japanese version with clang 14 (without using pre-compiled headers)
+    uses: ./.github/workflows/build-with-autotools.yml
+    with:
+      runner: ubuntu-22.04
+      cxx: clang++-14
+      cxx-flags: "-pipe -O3 -Werror -Wall -Wextra"
+      configure-opts: "--disable-pch"
+      use-ccache: true
+
+  build_test_japanese:
+    name: Build Japanese version with gcc
+    uses: ./.github/workflows/build-with-autotools.yml
+    with:
+      runner: ubuntu-24.04
+      cxx: g++-14
+      cxx-flags: "-pipe -O3 -Werror -Wall -Wextra"
+      configure-opts: "--disable-pch"
+      use-ccache: true
+
+  build_test_english:
+    name: Build English version with gcc
+    uses: ./.github/workflows/build-with-autotools.yml
+    with:
+      runner: ubuntu-24.04
+      cxx: g++-14
+      cxx-flags: "-pipe -O3 -Werror -Wall -Wextra"
+      configure-opts: "--disable-pch --disable-japanese"
+      distcheck: true
+      use-ccache: true
+
+  build_test_with_msvc:
+    name: Build test with MSVC
+    uses: ./.github/workflows/build-test-with-msvc.yml

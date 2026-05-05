@@ -1,0 +1,306 @@
+/* File: z-util.c */
+
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
+/* Purpose: Low level utilities -BEN- */
+
+#include "term/z-util.h"
+#include <cstdio>
+#include <cstdlib>
+
+std::string_view program_name = "";
+
+/*
+ * Determine if string "t" is equal to string "t"
+ */
+bool streq(std::string_view a, std::string_view b)
+{
+    return a == b;
+}
+
+/*
+ * Determine if string "t" is a suffix of string "s"
+ */
+bool suffix(std::string_view s, std::string_view t)
+{
+    //! @todo C++20 では ends_with が使用可能
+    if (t.size() > s.size()) {
+        return false;
+    }
+
+    return s.compare(s.size() - t.size(), s.npos, t) == 0;
+}
+
+/*
+ * Determine if string "t" is a prefix of string "s"
+ */
+bool prefix(std::string_view s, std::string_view t)
+{
+    //! @todo C++20 では starts_with が使用可能
+    return s.substr(0, t.size()) == t;
+}
+
+/*
+ * Redefinable "plog" action
+ */
+void (*plog_aux)(std::string_view) = nullptr;
+
+/*
+ * Print (or log) a "warning" message (ala "perror()")
+ * Note the use of the (optional) "plog_aux" hook.
+ */
+void plog(std::string_view str)
+{
+    /* Use the "alternative" function if possible */
+    if (plog_aux) {
+        (*plog_aux)(str);
+        return;
+    }
+
+    /* Just do a labeled fprintf to stderr */
+    (void)(fprintf(stderr, "%s: %s\n", program_name.empty() ? "???" : program_name.data(), str.data()));
+}
+
+/*
+ * Redefinable "quit" action
+ */
+void (*quit_aux)(std::string_view) = nullptr;
+
+/*
+ * Exit (ala "exit()").  If 'str' is nullptr, do "exit(0)".
+ * If 'str' begins with "+" or "-", do "exit(atoi(str))".
+ * Otherwise, plog() 'str' and exit with an error code of -1.
+ * But always use 'quit_aux', if set, before anything else.
+ */
+void quit(std::string_view str)
+{
+    /* Attempt to use the aux function */
+    if (quit_aux) {
+        (*quit_aux)(str);
+    }
+
+    /* Success */
+    if (str.empty()) {
+        std::exit(0);
+    }
+
+    /* Extract a "special error code" */
+    if ((str[0] == '-') || (str[0] == '+')) {
+        std::exit(std::atoi(str.data()));
+    }
+
+    /* Send the string to plog() */
+    plog(str);
+
+    /* Failure */
+    std::exit(EXIT_FAILURE);
+}
+
+/*
+ * Redefinable "core" action
+ */
+void (*core_aux)(std::string_view) = nullptr;
+
+/*
+ * @brief 意図的にクラッシュさせ、コアファイルをダンプする
+ * @param str エラーメッセージ
+ * @details MSVC以外のコンパイラはpragma warning をコンパイルエラーにする.
+ * 汚いがプリプロで分岐する.
+ */
+void core(std::string_view str)
+{
+    char *crash = nullptr;
+    if (core_aux) {
+        (*core_aux)(str);
+    }
+
+    if (!str.empty()) {
+        plog(str);
+    }
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 6011)
+#endif
+    *crash = *crash;
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+    quit("core() failed");
+}
+
+/*** 64-bit integer operations ***/
+
+void s64b_lshift(int32_t *hi, uint32_t *lo, const int n)
+{
+    if (n == 0) {
+        return;
+    }
+
+    *hi = (int32_t)((uint32_t)(*hi << n) | (*lo >> (32 - n)));
+    *lo <<= n;
+}
+
+void s64b_rshift(int32_t *hi, uint32_t *lo, const int n)
+{
+    if (n == 0) {
+        return;
+    }
+
+    *lo = ((uint32_t)*hi << (32 - n)) | (*lo >> n);
+    *hi >>= n;
+}
+
+/* Add B to A */
+void s64b_add(int32_t *A1, uint32_t *A2, int32_t B1, uint32_t B2)
+{
+    (*A2) += B2;
+
+    /* Overflawed? */
+    if ((*A2) < B2) {
+        (*A1) += B1 + 1;
+    } else {
+        (*A1) += B1;
+    }
+}
+
+/* Subtract B from A */
+void s64b_sub(int32_t *A1, uint32_t *A2, int32_t B1, uint32_t B2)
+{
+    /* Underflaw? */
+    if ((*A2) < B2) {
+        (*A1) -= B1 + 1;
+    } else {
+        (*A1) -= B1;
+    }
+
+    (*A2) -= B2;
+}
+
+/*
+ * Multiply A by B
+ *
+ * (A1*2^32 + A2h*2^16 + A2l) * (B1*2^32 + B2h*2^16 + B2l)
+ *  = (A1*B2 & 0xffffffff)*2^32
+ *   +(A2*B1 & 0xffffffff)*2^32
+ *   +(A2h*B2h & 0xffffffff)*2^32
+ *   +(A2h*B2l & 0xffff0000)*2^16
+ *   +(A2l*B2h & 0xffff0000)*2^16
+ *   +(A2*B2 & 0xffffffff)
+ */
+void s64b_mul(int32_t *A1, uint32_t *A2, int32_t B1, uint32_t B2)
+{
+    int32_t tmp1;
+    uint32_t A2val = (*A2);
+
+    uint32_t B2high = (B2 >> 16);
+    uint32_t A2high = (A2val >> 16);
+
+    (*A2) *= B2;
+    tmp1 = (*A1) * B2;
+    tmp1 += A2val * B1;
+    tmp1 += A2high * B2high;
+    tmp1 += (A2high * (uint16_t)B2) >> 16;
+    tmp1 += ((uint16_t)A2val * B2high) >> 16;
+
+    (*A1) = tmp1;
+}
+
+/* Compare A to B */
+int s64b_cmp(int32_t A1, uint32_t A2, int32_t B1, uint32_t B2)
+{
+    if (A1 > B1) {
+        return 1;
+    }
+    if (A1 < B1) {
+        return -1;
+    }
+    if (A2 > B2) {
+        return 1;
+    }
+    if (A2 < B2) {
+        return -1;
+    }
+    return 0;
+}
+
+/*
+ * Divide A by B
+ *
+ * Assumes that both A and B are positive
+ */
+void s64b_div(int32_t *A1, uint32_t *A2, int32_t B1, uint32_t B2)
+{
+    int32_t result1 = 0;
+    uint32_t result2 = 0;
+    int32_t A1val = (*A1);
+    uint32_t A2val = (*A2);
+    int bit = 0;
+
+    /* No result for B==0 */
+    if (B1 == 0 && B2 == 0) {
+        return;
+    }
+
+    /*
+     * Find the highest bit of quotient
+     */
+    while (s64b_cmp(A1val, A2val, B1, B2) == 1) {
+        s64b_lshift(&B1, &B2, 1);
+        bit++;
+    }
+
+    /* Extract bits of quotient one by one */
+    while (bit >= 0) {
+        if (s64b_cmp(A1val, A2val, B1, B2) >= 0) {
+            if (bit >= 32) {
+                result1 |= (0x00000001UL << (bit - 32));
+            } else {
+                result2 |= (0x00000001UL << bit);
+            }
+
+            s64b_sub(&A1val, &A2val, B1, B2);
+        }
+
+        s64b_rshift(&B1, &B2, 1);
+        bit--;
+    }
+
+    (*A1) = result1;
+    (*A2) = result2;
+}
+
+/* Reminder of ENERGY_DIVISION (A % B) */
+void s64b_mod(int32_t *A1, uint32_t *A2, int32_t B1, uint32_t B2)
+{
+    int32_t tmp1 = (*A1);
+    uint32_t tmp2 = (*A2);
+
+    s64b_div(&tmp1, &tmp2, B1, B2);
+    s64b_mul(&tmp1, &tmp2, B1, B2);
+    s64b_sub(A1, A2, tmp1, tmp2);
+}
+
+/*!
+ * @brief 符号なし32ビット整数のビット数を返す。
+ * @param x ビット数を調べたい変数
+ * @return ビット数
+ */
+int count_bits(uint32_t x)
+{
+    int n = 0;
+
+    if (x) {
+        do {
+            n++;
+        } while (0 != (x = x & (x - 1)));
+    }
+
+    return n;
+}

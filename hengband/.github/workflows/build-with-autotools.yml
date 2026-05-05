@@ -1,0 +1,78 @@
+name: Build with Autotools
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+      cxx:
+        type: string
+        required: true
+      cxx-flags:
+        type: string
+        required: true
+      configure-opts:
+        type: string
+        required: false
+      distcheck:
+        type: boolean
+        required: false
+      use-ccache:
+        type: boolean
+        required: false
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - id: calculate-cache-key
+        name: Calculate cache key for ccache
+        run: |
+          key=$(echo "${{ inputs.cxx }} ${{ inputs.cxx-flags }} ${{ inputs.configure-opts }}" | sha256sum | cut -d' ' -f1)
+          echo "key=$key" >> $GITHUB_OUTPUT
+
+      - if: ${{ inputs.use-ccache }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ steps.calculate-cache-key.outputs.key }}
+          max-size: "200M"
+
+      - name: Configuring ccache to use precompiled headers
+        if: ${{ inputs.use-ccache }}
+        run: |
+          ln -s /usr/bin/ccache /usr/local/bin/${{ inputs.cxx }}
+          /usr/bin/ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,include_file_ctime
+          /usr/bin/ccache --set-config=pch_external_checksum=true
+          /usr/bin/ccache -p
+
+      - name: Install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            libncursesw5-dev \
+            libcurl4-openssl-dev \
+            nkf \
+            libc++-15-dev \
+            libc++abi-15-dev \
+
+      - name: Generate configure
+        run: ./bootstrap
+
+      - name: Configure
+        run: ./configure ${{ inputs.configure-opts }}
+        env:
+          CXX: ${{ inputs.cxx }}
+          CXXFLAGS: ${{ inputs.cxx-flags }}
+
+      - name: Build with distcheck
+        if: ${{ inputs.distcheck }}
+        run: make DISTCHECK_CONFIGURE_FLAGS="CXX=\"${{ inputs.cxx }}\" CXXFLAGS=\"${{ inputs.cxx-flags }}\" ${{ inputs.configure-opts }}" -j$(nproc) distcheck >/dev/null
+
+      - name: Build
+        if: ${{ !inputs.distcheck }}
+        run: make -j$(nproc) >/dev/null

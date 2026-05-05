@@ -1,0 +1,276 @@
+#include <cstdlib>
+
+#include "autopick/autopick-dirty-flags.h"
+#include "autopick/autopick-editor-util.h"
+#include "autopick/autopick-entry.h"
+#include "autopick/autopick-flags-table.h"
+#include "autopick/autopick-key-flag-process.h"
+#include "autopick/autopick-methods-table.h"
+#include "autopick/autopick-util.h"
+
+/*!
+ * @brief Delete or insert string
+ */
+void toggle_keyword(text_body_type *tb, BIT_FLAGS flg)
+{
+    int by1, by2;
+    bool add = true;
+    bool fixed = false;
+    if (tb->mark) {
+        by1 = std::min(tb->my, tb->cy);
+        by2 = std::max(tb->my, tb->cy);
+    } else /* if (!tb->mark) */
+    {
+        by1 = by2 = tb->cy;
+    }
+
+    for (int y = by1; y <= by2; y++) {
+        autopick_type an_entry, *entry = &an_entry;
+        if (!autopick_new_entry(entry, *tb->lines_list[y], !fixed)) {
+            continue;
+        }
+
+        if (!fixed) {
+            if (!entry->has(flg)) {
+                add = true;
+            } else {
+                add = false;
+            }
+
+            fixed = true;
+        }
+
+        if (FLG_NOUN_BEGIN <= flg && flg <= FLG_NOUN_END) {
+            int i;
+            for (i = FLG_NOUN_BEGIN; i <= FLG_NOUN_END; i++) {
+                entry->remove(i);
+            }
+        } else if (FLG_UNAWARE <= flg && flg <= FLG_STAR_IDENTIFIED) {
+            int i;
+            for (i = FLG_UNAWARE; i <= FLG_STAR_IDENTIFIED; i++) {
+                entry->remove(i);
+            }
+        } else if (FLG_ARTIFACT <= flg && flg <= FLG_AVERAGE) {
+            int i;
+            for (i = FLG_ARTIFACT; i <= FLG_AVERAGE; i++) {
+                entry->remove(i);
+            }
+        } else if (FLG_RARE <= flg && flg <= FLG_COMMON) {
+            int i;
+            for (i = FLG_RARE; i <= FLG_COMMON; i++) {
+                entry->remove(i);
+            }
+        }
+
+        if (add) {
+            entry->add(flg);
+        } else {
+            entry->remove(flg);
+        }
+
+        tb->lines_list[y] = std::make_unique<std::string>(autopick_line_from_entry(*entry));
+        tb->dirty_flags |= DIRTY_ALL;
+        tb->changed = true;
+    }
+}
+
+/*!
+ * @brief Change command letter
+ */
+void toggle_command_letter(text_body_type *tb, byte flg)
+{
+    autopick_type an_entry;
+    autopick_type *entry = &an_entry;
+    int by1, by2;
+    bool add = true;
+    bool fixed = false;
+    if (tb->mark) {
+        by1 = std::min(tb->my, tb->cy);
+        by2 = std::max(tb->my, tb->cy);
+    } else /* if (!tb->mark) */
+    {
+        by1 = by2 = tb->cy;
+    }
+
+    for (int y = by1; y <= by2; y++) {
+        int wid = 0;
+
+        if (!autopick_new_entry(entry, *tb->lines_list[y], false)) {
+            continue;
+        }
+
+        if (!fixed) {
+            if (!(entry->action & flg)) {
+                add = true;
+            } else {
+                add = false;
+            }
+
+            fixed = true;
+        }
+
+        if (entry->action & DONT_AUTOPICK) {
+            wid--;
+        } else if (entry->action & DO_AUTODESTROY) {
+            wid--;
+        } else if (entry->action & DO_QUERY_AUTOPICK) {
+            wid--;
+        }
+        if (!(entry->action & DO_DISPLAY)) {
+            wid--;
+        }
+
+        if (flg != DO_DISPLAY) {
+            entry->action &= ~(DO_AUTOPICK | DONT_AUTOPICK | DO_AUTODESTROY | DO_QUERY_AUTOPICK);
+            if (add) {
+                entry->action |= flg;
+            } else {
+                entry->action |= DO_AUTOPICK;
+            }
+        } else {
+            entry->action &= ~(DO_DISPLAY);
+            if (add) {
+                entry->action |= flg;
+            }
+        }
+
+        if (tb->cy == y) {
+            if (entry->action & DONT_AUTOPICK) {
+                wid++;
+            } else if (entry->action & DO_AUTODESTROY) {
+                wid++;
+            } else if (entry->action & DO_QUERY_AUTOPICK) {
+                wid++;
+            }
+            if (!(entry->action & DO_DISPLAY)) {
+                wid++;
+            }
+
+            if (wid > 0) {
+                tb->cx++;
+            }
+            if (wid < 0 && tb->cx > 0) {
+                tb->cx--;
+            }
+        }
+
+        tb->lines_list[y] = std::make_unique<std::string>(autopick_line_from_entry(*entry));
+        tb->dirty_flags |= DIRTY_ALL;
+        tb->changed = true;
+    }
+}
+
+/*!
+ * @brief Delete or insert string
+ */
+void add_keyword(text_body_type *tb, BIT_FLAGS flg)
+{
+    int by1, by2;
+    if (tb->mark) {
+        by1 = std::min(tb->my, tb->cy);
+        by2 = std::max(tb->my, tb->cy);
+    } else {
+        by1 = by2 = tb->cy;
+    }
+
+    for (int y = by1; y <= by2; y++) {
+        autopick_type an_entry, *entry = &an_entry;
+        if (!autopick_new_entry(entry, *tb->lines_list[y], false)) {
+            continue;
+        }
+
+        if (entry->has(flg)) {
+            continue;
+        }
+
+        if (FLG_NOUN_BEGIN <= flg && flg <= FLG_NOUN_END) {
+            int i;
+            for (i = FLG_NOUN_BEGIN; i <= FLG_NOUN_END; i++) {
+                entry->remove(i);
+            }
+        }
+
+        entry->add(flg);
+        tb->lines_list[y] = std::make_unique<std::string>(autopick_line_from_entry(*entry));
+        tb->dirty_flags |= DIRTY_ALL;
+        tb->changed = true;
+    }
+}
+
+/*!
+ * @brief Add an empty line at the last of the file
+ */
+bool add_empty_line(text_body_type *tb)
+{
+    int num_lines = count_line(tb);
+
+    if (tb->lines_list[num_lines - 1]->empty()) {
+        return false;
+    }
+
+    tb->lines_list[num_lines] = std::make_unique<std::string>();
+    tb->dirty_flags |= DIRTY_EXPRESSION;
+    tb->changed = true;
+    return true;
+}
+
+void kill_yank_chain(text_body_type *tb)
+{
+    tb->yank.clear();
+    tb->yank_eol = true;
+}
+
+void add_str_to_yank(text_body_type *tb, std::string_view str)
+{
+    tb->yank_eol = false;
+    tb->yank.emplace_back(str);
+}
+
+/*!
+ * @brief Do work for the copy editor-command
+ */
+void copy_text_to_yank(text_body_type *tb)
+{
+    const int len = tb->lines_list[tb->cy]->length();
+    if (tb->cx > len) {
+        tb->cx = len;
+    }
+
+    if (!tb->mark) {
+        tb->cx = 0;
+        tb->my = tb->cy;
+        tb->mx = len;
+    }
+
+    kill_yank_chain(tb);
+    if (tb->my != tb->cy) {
+        int by1 = std::min(tb->my, tb->cy);
+        int by2 = std::max(tb->my, tb->cy);
+
+        for (int y = by1; y <= by2; y++) {
+            add_str_to_yank(tb, *tb->lines_list[y]);
+        }
+
+        add_str_to_yank(tb, "");
+        tb->mark = 0;
+        tb->dirty_flags |= DIRTY_ALL;
+        return;
+    }
+
+    const auto bx1 = std::min(tb->mx, tb->cx);
+    auto bx2 = std::max(tb->mx, tb->cx);
+    if (bx2 > len) {
+        bx2 = len;
+    }
+
+    if ((bx1 == 0) && (bx2 == len)) {
+        add_str_to_yank(tb, *tb->lines_list[tb->cy]);
+        add_str_to_yank(tb, "");
+    } else {
+        const std::string_view buf(*tb->lines_list[tb->cy]);
+        add_str_to_yank(tb, buf.substr(bx1, bx2 - bx1));
+    }
+
+    tb->mark = 0;
+    tb->dirty_flags |= DIRTY_ALL;
+}

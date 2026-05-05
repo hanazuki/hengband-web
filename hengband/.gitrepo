@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/hengband/hengband
+	branch = 3.0.2.2-Beta
+	commit = e2161e6d305c1fd596f36fbfef73103044c0c9c8
+	parent = 43405482b6464fb5df96343991220b4c60b5dcbb
+	method = merge
+	cmdver = 0.4.9

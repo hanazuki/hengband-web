@@ -1,0 +1,110 @@
+/*!
+ * @brief 画面描画のユーティリティ
+ * @date 2018/09/25
+ * @author
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke\n
+ * This software may be copied and distributed for educational, research, and\n
+ * not for profit purposes provided that this copyright and statement are\n
+ * included in all such copies.\n
+ * 2014 Deskull rearranged comment for Doxygen.
+ */
+
+#include "io/screen-util.h"
+#include "core/player-processor.h"
+#include "core/stuff-handler.h"
+#include "dungeon/quest.h"
+#include "effect/effect-characteristics.h"
+#include "effect/spells-effect-util.h"
+#include "game-option/map-screen-options.h"
+#include "game-option/special-options.h"
+#include "grid/grid.h"
+#include "io/cursor.h"
+#include "io/input-key-acceptor.h"
+#include "monster/monster-update.h"
+#include "player-info/mimic-info-table.h"
+#include "system/dungeon/dungeon-definition.h"
+#include "system/floor/floor-info.h"
+#include "system/floor/town-info.h"
+#include "system/player-type-definition.h"
+#include "system/redrawing-flags-updater.h"
+#include "target/target-checker.h"
+#include "term/screen-processor.h"
+#include "term/term-color-types.h"
+#include "util/bit-flags-calculator.h"
+#include "view/display-map.h"
+#include "window/main-window-util.h"
+#include "world/world.h"
+
+/*!
+ * @brief コンソールのリサイズに合わせてマップを再描画する /
+ * Map resizing whenever the main term changes size
+ * @todo ここにPlayerType を追加するとz-termに影響が行くので保留
+ */
+void resize_map()
+{
+    if (!AngbandWorld::get_instance().character_dungeon) {
+        return;
+    }
+
+    panel_row_max = 0;
+    panel_col_max = 0;
+    panel_row_min = p_ptr->current_floor_ptr->height;
+    panel_col_min = p_ptr->current_floor_ptr->width;
+    verify_panel(p_ptr);
+
+    auto &rfu = RedrawingFlagsUpdater::get_instance();
+    static constexpr auto flags_srf = {
+        StatusRecalculatingFlag::TORCH,
+        StatusRecalculatingFlag::BONUS,
+        StatusRecalculatingFlag::HP,
+        StatusRecalculatingFlag::MP,
+        StatusRecalculatingFlag::SPELLS,
+        StatusRecalculatingFlag::UN_VIEW,
+        StatusRecalculatingFlag::UN_LITE,
+        StatusRecalculatingFlag::VIEW,
+        StatusRecalculatingFlag::LITE,
+        StatusRecalculatingFlag::MONSTER_LITE,
+        StatusRecalculatingFlag::MONSTER_STATUSES,
+    };
+    rfu.set_flags(flags_srf);
+    static constexpr auto flags_mwrf = {
+        MainWindowRedrawingFlag::WIPE,
+        MainWindowRedrawingFlag::BASIC,
+        MainWindowRedrawingFlag::EXTRA,
+        MainWindowRedrawingFlag::MAP,
+        MainWindowRedrawingFlag::EQUIPPY,
+    };
+    rfu.set_flags(flags_mwrf);
+    handle_stuff(p_ptr);
+    term_redraw();
+
+    if (can_save) {
+        move_cursor_relative(p_ptr->y, p_ptr->x);
+    }
+
+    term_fresh();
+}
+
+/*!
+ * @brief 現在のコンソール表示の縦横を返す
+ */
+std::pair<int, int> get_screen_size()
+{
+    auto [width, height] = term_get_size();
+    height -= ROW_MAP + 2;
+    width -= COL_MAP + 2;
+    if (use_bigtile) {
+        width /= 2;
+    }
+
+    return { width, height };
+}
+
+/*
+ * Determines if a map location is currently "on screen" -RAK-
+ * Note that "panel_contains(Y,X)" always implies "in_bounds2(Y,X)".
+ */
+bool panel_contains(const Pos2D &pos)
+{
+    return (pos.y >= panel_row_min) && (pos.y <= panel_row_max) && (pos.x >= panel_col_min) && (pos.x <= panel_col_max);
+}
