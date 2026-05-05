@@ -1,5 +1,11 @@
 node_modules/
 dist/
-public/hengband-*.js
-public/hengband-*.wasm
-public/hengband-*.data
+public/
+
+hengband/build/
+hengband/src/hengband.js
+hengband/src/hengband.wasm
+hengband/src/hengband.data
+
+tmp/*
+!tmp/.keep
