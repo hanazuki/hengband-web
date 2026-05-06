@@ -36,7 +36,7 @@ static unsigned char key_pop()
 }
 
 EM_JS(void, web_term_write_js, (const char *buf, int len), {
-    var bytes = Module.HEAPU8.subarray(buf, buf + len);
+    var bytes = HEAPU8.subarray(buf, buf + len);
     if (typeof Module._web_on_output === 'function')
         Module._web_on_output(bytes.slice());
 })
