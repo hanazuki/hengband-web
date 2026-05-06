@@ -17,6 +17,6 @@
 
        Hengband: Mr.Hoge (echizen @ users.sourceforge.jp) & Many others
                          https://hengband.github.io/
-
-            Send bug report to "hengband-dev@lists.sourceforge.jp"
- 
+     Hengband (web port):   Kasumi Hanazuki < https://github.com/hanazuki >
+                  https://github.com/hanazuki/hengband-web
+               Report bugs in the web port via the game menu.
