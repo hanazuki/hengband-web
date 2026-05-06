@@ -44,23 +44,22 @@ struct WINDOW {
 #define FALSE (0)
 #endif
 
-enum {
-    COLOR_BLACK   = 0,
-    COLOR_RED     = 1,
-    COLOR_GREEN   = 2,
-    COLOR_YELLOW  = 3,
-    COLOR_BLUE    = 4,
-    COLOR_MAGENTA = 5,
-    COLOR_CYAN    = 6,
-    COLOR_WHITE   = 7,
-};
+#define COLOR_BLACK   0
+#define COLOR_RED     1
+#define COLOR_GREEN   2
+#define COLOR_YELLOW  3
+#define COLOR_BLUE    4
+#define COLOR_MAGENTA 5
+#define COLOR_CYAN    6
+#define COLOR_WHITE   7
 
 #define A_NORMAL   (0u)
 #define A_BOLD     (1u << 0)
 #define A_BRIGHT   A_BOLD
 #define WA_NORMAL  A_NORMAL
+#define A_COLOR    1
 
-#define COLOR_PAIR(n)   ((attr_t)(unsigned)(n) << 8)
+#define COLOR_PAIR(n)   ((unsigned int)(unsigned)(n) << 8)
 #define PAIR_NUMBER(a)  ((int)(((a) >> 8) & 0xffffu))
 
 #define getcury(w)  ((w)->cury)
