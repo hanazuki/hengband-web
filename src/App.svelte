@@ -10,10 +10,12 @@ let errorMessage = $state<string | null>(null);
 
 let term: Terminal | null = null;
 let observer: ResizeObserver | null = null;
+let beforeUnload: ((e: BeforeUnloadEvent) => void) | null = null;
 
 onDestroy(() => {
   observer?.disconnect();
   term?.dispose();
+  if (beforeUnload) window.removeEventListener("beforeunload", beforeUnload);
 });
 
 onMount(async () => {
@@ -90,6 +92,9 @@ onMount(async () => {
     } else {
       console.warn("IDBFS not available in this build; game saves will not persist");
     }
+
+    beforeUnload = (e) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", beforeUnload);
 
     Promise.resolve(mod.callMain([])).catch((e: unknown) => {
       errorMessage = String(e);
