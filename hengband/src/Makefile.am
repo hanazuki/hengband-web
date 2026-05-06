@@ -1456,6 +1456,7 @@ AM_LDFLAGS = \
 	-sALLOW_MEMORY_GROWTH=1 \
 	'-sEXPORTED_FUNCTIONS=_main,_web_push_key,_web_push_string,_web_resize_term' \
 	'-sEXPORTED_RUNTIME_METHODS=callMain,FS' \
+	-lidbfs.js \
 	--preload-file $(top_srcdir)/lib@/lib \
 	--exclude-file '*/Makefile' \
 	--exclude-file '*/Makefile.am' \

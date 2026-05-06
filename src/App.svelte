@@ -59,6 +59,38 @@ onMount(async () => {
     });
     observer.observe(termContainer);
 
+    // ANGBAND_DIR_SAVE=/lib/save, ANGBAND_DIR_USER=/lib/user, ANGBAND_DIR_BONE=/lib/bone.
+    // These directories contain only excluded files (delete.me, Makefiles) so Emscripten's
+    // preloader never creates them in the VFS. We create them here and mount IDBFS on the
+    // ones that need persistence (save and user); bone stays as volatile MEMFS.
+    const idbfs = mod.FS.filesystems.IDBFS;
+    const mkdirOk = (path: string) => {
+      try {
+        mod.FS.mkdir(path);
+      } catch (e) {
+        if ((e as { errno?: number }).errno !== 20) throw e;
+      }
+    };
+    mkdirOk("/lib/save");
+    mkdirOk("/lib/user");
+    mkdirOk("/lib/bone");
+    // /lib/apex already exists (h_scores.raw preloaded), but that file is just a
+    // placeholder; the game recreates it via fd_make if missing after the IDBFS overlay.
+    if (idbfs) {
+      mod.FS.mount(idbfs, { autoPersist: true }, "/lib/save");
+      mod.FS.mount(idbfs, { autoPersist: true }, "/lib/user");
+      mod.FS.mount(idbfs, { autoPersist: true }, "/lib/apex");
+      mod.FS.mount(idbfs, { autoPersist: true }, "/lib/bone");
+      await new Promise<void>((resolve) => {
+        mod.FS.syncfs(true, (err) => {
+          if (err) console.error("IDBFS initial sync failed:", err);
+          resolve();
+        });
+      });
+    } else {
+      console.warn("IDBFS not available in this build; game saves will not persist");
+    }
+
     Promise.resolve(mod.callMain([])).catch((e: unknown) => {
       errorMessage = String(e);
     });
@@ -66,6 +98,7 @@ onMount(async () => {
     errorMessage = String(e);
     term.dispose();
     term = null;
+    throw e;
   }
 });
 </script>
