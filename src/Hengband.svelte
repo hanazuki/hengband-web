@@ -95,7 +95,9 @@ onMount(async () => {
       console.warn("IDBFS not available in this build; game saves will not persist");
     }
 
-    beforeUnload = (e) => { e.preventDefault(); };
+    beforeUnload = (e) => {
+      e.preventDefault();
+    };
     window.addEventListener("beforeunload", beforeUnload);
 
     Promise.resolve(mod.callMain([])).catch((e: unknown) => {

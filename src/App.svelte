@@ -1,9 +1,49 @@
 <script lang="ts">
+import { onDestroy, onMount } from "svelte";
 import Hengband from "./Hengband.svelte";
+import StartScreen from "./StartScreen.svelte";
+
+type Variant = "ja" | "en";
+
+function parseFragment(hash: string): Variant | null {
+  if (hash === "#ja") return "ja";
+  if (hash === "#en") return "en";
+  return null;
+}
+
+let variant = $state<Variant | null>(parseFragment(location.hash));
+
+function handleNavigation(): void {
+  const next = parseFragment(location.hash);
+  if (variant === null) {
+    if (next !== null) variant = next;
+  } else {
+    location.reload();
+  }
+}
+
+function startGame(lang: Variant): void {
+  history.pushState(null, "", `#${lang}`);
+  variant = lang;
+}
+
+onMount(() => {
+  window.addEventListener("hashchange", handleNavigation);
+  window.addEventListener("popstate", handleNavigation);
+});
+
+onDestroy(() => {
+  window.removeEventListener("hashchange", handleNavigation);
+  window.removeEventListener("popstate", handleNavigation);
+});
 </script>
 
 <div class="app">
-  <Hengband variant="en" />
+  {#if variant === null}
+    <StartScreen onSelect={startGame} />
+  {:else}
+    <Hengband {variant} />
+  {/if}
 </div>
 
 <style>
