@@ -1,5 +1,7 @@
 <script lang="ts">
 import { FitAddon } from "@xterm/addon-fit";
+import { Unicode11Addon } from "@xterm/addon-unicode11";
+import { WebglAddon } from "@xterm/addon-webgl";
 import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
 import "@xterm/xterm/css/xterm.css";
@@ -26,11 +28,14 @@ onMount(async () => {
   // proposeDimensions() always gets cell.width/height = 0 and fit() is a no-op.
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
-  term = new Terminal({ scrollback: 1000 });
+  term = new Terminal({ scrollback: 1000, allowProposedApi: true });
   const fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
+  term.loadAddon(new Unicode11Addon());
+  term.loadAddon(new WebglAddon());
   term.open(termContainer);
   fitAddon.fit();
+  term.unicode.activeVersion = "11";
 
   try {
     const wasmModuleUrl: string = `/${variant}/hengband.js`;
