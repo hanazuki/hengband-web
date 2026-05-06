@@ -12,6 +12,7 @@ const { variant }: { variant: "ja" | "en" } = $props();
 
 let termContainer: HTMLDivElement;
 let errorMessage = $state<string | null>(null);
+let exited = $state<boolean>(false);
 
 let term: Terminal | null = null;
 let observer: ResizeObserver | null = null;
@@ -49,6 +50,26 @@ onMount(async () => {
     const mod = await createModule({
       locateFile: (path) => `/${variant}/${path}`,
       noInitialRun: true,
+      onExit: (code) => {
+        if (term) {
+          term.write("\x1b[H\x1b[2J");
+          if (code !== 0) {
+            term.write(
+              variant === "ja"
+                ? `ゲームが異常終了しました。(${code})`
+                : `The game ended abnormally. (${code})`,
+            );
+            term.write("\r\n");
+          }
+          term.write(
+            variant === "ja"
+              ? "ゲームを再開するにはページを再読み込みしてください。"
+              : "Reload the page to restart the game.",
+          );
+          term.write("\r\n");
+        }
+        exited = true;
+      },
       _web_on_output: (bytes) => {
         const text = decoder.decode(bytes, { stream: true });
         term?.write(text);
@@ -103,7 +124,9 @@ onMount(async () => {
     }
 
     beforeUnload = (e) => {
-      e.preventDefault();
+      if (!exited) {
+        e.preventDefault();
+      }
     };
     window.addEventListener("beforeunload", beforeUnload);
 
