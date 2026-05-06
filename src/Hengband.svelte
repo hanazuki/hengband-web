@@ -1,6 +1,7 @@
 <script lang="ts">
 import { FitAddon } from "@xterm/addon-fit";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
+import { WebLinksAddon } from "@xterm/addon-web-links";
 import { WebglAddon } from "@xterm/addon-webgl";
 import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
@@ -33,6 +34,7 @@ onMount(async () => {
   term.loadAddon(fitAddon);
   term.loadAddon(new Unicode11Addon());
   term.loadAddon(new WebglAddon());
+  term.loadAddon(new WebLinksAddon());
   term.open(termContainer);
   fitAddon.fit();
   term.unicode.activeVersion = "11";
