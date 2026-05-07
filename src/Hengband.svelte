@@ -9,22 +9,36 @@ import "@xterm/xterm/css/xterm.css";
 import type { HengbandFactory } from "./hengband";
 import { themes } from "./themes";
 
-const { variant, colorTheme }: { variant: "ja" | "en"; colorTheme: string } = $props();
+const {
+  variant,
+  colorTheme,
+  fontSize,
+}: { variant: "ja" | "en"; colorTheme: string; fontSize: number } = $props();
 
 let termContainer: HTMLDivElement;
 let errorMessage = $state<string | null>(null);
 let exited = $state<boolean>(false);
 
 let term: Terminal | null = null;
+let fitAddon: FitAddon | null = null;
+let resizeTerm: (() => void) | null = null;
 
 $effect(() => {
   // Tracks colorTheme (prop). Re-runs when user changes theme.
   // term is a plain variable — not tracked — so xterm.js API calls are not proxied.
   const entry = themes.find((t) => t.slug === colorTheme);
   if (term != null && entry != null) {
-    console.log(entry);
     term.options.theme = entry.theme;
   }
+});
+
+$effect(() => {
+  // Always read fontSize first so Svelte registers it as a dependency even when
+  // term is null on the initial run (before onMount assigns it).
+  // requestAnimationFrame defers the fit until xterm.js has updated its cell metrics.
+  const size = fontSize;
+  if (term == null) return;
+  term.options.fontSize = size;
 });
 
 let observer: ResizeObserver | null = null;
@@ -38,8 +52,8 @@ onDestroy(() => {
 
 onMount(async () => {
   const initialTheme = themes.find((t) => t.slug === colorTheme)?.theme;
-  term = new Terminal({ scrollback: 1000, allowProposedApi: true, theme: initialTheme });
-  const fitAddon = new FitAddon();
+  term = new Terminal({ scrollback: 1000, allowProposedApi: true, theme: initialTheme, fontSize });
+  fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
   term.loadAddon(new Unicode11Addon());
   term.loadAddon(new WebglAddon());
@@ -93,12 +107,12 @@ onMount(async () => {
       }
     });
 
-    observer = new ResizeObserver(() => {
-      fitAddon.fit();
-      if (term) {
-        mod._web_resize_term(term.cols, term.rows);
-      }
-    });
+    resizeTerm = () => {
+      fitAddon?.fit();
+      if (term) mod._web_resize_term(term.cols, term.rows);
+    };
+
+    observer = new ResizeObserver(resizeTerm);
     observer.observe(termContainer);
 
     // ANGBAND_DIR_SAVE=/lib/save, ANGBAND_DIR_USER=/lib/user, ANGBAND_DIR_BONE=/lib/bone.

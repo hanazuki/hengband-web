@@ -15,10 +15,17 @@ function parseFragment(hash: string): Variant | null {
 
 let variant = $state<Variant | null>(parseFragment(location.hash));
 let colorTheme = $state(localStorage.getItem("hengband.colorTheme") ?? defaultThemeSlug);
+let fontSize = $state(Number(localStorage.getItem("hengband.fontSize")) || 16);
 
 function handleThemeChange(slug: string): void {
   colorTheme = slug;
   localStorage.setItem("hengband.colorTheme", slug);
+}
+
+function handleFontSizeChange(size: number): void {
+  const clamped = Math.max(8, Math.min(32, size));
+  fontSize = clamped;
+  localStorage.setItem("hengband.fontSize", String(clamped));
 }
 
 function handleNavigation(): void {
@@ -37,6 +44,10 @@ $effect(() => {
   document.documentElement.style.setProperty("--bg-color", theme.background ?? null);
 });
 
+$effect(() => {
+  document.documentElement.style.fontSize = `${fontSize}px`;
+});
+
 onMount(() => {
   window.addEventListener("hashchange", handleNavigation);
   window.addEventListener("popstate", handleNavigation);
@@ -52,8 +63,8 @@ onDestroy(() => {
   {#if variant === null}
     <StartScreen />
   {:else}
-    <Menu {variant} {colorTheme} onThemeChange={handleThemeChange} />
-    <Hengband {variant} {colorTheme} />
+    <Menu {variant} {colorTheme} onThemeChange={handleThemeChange} {fontSize} onFontSizeChange={handleFontSizeChange} />
+    <Hengband {variant} {colorTheme} {fontSize} />
   {/if}
 </div>
 

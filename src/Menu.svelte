@@ -6,10 +6,14 @@ const {
   variant,
   colorTheme,
   onThemeChange,
+  fontSize,
+  onFontSizeChange,
 }: {
   variant: "ja" | "en";
   colorTheme: string;
   onThemeChange: (slug: string) => void;
+  fontSize: number;
+  onFontSizeChange: (size: number) => void;
 } = $props();
 
 const feedbackUrl = () => {
@@ -31,10 +35,10 @@ const feedbackUrl = () => {
       ><Menubar.Portal
         ><Menubar.Content class="submenu"
           ><Menubar.Item
-            >{variant === "ja" ? "文字サイズ" : "font size"
-            }:<button class="font-size">-</button
-            ><output>12</output
-            ><button class="font-size">+</button
+            >{variant === "ja" ? "文字サイズ" : "Font size"
+            }:<button class="font-size" disabled={fontSize <= 8} onclick={() => onFontSizeChange(fontSize - 1)}>-</button
+            ><output>{fontSize}</output
+            ><button class="font-size" disabled={fontSize >= 32} onclick={() => onFontSizeChange(fontSize + 1)}>+</button
           ></Menubar.Item
           ><Menubar.Sub
             ><Menubar.SubTrigger
