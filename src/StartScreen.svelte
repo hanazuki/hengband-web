@@ -2,17 +2,17 @@
 const { onSelect }: { onSelect: (variant: "ja" | "en") => void } = $props();
 </script>
 
-<div class="start-screen">
-  <h1 class="title"><span lang="ja">変愚蛮怒</span> / <span lang="en">Hengband</span></h1>
-  <div class="instruction">
-    <span lang="ja">言語を選択してください。</span>
-    <span lang="en">Choose your language.</span>
+<main class="start-screen">
+  <h1 class="title"><span lang="ja">変愚蛮怒</span> @ <span lang="en">Hengband</span></h1>
+  <div class="message">
+    <p lang="ja">言語を選択してください。</p>
+    <p lang="en">Choose your language.</p>
   </div>
   <div class="lang-chooser">
-    <button lang="ja" class="lang-button" onclick={() => onSelect("ja")}>[ 日本語 ]</button>
-    <button lang="en" class="lang-button" onclick={() => onSelect("en")}>[ English ]</button>
+    <a href="#ja"><span lang="ja">日本語</span></a>
+    <a href="#en"><span lang="en">English</span></a>
   </div>
-</div>
+</main>
 
 <style>
   .start-screen {
@@ -21,37 +21,54 @@ const { onSelect }: { onSelect: (variant: "ja" | "en") => void } = $props();
     align-items: center;
     justify-content: center;
     height: 100%;
-    gap: 2rem;
+    gap: 2lh;
+    font-size: 1rem;
+    color: #e0e0e0;
   }
 
   .title {
-    font-size: 2rem;
-    color: #e0e0e0;
+    &::before, &::after {
+      content: "*****************************************";
+      display: block;
+    }
+
     font-weight: normal;
+    font-size: inherit;
+    text-align: center;
+  }
+
+  .message {
+    display: flex;
+    flex-direction: column;
+    gap: 1lh;
   }
 
   .lang-chooser {
     display: flex;
-    gap: 1.5rem;
-  }
+    gap: 1rem;
 
-  .lang-button {
-    padding-block: 0.75rem;
-    font-family: inherit;
-    font-size: 1.25rem;
-    background: transparent;
-    color: #e0e0e0;
-    border: none;
-    cursor: pointer;
-    width: 8em;
-  }
+    & a {
+      &::before { content: "[ "; }
+      &::after { content: " ]"; }
+      display: inline-block;
+      text-align: center;
+      text-decoration: none;
+      padding-block: 1lh;
+      font-family: inherit;
+      font-size: inherit;
+      background: transparent;
+      color: inherit;
+      border: none;
+      cursor: pointer;
+      width: 8em;
 
-  .lang-button:hover {
-    background: #3a3a3a;
-    border-color: #888;
-  }
-
-  .lang-button:active {
-    background: #444;
+      &:hover {
+        background: #3a3a3a;
+        border-color: #888;
+      }
+      &:active {
+        background: #444;
+      }
+    }
   }
 </style>

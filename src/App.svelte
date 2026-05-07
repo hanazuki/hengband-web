@@ -22,11 +22,6 @@ function handleNavigation(): void {
   }
 }
 
-function startGame(lang: Variant): void {
-  history.pushState(null, "", `#${lang}`);
-  variant = lang;
-}
-
 onMount(() => {
   window.addEventListener("hashchange", handleNavigation);
   window.addEventListener("popstate", handleNavigation);
@@ -40,7 +35,7 @@ onDestroy(() => {
 
 <div class="app">
   {#if variant === null}
-    <StartScreen onSelect={startGame} />
+    <StartScreen />
   {:else}
     <Hengband {variant} />
   {/if}
