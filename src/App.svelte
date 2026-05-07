@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
 import Hengband from "./Hengband.svelte";
+import Menu from "./Menu.svelte";
 import StartScreen from "./StartScreen.svelte";
 
 type Variant = "ja" | "en";
@@ -37,6 +38,7 @@ onDestroy(() => {
   {#if variant === null}
     <StartScreen />
   {:else}
+    <Menu {variant} />
     <Hengband {variant} />
   {/if}
 </div>
@@ -46,10 +48,12 @@ onDestroy(() => {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+
+    --bg-color: #1a1a1a;
   }
 
   :global(body) {
-    background: #1a1a1a;
+    background: var(--bg-color);
     color: #e0e0e0;
     font-family: monospace;
     height: 100vh;
