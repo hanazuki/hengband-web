@@ -1,11 +1,20 @@
 <script lang="ts">
 import { Menubar } from "bits-ui";
+import { themes } from "./themes";
 
-const { variant }: { variant: "ja" | "en" } = $props();
+const {
+  variant,
+  colorTheme,
+  onThemeChange,
+}: {
+  variant: "ja" | "en";
+  colorTheme: string;
+  onThemeChange: (slug: string) => void;
+} = $props();
 
 const feedbackUrl = () => {
   return `https://github.com/hanazuki/hengband-web/issues/new?title=Feedback:%20&body=variant:%20${variant}`;
-}
+};
 </script>
 
 <nav id="menu"
@@ -27,6 +36,17 @@ const feedbackUrl = () => {
             ><output>12</output
             ><button class="font-size">+</button
           ></Menubar.Item
+          ><Menubar.Sub
+            ><Menubar.SubTrigger
+              >{variant === "ja" ? "カラーテーマ" : "Color theme"
+            }</Menubar.SubTrigger
+            ><Menubar.SubContent
+              >{#each themes as entry (entry.slug)}<Menubar.Item
+                  class={entry.slug === colorTheme ? "theme-active" : ""}
+                  onclick={() => onThemeChange(entry.slug)}
+                  >{entry.name}</Menubar.Item
+                >{/each}</Menubar.SubContent
+          ></Menubar.Sub
         ></Menubar.Content
       ></Menubar.Portal
     ></Menubar.Menu
@@ -113,5 +133,21 @@ const feedbackUrl = () => {
       color: inherit;
       cursor: pointer;
     }
+  }
+
+  :global(.theme-active) {
+    &::after {
+      content: " *";
+    }
+  }
+
+  :global([data-menubar-sub-trigger]) {
+    &::after {
+      flex-grow: 1;
+      content: " >";
+      text-align: right;
+    }
+    display: flex;
+    flex-direction: row;
   }
 </style>

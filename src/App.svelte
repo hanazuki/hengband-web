@@ -3,6 +3,7 @@ import { onDestroy, onMount } from "svelte";
 import Hengband from "./Hengband.svelte";
 import Menu from "./Menu.svelte";
 import StartScreen from "./StartScreen.svelte";
+import { defaultThemeSlug, getTheme } from "./themes";
 
 type Variant = "ja" | "en";
 
@@ -13,6 +14,12 @@ function parseFragment(hash: string): Variant | null {
 }
 
 let variant = $state<Variant | null>(parseFragment(location.hash));
+let colorTheme = $state(localStorage.getItem("hengband.colorTheme") ?? defaultThemeSlug);
+
+function handleThemeChange(slug: string): void {
+  colorTheme = slug;
+  localStorage.setItem("hengband.colorTheme", slug);
+}
 
 function handleNavigation(): void {
   const next = parseFragment(location.hash);
@@ -22,6 +29,13 @@ function handleNavigation(): void {
     location.reload();
   }
 }
+
+$effect(() => {
+  const theme = getTheme(colorTheme).theme;
+
+  document.documentElement.style.setProperty("--fg-color", theme.foreground ?? null);
+  document.documentElement.style.setProperty("--bg-color", theme.background ?? null);
+});
 
 onMount(() => {
   window.addEventListener("hashchange", handleNavigation);
@@ -38,8 +52,8 @@ onDestroy(() => {
   {#if variant === null}
     <StartScreen />
   {:else}
-    <Menu {variant} />
-    <Hengband {variant} />
+    <Menu {variant} {colorTheme} onThemeChange={handleThemeChange} />
+    <Hengband {variant} {colorTheme} />
   {/if}
 </div>
 
@@ -48,16 +62,14 @@ onDestroy(() => {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-
-    --bg-color: #1a1a1a;
   }
 
   :global(body) {
-    background: var(--bg-color);
-    color: #e0e0e0;
     font-family: monospace;
     height: 100vh;
     overflow: hidden;
+    color: var(--fg-color);
+    background-color: var(--bg-color);
   }
 
   .app {

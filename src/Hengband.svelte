@@ -7,14 +7,26 @@ import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
 import "@xterm/xterm/css/xterm.css";
 import type { HengbandFactory } from "./hengband";
+import { themes } from "./themes";
 
-const { variant }: { variant: "ja" | "en" } = $props();
+const { variant, colorTheme }: { variant: "ja" | "en"; colorTheme: string } = $props();
 
 let termContainer: HTMLDivElement;
 let errorMessage = $state<string | null>(null);
 let exited = $state<boolean>(false);
 
 let term: Terminal | null = null;
+
+$effect(() => {
+  // Tracks colorTheme (prop). Re-runs when user changes theme.
+  // term is a plain variable — not tracked — so xterm.js API calls are not proxied.
+  const entry = themes.find((t) => t.slug === colorTheme);
+  if (term != null && entry != null) {
+    console.log(entry);
+    term.options.theme = entry.theme;
+  }
+});
+
 let observer: ResizeObserver | null = null;
 let beforeUnload: ((e: BeforeUnloadEvent) => void) | null = null;
 
@@ -25,12 +37,8 @@ onDestroy(() => {
 });
 
 onMount(async () => {
-  // Wait for the browser to compute flex layout so xterm.js can measure
-  // character cell dimensions when open() is called. Without this,
-  // proposeDimensions() always gets cell.width/height = 0 and fit() is a no-op.
-  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-
-  term = new Terminal({ scrollback: 1000, allowProposedApi: true });
+  const initialTheme = themes.find((t) => t.slug === colorTheme)?.theme;
+  term = new Terminal({ scrollback: 1000, allowProposedApi: true, theme: initialTheme });
   const fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
   term.loadAddon(new Unicode11Addon());

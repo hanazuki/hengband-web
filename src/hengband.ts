@@ -2,6 +2,7 @@ export interface HengbandModuleOpts {
   locateFile?: (path: string) => string;
   _web_on_output?: (bytes: Uint8Array) => void;
   noInitialRun?: boolean;
+  onExit?: (code: number) => void;
 }
 
 export interface EmscriptenFS {

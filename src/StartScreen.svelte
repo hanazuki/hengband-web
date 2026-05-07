@@ -1,5 +1,4 @@
 <script lang="ts">
-const { onSelect }: { onSelect: (variant: "ja" | "en") => void } = $props();
 </script>
 
 <main class="start-screen">
@@ -23,7 +22,6 @@ const { onSelect }: { onSelect: (variant: "ja" | "en") => void } = $props();
     height: 100%;
     gap: 2lh;
     font-size: 1rem;
-    color: #e0e0e0;
   }
 
   .title {
@@ -63,11 +61,7 @@ const { onSelect }: { onSelect: (variant: "ja" | "en") => void } = $props();
       width: 8em;
 
       &:hover {
-        background: #3a3a3a;
-        border-color: #888;
-      }
-      &:active {
-        background: #444;
+        text-decoration: underline;
       }
     }
   }
