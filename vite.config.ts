@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import type { Plugin } from "vite";
-import wasm from "vite-plugin-wasm";
 import { defineConfig } from "vitest/config";
 
 /**
@@ -40,7 +39,7 @@ function publicEsModulePlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [publicEsModulePlugin(), wasm(), svelte()],
+  plugins: [publicEsModulePlugin(), svelte()],
   server: {
     port: 5173,
   },
