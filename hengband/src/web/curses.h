@@ -44,6 +44,8 @@ struct WINDOW {
 #define FALSE (0)
 #endif
 
+#define KEY_RESIZE 0x19a
+
 #define COLOR_BLACK   0
 #define COLOR_RED     1
 #define COLOR_GREEN   2

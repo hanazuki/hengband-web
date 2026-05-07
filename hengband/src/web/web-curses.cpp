@@ -184,3 +184,11 @@ int curs_set(int visibility)
 }
 
 } // namespace curses
+
+extern "C" void curses_resize(int cols, int rows)
+{
+    curses::LINES = rows;
+    curses::COLS = cols;
+    curses::stdscr->rows = rows;
+    curses::stdscr->cols = cols;
+}

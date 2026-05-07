@@ -674,6 +674,15 @@ static void term_string_push(char *buf)
 
 #ifdef USE_GETCH
 
+static bool handle_pseudo_key(int i)
+{
+    if (i == KEY_RESIZE) {
+        term_resize(curses::COLS, curses::LINES);
+        return true;
+    }
+    return false;
+}
+
 /*
  * Process events, with optional wait
  */
@@ -689,15 +698,18 @@ static errr game_term_xtra_gcu_event(int v)
         /* Paranoia -- Wait for it */
         curses::nodelay(stdscr, false);
 
-        /* Get a keypress */
-        i = curses::getch();
-
-        /* Broken input is special */
-        if (i == ERR) {
-            exit_game_panic(p_ptr);
-        }
-        if (i == EOF) {
-            exit_game_panic(p_ptr);
+        /* Get a keypress, looping back on pseudo-keys */
+        while (true) {
+            i = curses::getch();
+            if (i == ERR) {
+                exit_game_panic(p_ptr);
+            }
+            if (i == EOF) {
+                exit_game_panic(p_ptr);
+            }
+            if (!handle_pseudo_key(i)) {
+                break;
+            }
         }
 
         *bp++ = (char)i;
@@ -746,6 +758,10 @@ static errr game_term_xtra_gcu_event(int v)
         }
         if (i == EOF) {
             return 1;
+        }
+
+        if (handle_pseudo_key(i)) {
+            return 0;
         }
 
         /* Enqueue the keypress */

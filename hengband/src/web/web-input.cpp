@@ -11,11 +11,16 @@
 #include <emscripten.h>
 #include <cstring>
 
+#define KEY_RESIZE 0x19a
+
+extern "C" void curses_resize(int cols, int rows);
+
 static constexpr int KEY_BUF = 1024;
 static unsigned char key_q[KEY_BUF];
 static volatile int  key_r = 0;
 static volatile int  key_w = 0;
 static int           nodelay_flag = 0;
+static volatile bool resize_pending = false;
 
 static bool key_empty() { return key_r == key_w; }
 
@@ -46,8 +51,12 @@ extern "C" {
 int web_getch_impl(void)
 {
     if (!nodelay_flag) {
-        while (key_empty())
+        while (key_empty() && !resize_pending)
             emscripten_sleep(16);
+    }
+    if (resize_pending) {
+        resize_pending = false;
+        return KEY_RESIZE;
     }
     if (key_empty()) return -1;
     return key_pop();
@@ -76,8 +85,8 @@ EMSCRIPTEN_KEEPALIVE void web_push_string(const char *s, int len)
 
 EMSCRIPTEN_KEEPALIVE void web_resize_term(int cols, int rows)
 {
-    (void)cols;
-    (void)rows;
+    curses_resize(cols, rows);
+    resize_pending = true;
 }
 
 } // extern "C"
