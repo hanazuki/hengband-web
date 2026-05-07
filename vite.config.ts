@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import license from "rollup-plugin-license";
 import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
@@ -45,6 +46,31 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
+    rollupOptions: {
+      plugins: [
+        license({
+          thirdParty: {
+            output: {
+              file: path.join("dist", "licenses.txt"),
+              template(dependencies) {
+                const readFile = (p: string) => fs.readFileSync(path.resolve(p), "utf-8");
+                const npmParts = dependencies.map((dep) => {
+                  const header = `${dep.name} ${dep.version} (${dep.license})`;
+                  return dep.licenseText ? `${header}\n\n${dep.licenseText}` : header;
+                });
+                const parts = [
+                  readFile("LICENSE.txt"),
+                  readFile("hengband/lib/help/jlicense.txt"),
+                  readFile("hengband/THIRD-PARTY-NOTICES.txt"),
+                  ...npmParts,
+                ];
+                return parts.join(`\n\n${"=".repeat(40)}\n\n`);
+              },
+            },
+          },
+        }),
+      ],
+    },
   },
   test: {
     environment: "jsdom",

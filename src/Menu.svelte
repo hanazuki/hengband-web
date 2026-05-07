@@ -54,6 +54,12 @@ const feedbackUrl = () => {
             }</a
           ></Menubar.Item
           ><Menubar.Item
+            ><a href="/licenses.txt" target="_blank"
+              >{variant === "ja" ? "ライセンス表示" : "Software licenses"
+            }</a
+          ></Menubar.Item
+          ><Menubar.Separator
+          /><Menubar.Item
             ><a href="https://mars.kmc.gr.jp/~dis/heng_wiki/" target="_blank"
               >{variant === "ja" ? "スポイラーを見る" : "View spoilers"
             }</a
@@ -121,6 +127,10 @@ const feedbackUrl = () => {
       color: inherit;
       cursor: pointer;
     }
+  }
+
+  :global([data-menubar-separator]) {
+    height: 1lh;
   }
 
   :global([data-menubar-sub-trigger]) {
