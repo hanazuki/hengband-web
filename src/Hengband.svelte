@@ -40,6 +40,8 @@ onMount(async () => {
   fitAddon.fit();
   term.unicode.activeVersion = "11";
 
+  term.write(variant === "ja" ? "ゲームをダウンロードしています……" : "Downloding the game...");
+
   try {
     const wasmModuleUrl: string = `/${variant}/hengband.js`;
     const { default: createModule } = (await import(/* @vite-ignore */ wasmModuleUrl)) as {
