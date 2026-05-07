@@ -63,7 +63,7 @@ jobs:
           path: dist/
 
   deploy:
-    needs: build
+    needs: [check, build]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-slim
     timeout-minutes: 10
