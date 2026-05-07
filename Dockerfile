@@ -6,9 +6,9 @@ ARG CI=
 
 RUN <<EOF
 if [ -z "$CI" ]; then
-    sed -Ei 's!http://(archive|security).ubuntu.com/ubuntu!https://ftp.udx.icscoe.jp/Linux/ubuntu!g' /etc/apt/sources.list.d/ubuntu.sources
+    sed -Ei 's!http://(archive).ubuntu.com/ubuntu!https://ftp.udx.icscoe.jp/Linux/ubuntu!g' /etc/apt/sources.list.d/ubuntu.sources
 else
-    sed -Ei 's!http://(archive|security).ubuntu.com/ubuntu!http://azure.archive.ubuntu.com/ubuntu!g' /etc/apt/sources.list.d/ubuntu.sources
+    sed -Ei 's!http://(archive).ubuntu.com/ubuntu!http://azure.archive.ubuntu.com/ubuntu!g' /etc/apt/sources.list.d/ubuntu.sources
 fi
 EOF
 
