@@ -7,13 +7,12 @@ import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
 import "@xterm/xterm/css/xterm.css";
 import type { HengbandFactory } from "./hengband";
-import { themes } from "./themes";
+import { draculaTheme } from "./dracula";
 
 const {
   variant,
-  colorTheme,
   fontSize,
-}: { variant: "ja" | "en"; colorTheme: string; fontSize: number } = $props();
+}: { variant: "ja" | "en"; fontSize: number } = $props();
 
 let termContainer: HTMLDivElement;
 let errorMessage = $state<string | null>(null);
@@ -22,15 +21,6 @@ let exited = $state<boolean>(false);
 let term: Terminal | null = null;
 let fitAddon: FitAddon | null = null;
 let resizeTerm: (() => void) | null = null;
-
-$effect(() => {
-  // Tracks colorTheme (prop). Re-runs when user changes theme.
-  // term is a plain variable — not tracked — so xterm.js API calls are not proxied.
-  const entry = themes.find((t) => t.slug === colorTheme);
-  if (term != null && entry != null) {
-    term.options.theme = entry.theme;
-  }
-});
 
 $effect(() => {
   // Always read fontSize first so Svelte registers it as a dependency even when
@@ -51,16 +41,16 @@ onDestroy(() => {
 });
 
 onMount(async () => {
-  const initialTheme = themes.find((t) => t.slug === colorTheme)?.theme;
-  term = new Terminal({ scrollback: 1000, allowProposedApi: true, theme: initialTheme, fontSize });
+  term = new Terminal({ scrollback: 1000, allowProposedApi: true, theme: draculaTheme, fontSize });
   fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
   term.loadAddon(new Unicode11Addon());
   term.loadAddon(new WebglAddon());
   term.loadAddon(new WebLinksAddon());
   term.open(termContainer);
-  fitAddon.fit();
   term.unicode.activeVersion = "11";
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  fitAddon.fit();
 
   term.write(variant === "ja" ? "ゲームをダウンロードしています……" : "Downloding the game...");
 

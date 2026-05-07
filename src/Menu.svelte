@@ -1,17 +1,12 @@
 <script lang="ts">
 import { Menubar } from "bits-ui";
-import { themes } from "./themes";
 
 const {
   variant,
-  colorTheme,
-  onThemeChange,
   fontSize,
   onFontSizeChange,
 }: {
   variant: "ja" | "en";
-  colorTheme: string;
-  onThemeChange: (slug: string) => void;
   fontSize: number;
   onFontSizeChange: (size: number) => void;
 } = $props();
@@ -40,17 +35,6 @@ const feedbackUrl = () => {
             ><output>{fontSize}</output
             ><button class="font-size" disabled={fontSize >= 32} onclick={() => onFontSizeChange(fontSize + 1)}>+</button
           ></Menubar.Item
-          ><Menubar.Sub
-            ><Menubar.SubTrigger
-              >{variant === "ja" ? "カラーテーマ" : "Color theme"
-            }</Menubar.SubTrigger
-            ><Menubar.SubContent
-              >{#each themes as entry (entry.slug)}<Menubar.Item
-                  class={entry.slug === colorTheme ? "theme-active" : ""}
-                  onclick={() => onThemeChange(entry.slug)}
-                  >{entry.name}</Menubar.Item
-                >{/each}</Menubar.SubContent
-          ></Menubar.Sub
         ></Menubar.Content
       ></Menubar.Portal
     ></Menubar.Menu
@@ -136,12 +120,6 @@ const feedbackUrl = () => {
       text-decoration: none;
       color: inherit;
       cursor: pointer;
-    }
-  }
-
-  :global(.theme-active) {
-    &::after {
-      content: " *";
     }
   }
 

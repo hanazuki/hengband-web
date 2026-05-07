@@ -3,7 +3,10 @@ import { onDestroy, onMount } from "svelte";
 import Hengband from "./Hengband.svelte";
 import Menu from "./Menu.svelte";
 import StartScreen from "./StartScreen.svelte";
-import { defaultThemeSlug, getTheme } from "./themes";
+import { draculaTheme } from "./dracula";
+
+document.documentElement.style.setProperty("--fg-color", draculaTheme.foreground ?? null);
+document.documentElement.style.setProperty("--bg-color", draculaTheme.background ?? null);
 
 type Variant = "ja" | "en";
 
@@ -14,13 +17,7 @@ function parseFragment(hash: string): Variant | null {
 }
 
 let variant = $state<Variant | null>(parseFragment(location.hash));
-let colorTheme = $state(localStorage.getItem("hengband.colorTheme") ?? defaultThemeSlug);
 let fontSize = $state(Number(localStorage.getItem("hengband.fontSize")) || 16);
-
-function handleThemeChange(slug: string): void {
-  colorTheme = slug;
-  localStorage.setItem("hengband.colorTheme", slug);
-}
 
 function handleFontSizeChange(size: number): void {
   const clamped = Math.max(8, Math.min(32, size));
@@ -36,13 +33,6 @@ function handleNavigation(): void {
     location.reload();
   }
 }
-
-$effect(() => {
-  const theme = getTheme(colorTheme).theme;
-
-  document.documentElement.style.setProperty("--fg-color", theme.foreground ?? null);
-  document.documentElement.style.setProperty("--bg-color", theme.background ?? null);
-});
 
 $effect(() => {
   document.documentElement.style.fontSize = `${fontSize}px`;
@@ -63,8 +53,8 @@ onDestroy(() => {
   {#if variant === null}
     <StartScreen />
   {:else}
-    <Menu {variant} {colorTheme} onThemeChange={handleThemeChange} {fontSize} onFontSizeChange={handleFontSizeChange} />
-    <Hengband {variant} {colorTheme} {fontSize} />
+    <Menu {variant} {fontSize} onFontSizeChange={handleFontSizeChange} />
+    <Hengband {variant} {fontSize} />
   {/if}
 </div>
 
