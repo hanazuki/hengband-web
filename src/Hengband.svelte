@@ -6,13 +6,10 @@ import { WebglAddon } from "@xterm/addon-webgl";
 import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
 import "@xterm/xterm/css/xterm.css";
-import type { HengbandFactory } from "./hengband";
 import { draculaTheme } from "./dracula";
+import type { HengbandFactory } from "./hengband";
 
-const {
-  variant,
-  fontSize,
-}: { variant: "ja" | "en"; fontSize: number } = $props();
+const { variant, fontSize }: { variant: "ja" | "en"; fontSize: number } = $props();
 
 let termContainer: HTMLDivElement;
 let errorMessage = $state<string | null>(null);
