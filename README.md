@@ -6,21 +6,15 @@ Game progress is persisted across sessions using IndexedDB. Both Japanese and En
 
 ## Requirements
 
-- [Docker](https://www.docker.com/) — required to build the WebAssembly binaries
-- [pnpm](https://pnpm.io/) — JavaScript package manager
+- [Docker](https://www.docker.com/) - required to build the WebAssembly binaries
+- [pnpm](https://pnpm.io/) - JavaScript package manager
 
 ## Build
 
 ```sh
-# Build WASM binaries and the frontend
-./build.sh
+pnpm install
+pnpm build:wasm && pnpm build
 ```
-
-The build script:
-1. Applies patches from `patches/` to the hengband submodule
-2. Compiles both JP and EN WASM variants using Emscripten (inside Docker)
-3. Places `hengband-jp.{js,wasm}` and `hengband-en.{js,wasm}` in `public/`
-4. Runs `vite build` to bundle the frontend
 
 Output lands in `dist/`.
 
@@ -48,11 +42,3 @@ Other commands:
 | `pnpm lintfix` | Auto-fix lint/format issues |
 | `pnpm typecheck` | TypeScript + Svelte type check |
 | `pnpm test` | Run unit tests (Vitest) |
-
-## Architecture
-
-- **Frontend**: Svelte + Vite + TypeScript
-- **Terminal**: xterm.js
-- **WASM toolchain**: Emscripten (via Docker, `emscripten/emsdk`)
-- **Persistence**: Emscripten IDBFS backed by browser IndexedDB
-- **Linter/Formatter**: Biome
