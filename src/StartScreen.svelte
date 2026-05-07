@@ -9,8 +9,8 @@ const { onSelect }: { onSelect: (variant: "ja" | "en") => void } = $props();
     <span lang="en">Choose your language.</span>
   </div>
   <div class="lang-chooser">
-    <button lang="ja" class="lang-button" onclick={() => onSelect("ja")}>日本語</button>
-    <button lang="en" class="lang-button" onclick={() => onSelect("en")}>English</button>
+    <button lang="ja" class="lang-button" onclick={() => onSelect("ja")}>[ 日本語 ]</button>
+    <button lang="en" class="lang-button" onclick={() => onSelect("en")}>[ English ]</button>
   </div>
 </div>
 
@@ -39,11 +39,11 @@ const { onSelect }: { onSelect: (variant: "ja" | "en") => void } = $props();
     padding-block: 0.75rem;
     font-family: inherit;
     font-size: 1.25rem;
-    background: #2a2a2a;
+    background: transparent;
     color: #e0e0e0;
-    border: 1px solid #555;
+    border: none;
     cursor: pointer;
-    width: 7em;
+    width: 8em;
   }
 
   .lang-button:hover {
