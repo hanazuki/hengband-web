@@ -17,7 +17,7 @@ function parseFragment(hash: string): Variant | null {
 }
 
 let variant = $state<Variant | null>(parseFragment(location.hash));
-let fontSize = $state(Number(localStorage.getItem("hengband.fontSize")) || 16);
+let fontSize = $state(Number(localStorage.getItem("hengband.fontSize")) || 14);
 
 function handleFontSizeChange(size: number): void {
   const clamped = Math.max(8, Math.min(32, size));
