@@ -7,6 +7,8 @@
   "scripts": {
     "build": "vite build",
     "build:wasm": "bash ./build.sh",
+    "build:wasm:ja": "bash ./build.sh ja",
+    "build:wasm:en": "bash ./build.sh en",
     "serve": "vite",
     "lint": "biome check .",
     "lintfix": "biome check --write .",

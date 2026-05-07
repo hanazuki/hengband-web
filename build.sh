@@ -9,11 +9,13 @@ IMAGE_NAME="hengband-build"
 
 mkdir -p "$CCACHE_DIR"
 
-docker build --build-arg CI -t "$IMAGE_NAME" "$REPO_ROOT"
+if ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
+    docker build --build-arg CI -t "$IMAGE_NAME" "$REPO_ROOT"
+fi
 exec docker run --rm \
      -u "$(id -u):$(id -g)" \
      --mount type=bind,src="$HENGBAND_SRC",dst=/work \
      --mount type=bind,src="$PUBLIC_DIR",dst=/output \
      --mount type=bind,src="$CCACHE_DIR",dst=/tmp/ccache \
      "$IMAGE_NAME" \
-     "/output"
+     "/output" "$@"
