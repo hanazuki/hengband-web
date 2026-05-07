@@ -1,9 +1,9 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
+import { draculaTheme } from "./dracula";
 import Hengband from "./Hengband.svelte";
 import Menu from "./Menu.svelte";
 import StartScreen from "./StartScreen.svelte";
-import { draculaTheme } from "./dracula";
 
 document.documentElement.style.setProperty("--fg-color", draculaTheme.foreground ?? null);
 document.documentElement.style.setProperty("--bg-color", draculaTheme.background ?? null);
