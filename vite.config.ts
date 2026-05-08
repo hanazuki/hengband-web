@@ -1,9 +1,52 @@
 import fs from "node:fs";
 import path from "node:path";
+import { Jsonnet } from "@hanazuki/node-jsonnet";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import license from "rollup-plugin-license";
 import type { Plugin } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
+
+function webmanifestPlugin(variants: string[]): Plugin {
+  const sourceFile = path.resolve("webmanifest.jsonnet");
+
+  async function generate(variant: string): Promise<string> {
+    return new Jsonnet().tlaString("variant", variant).evaluateFile(sourceFile);
+  }
+
+  return {
+    name: "webmanifest",
+    buildStart() {
+      this.addWatchFile(sourceFile);
+    },
+    async generateBundle() {
+      for (const variant of variants) {
+        this.emitFile({
+          type: "asset",
+          fileName: `${variant}.webmanifest`,
+          source: await generate(variant),
+        });
+      }
+    },
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const match = /^\/(ja|en)\.webmanifest$/.exec((req.url ?? "").split("?")[0]);
+        if (match) {
+          try {
+            const content = await generate(match[1]);
+            res.setHeader("Content-Type", "application/manifest+json");
+            res.setHeader("Cache-Control", "no-cache");
+            res.end(content);
+          } catch (err) {
+            next(err);
+          }
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
 
 /**
  * Serves Emscripten-generated JS wrappers from public/ as ES modules in dev mode.
@@ -40,7 +83,19 @@ function publicEsModulePlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [publicEsModulePlugin(), svelte()],
+  plugins: [
+    VitePWA({
+      registerType: "autoUpdate",
+      injectRegister: "inline",
+      workbox: {
+        maximumFileSizeToCacheInBytes: 10_0000_0000,
+      },
+      manifest: false,
+    }),
+    webmanifestPlugin(["ja", "en"]),
+    publicEsModulePlugin(),
+    svelte(),
+  ],
   server: {
     port: 5173,
   },

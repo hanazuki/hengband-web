@@ -49,6 +49,12 @@ onDestroy(() => {
 });
 </script>
 
+<svelte:head>
+  {#if variant !== null}
+    <link rel="manifest" href="/{variant}.webmanifest" type="application/manifest+json" />
+  {/if}
+</svelte:head>
+
 <div class="app">
   {#if variant === null}
     <StartScreen />
