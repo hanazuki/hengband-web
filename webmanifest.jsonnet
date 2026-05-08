@@ -19,4 +19,14 @@ function(variant, icons)
     background_color: '#282A36',
 
     icons: icons,
+
+    screenshots: [
+      {
+        src: 'screenshots/%s.png' % [variant],
+        sizes: '2494x1420',
+        type: 'image/png',
+        form_factor: 'wide',
+        label: _('変愚蛮怒ブラウザ版のゲーム画面', 'Hengband Web gameplay'),
+      },
+    ],
   }
