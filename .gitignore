@@ -1,7 +1,7 @@
 node_modules/
 dist/
-public/*
-!public/.keep
+wasm/*
+!wasm/.keep
 
 hengband/build/
 hengband/src/hengband.js

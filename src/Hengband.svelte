@@ -52,14 +52,18 @@ onMount(async () => {
   term.write(variant === "ja" ? "ゲームをダウンロードしています……" : "Downloding the game...");
 
   try {
-    const wasmModuleUrl: string = `/${variant}/hengband.js`;
+    const buildId = (variant === "ja"
+      ? import.meta.env.VITE_WASM_BUILD_ID_JA
+      : import.meta.env.VITE_WASM_BUILD_ID_EN) as string;
+    const suffix = buildId ? `-${buildId}` : "";
+    const wasmModuleUrl: string = `/assets/${variant}/hengband${suffix}.js`;
     const { default: createModule } = (await import(/* @vite-ignore */ wasmModuleUrl)) as {
       default: HengbandFactory;
     };
 
     const decoder = new TextDecoder();
     const mod = await createModule({
-      locateFile: (path) => `/${variant}/${path}`,
+      locateFile: (p) => `/assets/${variant}/${p.replace(/^hengband\./, `hengband${suffix}.`)}`,
       noInitialRun: true,
       onExit: (code) => {
         if (term) {

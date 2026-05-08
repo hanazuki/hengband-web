@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { Jsonnet } from "@hanazuki/node-jsonnet";
@@ -7,10 +8,13 @@ import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
 
-function webmanifestPlugin(variants: string[]): Plugin {
+const VARIANTS = ["ja", "en"] as const;
+type Variant = (typeof VARIANTS)[number];
+
+function webmanifestPlugin(variants: readonly Variant[]): Plugin {
   const sourceFile = path.resolve("webmanifest.jsonnet");
 
-  async function generate(variant: string): Promise<string> {
+  async function generate(variant: Variant): Promise<string> {
     return new Jsonnet().tlaString("variant", variant).evaluateFile(sourceFile);
   }
 
@@ -33,7 +37,7 @@ function webmanifestPlugin(variants: string[]): Plugin {
         const match = /^\/(ja|en)\.webmanifest$/.exec((req.url ?? "").split("?")[0]);
         if (match) {
           try {
-            const content = await generate(match[1]);
+            const content = await generate(match[1] as "ja" | "en");
             res.setHeader("Content-Type", "application/manifest+json");
             res.setHeader("Cache-Control", "no-cache");
             res.end(content);
@@ -49,34 +53,65 @@ function webmanifestPlugin(variants: string[]): Plugin {
 }
 
 /**
- * Serves Emscripten-generated JS wrappers from public/ as ES modules in dev mode.
+ * Emits versioned Emscripten build artifacts (hengband-{hash}.{js,wasm,data}) into the
+ * Rollup bundle so VitePWA includes them in the precache manifest. In dev mode, serves the
+ * files from wasm/ while accepting the suffixed URLs the app requests.
  *
- * Vite refuses to serve files from public/ via import() during development, but the
- * Emscripten JS wrappers need to be dynamically imported. This plugin intercepts
- * requests for those files before Vite's module handler and streams them directly.
+ * Using filename-based hashing (rather than query parameters) ensures that a non-atomic
+ * deployment cannot serve a mismatched set of files: the old JS always requests the old
+ * wasm/data by name, and both versions can coexist on the server during the rollover.
  */
-function publicEsModulePlugin(): Plugin {
-  let publicDir: string;
+function wasmVersionedPlugin(): Plugin {
+  const wasmDir = path.resolve("wasm");
+  const buildIds: Partial<Record<Variant, string>> = {};
+
   return {
-    name: "public-es-module",
-    configResolved(config) {
-      publicDir = config.publicDir;
+    name: "wasm-versioned",
+    config(_, { command }) {
+      const define: Record<string, string> = {};
+      for (const variant of VARIANTS) {
+        if (command === "build") {
+          const wasmFile = path.join(wasmDir, variant, "hengband.wasm");
+          buildIds[variant] = crypto
+            .createHash("sha256")
+            .update(fs.readFileSync(wasmFile))
+            .digest("hex")
+            .slice(0, 8);
+        }
+        define[`import.meta.env.VITE_WASM_BUILD_ID_${variant.toUpperCase()}`] =
+          JSON.stringify(buildIds[variant] ?? "");
+      }
+      return { define };
+    },
+    generateBundle() {
+      for (const variant of VARIANTS) {
+        const buildId = buildIds[variant];
+        if (!buildId) continue;
+        for (const ext of ["js", "wasm", "data"]) {
+          const src = path.join(wasmDir, variant, `hengband.${ext}`);
+          this.emitFile({
+            type: "asset",
+            fileName: `assets/${variant}/hengband-${buildId}.${ext}`,
+            source: fs.readFileSync(src),
+          });
+        }
+      }
     },
     configureServer(server) {
+      const contentTypes: Record<string, string> = {
+        js: "text/javascript; charset=utf-8",
+        wasm: "application/wasm",
+        data: "application/octet-stream",
+      };
       server.middlewares.use((req, res, next) => {
         const url = (req.url ?? "").split("?")[0];
-        if (/^\/(en|ja)\/hengband\.js$/.test(url)) {
-          const filePath = path.join(publicDir, url);
-          if (fs.existsSync(filePath)) {
-            res.setHeader("Content-Type", "text/javascript; charset=utf-8");
-            res.setHeader("Cache-Control", "no-cache");
-            const stream = fs.createReadStream(filePath);
-            stream.on("error", next);
-            stream.pipe(res);
-            return;
-          }
-        }
-        next();
+        const match = /^\/assets\/(en|ja)\/hengband\.(js|wasm|data)$/.exec(url);
+        if (!match) return next();
+        const filePath = path.join(wasmDir, match[1], `hengband.${match[2]}`);
+        if (!fs.existsSync(filePath)) return next();
+        res.setHeader("Content-Type", contentTypes[match[2]]);
+        res.setHeader("Cache-Control", "no-cache");
+        fs.createReadStream(filePath).on("error", next).pipe(res);
       });
     },
   };
@@ -89,11 +124,12 @@ export default defineConfig({
       injectRegister: "inline",
       workbox: {
         maximumFileSizeToCacheInBytes: 10_0000_0000,
+        globPatterns: ["**/*.{js,wasm,css,html,data}"],
       },
       manifest: false,
     }),
-    webmanifestPlugin(["ja", "en"]),
-    publicEsModulePlugin(),
+    webmanifestPlugin(VARIANTS),
+    wasmVersionedPlugin(),
     svelte(),
   ],
   server: {
