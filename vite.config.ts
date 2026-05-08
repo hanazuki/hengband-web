@@ -139,6 +139,12 @@ export default defineConfig({
   build: {
     target: "esnext",
     rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("/node_modules/@xterm/")) return "xterm";
+          if (id.includes("/node_modules/")) return "vendor";
+        },
+      },
       plugins: [
         license({
           thirdParty: {

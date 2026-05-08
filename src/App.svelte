@@ -1,9 +1,10 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
 import { draculaTheme } from "./dracula";
-import Hengband from "./Hengband.svelte";
 import Menu from "./Menu.svelte";
 import StartScreen from "./StartScreen.svelte";
+
+const hengbandModule = import("./Hengband.svelte");
 
 document.documentElement.style.setProperty("--fg-color", draculaTheme.foreground ?? null);
 document.documentElement.style.setProperty("--bg-color", draculaTheme.background ?? null);
@@ -60,7 +61,9 @@ onDestroy(() => {
     <StartScreen />
   {:else}
     <Menu {variant} {fontSize} onFontSizeChange={handleFontSizeChange} />
-    <Hengband {variant} {fontSize} />
+    {#await hengbandModule then { default: Hengband}}
+      <Hengband {variant} {fontSize} />
+    {/await}
   {/if}
 </div>
 
