@@ -13,9 +13,71 @@ const {
   onInstall?: () => void;
 } = $props();
 
-const feedbackUrl = () => {
-  return `https://github.com/hanazuki/hengband-web/issues/new?title=Feedback:%20&body=variant:%20${variant}`;
-};
+async function handleFeedbackClick(e: MouseEvent) {
+  e.preventDefault();
+  const anchor = e.currentTarget as HTMLAnchorElement;
+
+  const lines = [];
+  lines.push(`- revision: ${import.meta.env.VITE_GIT_REVISION}`);
+  const wasmBuildId =
+    variant === "ja"
+      ? import.meta.env.VITE_WASM_BUILD_ID_JA
+      : import.meta.env.VITE_WASM_BUILD_ID_EN;
+  lines.push(`- variant: ${variant} (\`${wasmBuildId}\`)`);
+
+  let highEntropySucceeded = false;
+  if (navigator.userAgentData) {
+    try {
+      const ua = await navigator.userAgentData.getHighEntropyValues([
+        "architecture",
+        "fullVersionList",
+        "model",
+        "platform",
+        "platformVersion",
+      ]);
+      const brands = (ua.fullVersionList ?? [])
+        .filter((b) => b.brand !== "Not)A;Brand")
+        .map((b) => `${b.brand}/${b.version}`)
+        .join(", ");
+      if (brands) lines.push(`- browser: ${brands}`);
+      const platformInfo = [ua.platform, ua.platformVersion, ua.architecture]
+        .filter(Boolean)
+        .join(" ");
+      if (platformInfo) lines.push(`- platform: ${platformInfo}`);
+      if (ua.model) lines.push(`- model: ${ua.model}`);
+      highEntropySucceeded = true;
+    } catch {
+      // fall through to userAgent fallback
+    }
+  }
+  if (!highEntropySucceeded) {
+    lines.push(`- userAgent: ${navigator.userAgent}`);
+  }
+
+  lines.push(`- client size: ${window.innerWidth}x${window.innerHeight}`);
+  lines.push(`- pixel density: ${window.devicePixelRatio}`);
+  lines.push(`- font size: ${fontSize}`);
+  lines.push(`- standalone: ${window.matchMedia("(display-mode: standalone)").matches}`);
+
+  try {
+    const { usage, quota, usageDetails } = await navigator.storage.estimate();
+    const quotaStr = quota != null ? ` / ${quota}` : "";
+    if (usageDetails) {
+      const details = Object.entries(usageDetails)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(", ");
+      lines.push(`- storage: ${details}${quotaStr}`);
+    } else if (usage != null) {
+      lines.push(`- storage: ${usage}${quotaStr}`);
+    }
+  } catch {
+    // storage estimate unavailable
+  }
+
+  const body = lines.join("\n");
+  anchor.href = `https://github.com/hanazuki/hengband-web/issues/new?title=Feedback:%20&body=${encodeURIComponent(body)}`;
+  window.open(anchor.href, "_blank");
+}
 </script>
 
 <nav id="menu"
@@ -53,7 +115,7 @@ const feedbackUrl = () => {
       ><Menubar.Portal
         ><Menubar.Content class="submenu"
           ><Menubar.Item
-            ><a href={feedbackUrl()} target="_blank"
+            ><a href="https://github.com/hanazuki/hengband-web/issues/new" onclick={handleFeedbackClick} target="_blank"
               >{variant === "ja" ? "フィードバックを送信" : "Send feedback"
             }</a
           ></Menubar.Item

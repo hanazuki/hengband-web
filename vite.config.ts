@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -90,6 +91,21 @@ function webmanifestPlugin(variants: readonly Variant[]): Plugin {
  * deployment cannot serve a mismatched set of files: the old JS always requests the old
  * wasm/data by name, and both versions can coexist on the server during the rollover.
  */
+function gitRevisionPlugin(): Plugin {
+  return {
+    name: "git-revision",
+    config() {
+      let revision: string;
+      try {
+        revision = execSync("git rev-parse --short HEAD", { encoding: "utf-8" }).trim();
+      } catch {
+        revision = "unknown";
+      }
+      return { define: { "import.meta.env.VITE_GIT_REVISION": JSON.stringify(revision) } };
+    },
+  };
+}
+
 function wasmVersionedPlugin(): Plugin {
   const wasmDir = path.resolve("wasm");
   const buildIds: Partial<Record<Variant, string>> = {};
@@ -162,6 +178,7 @@ export default defineConfig({
         preset: assets,
       },
     }),
+    gitRevisionPlugin(),
     webmanifestPlugin(VARIANTS),
     wasmVersionedPlugin(),
     svelte(),
