@@ -78,8 +78,9 @@ function wasmVersionedPlugin(): Plugin {
             .digest("hex")
             .slice(0, 8);
         }
-        define[`import.meta.env.VITE_WASM_BUILD_ID_${variant.toUpperCase()}`] =
-          JSON.stringify(buildIds[variant] ?? "");
+        define[`import.meta.env.VITE_WASM_BUILD_ID_${variant.toUpperCase()}`] = JSON.stringify(
+          buildIds[variant] ?? "",
+        );
       }
       return { define };
     },
