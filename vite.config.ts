@@ -154,7 +154,8 @@ export default defineConfig({
       injectRegister: "inline",
       workbox: {
         maximumFileSizeToCacheInBytes: 10_0000_0000,
-        globPatterns: ["**/*.{js,wasm,css,html,data}"],
+        globPatterns: ["**/*.{js,wasm,css,html,data,webmanifest,png,svg}"],
+        navigateFallback: "index.html",
       },
       manifest: false,
       pwaAssets: {
