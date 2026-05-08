@@ -3,19 +3,48 @@ import fs from "node:fs";
 import path from "node:path";
 import { Jsonnet } from "@hanazuki/node-jsonnet";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { generateManifestIconsEntry } from "@vite-pwa/assets-generator/api/generate-manifest-icons-entry";
+import { instructions } from "@vite-pwa/assets-generator/api/instructions";
+import { minimal2023Preset } from "@vite-pwa/assets-generator/config";
 import license from "rollup-plugin-license";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
+
+const assets = {
+  ...minimal2023Preset,
+  transparent: {
+    ...minimal2023Preset.transparent,
+    padding: 0.1,
+  },
+  maskable: {
+    ...minimal2023Preset.maskable,
+    padding: 0.3,
+    resizeOptions: {
+      background: "#282A36",
+    },
+  },
+};
 
 const VARIANTS = ["ja", "en"] as const;
 type Variant = (typeof VARIANTS)[number];
 
 function webmanifestPlugin(variants: readonly Variant[]): Plugin {
   const sourceFile = path.resolve("webmanifest.jsonnet");
+  const iconsJsonPromise = instructions({
+    imageResolver: () => fs.readFileSync(path.resolve("public/favicon.svg")),
+    imageName: "favicon.svg",
+    preset: assets,
+    htmlLinks: { xhtml: false, includeId: false },
+    basePath: "/",
+    resolveSvgName: (name) => path.basename(name),
+  }).then((instr) => JSON.stringify(generateManifestIconsEntry("object", instr).icons));
 
   async function generate(variant: Variant): Promise<string> {
-    return new Jsonnet().tlaString("variant", variant).evaluateFile(sourceFile);
+    return new Jsonnet()
+      .tlaString("variant", variant)
+      .tlaCode("icons", await iconsJsonPromise)
+      .evaluateFile(sourceFile);
   }
 
   return {
@@ -129,6 +158,7 @@ export default defineConfig({
       },
       manifest: false,
       pwaAssets: {
+        preset: assets,
       },
     }),
     webmanifestPlugin(VARIANTS),

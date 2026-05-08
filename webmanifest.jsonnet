@@ -1,4 +1,4 @@
-function(variant)
+function(variant, icons)
 
   local _ = function(ja, en)
     if variant == 'ja' then ja else en;
@@ -17,4 +17,6 @@ function(variant)
     display: 'standalone',
 
     background_color: '#282A36',
+
+    icons: icons,
   }
