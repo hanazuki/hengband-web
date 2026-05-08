@@ -128,6 +128,8 @@ export default defineConfig({
         globPatterns: ["**/*.{js,wasm,css,html,data}"],
       },
       manifest: false,
+      pwaAssets: {
+      },
     }),
     webmanifestPlugin(VARIANTS),
     wasmVersionedPlugin(),

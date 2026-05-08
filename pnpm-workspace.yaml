@@ -1,2 +1,3 @@
 allowBuilds:
   '@hanazuki/node-jsonnet': true
+  sharp: true
