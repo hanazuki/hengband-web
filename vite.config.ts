@@ -171,7 +171,6 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 10_0000_0000,
         globPatterns: ["**/*.{js,wasm,css,html,data,webmanifest,png,svg}"],
-        navigateFallback: "index.html",
       },
       manifest: false,
       pwaAssets: {
