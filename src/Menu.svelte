@@ -5,10 +5,12 @@ const {
   variant,
   fontSize,
   onFontSizeChange,
+  onInstall,
 }: {
   variant: "ja" | "en";
   fontSize: number;
   onFontSizeChange: (size: number) => void;
+  onInstall?: () => void;
 } = $props();
 
 const feedbackUrl = () => {
@@ -22,7 +24,14 @@ const feedbackUrl = () => {
       ><Menubar.Trigger
         >{variant === "ja" ? "ゲーム" : "Game"
       }</Menubar.Trigger
-    ></Menubar.Menu
+      >{#if onInstall}<Menubar.Portal
+          ><Menubar.Content class="submenu"
+            ><Menubar.Item onclick={onInstall}
+              >{variant === "ja" ? "アプリをインストール…" : "Install app…"
+            }</Menubar.Item
+          ></Menubar.Content
+        ></Menubar.Portal
+      >{/if}</Menubar.Menu
     ><Menubar.Menu
       ><Menubar.Trigger
         >{variant === "ja" ? "表示" : "View"

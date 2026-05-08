@@ -4,6 +4,11 @@ import { draculaTheme } from "./dracula";
 import Menu from "./Menu.svelte";
 import StartScreen from "./StartScreen.svelte";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  readonly userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
 const hengbandModule = import("./Hengband.svelte");
 
 document.documentElement.style.setProperty("--fg-color", draculaTheme.foreground ?? null);
@@ -19,6 +24,7 @@ function parseFragment(hash: string): Variant | null {
 
 let variant = $state<Variant | null>(parseFragment(location.hash));
 let fontSize = $state(Number(localStorage.getItem("hengband.fontSize")) || 14);
+let deferredInstallPrompt = $state<BeforeInstallPromptEvent | null>(null);
 
 function handleFontSizeChange(size: number): void {
   const clamped = Math.max(8, Math.min(32, size));
@@ -35,6 +41,24 @@ function handleNavigation(): void {
   }
 }
 
+function handleBeforeInstallPrompt(e: Event): void {
+  e.preventDefault();
+  deferredInstallPrompt = e as BeforeInstallPromptEvent;
+}
+
+function handleAppInstalled(): void {
+  deferredInstallPrompt = null;
+}
+
+async function handleInstall(): Promise<void> {
+  if (!deferredInstallPrompt) return;
+  await deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === "accepted") {
+    deferredInstallPrompt = null;
+  }
+}
+
 $effect(() => {
   document.documentElement.style.fontSize = `${fontSize}px`;
 });
@@ -42,11 +66,15 @@ $effect(() => {
 onMount(() => {
   window.addEventListener("hashchange", handleNavigation);
   window.addEventListener("popstate", handleNavigation);
+  window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+  window.addEventListener("appinstalled", handleAppInstalled);
 });
 
 onDestroy(() => {
   window.removeEventListener("hashchange", handleNavigation);
   window.removeEventListener("popstate", handleNavigation);
+  window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+  window.removeEventListener("appinstalled", handleAppInstalled);
 });
 </script>
 
@@ -60,7 +88,7 @@ onDestroy(() => {
   {#if variant === null}
     <StartScreen />
   {:else}
-    <Menu {variant} {fontSize} onFontSizeChange={handleFontSizeChange} />
+    <Menu {variant} {fontSize} onFontSizeChange={handleFontSizeChange} onInstall={deferredInstallPrompt ? handleInstall : undefined} />
     {#await hengbandModule then { default: Hengband}}
       <Hengband {variant} {fontSize} />
     {/await}
