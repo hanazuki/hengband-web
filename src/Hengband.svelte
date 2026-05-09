@@ -1,6 +1,5 @@
 <script lang="ts">
 import { FitAddon } from "@xterm/addon-fit";
-import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { WebglAddon } from "@xterm/addon-webgl";
 import { Terminal } from "@xterm/xterm";
@@ -8,6 +7,7 @@ import { onDestroy, onMount } from "svelte";
 import "@xterm/xterm/css/xterm.css";
 import { draculaTheme } from "./dracula";
 import type { HengbandFactory } from "./hengband";
+import { HengbandUnicodeAddon } from "./hengband-unicode";
 
 const {
   variant,
@@ -65,11 +65,11 @@ onMount(async () => {
   term = new Terminal({ scrollback: 1000, allowProposedApi: true, theme: draculaTheme, fontSize });
   fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
-  term.loadAddon(new Unicode11Addon());
+  term.loadAddon(new HengbandUnicodeAddon());
   term.loadAddon(new WebglAddon());
   term.loadAddon(new WebLinksAddon());
+  term.unicode.activeVersion = "hengband";
   term.open(termContainer);
-  term.unicode.activeVersion = "11";
   await new Promise((resolve) => requestAnimationFrame(resolve));
   fitAddon.fit();
 
