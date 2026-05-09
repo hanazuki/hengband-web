@@ -13,6 +13,7 @@ const hengbandModule = import("./Hengband.svelte");
 
 document.documentElement.style.setProperty("--fg-color", draculaTheme.foreground ?? null);
 document.documentElement.style.setProperty("--bg-color", draculaTheme.background ?? null);
+document.documentElement.style.setProperty("--bright-black", draculaTheme.brightBlack ?? null);
 
 type Variant = "ja" | "en";
 
@@ -25,6 +26,7 @@ function parseFragment(hash: string): Variant | null {
 let variant = $state<Variant | null>(parseFragment(location.hash));
 let fontSize = $state(Number(localStorage.getItem("hengband.fontSize")) || 14);
 let deferredInstallPrompt = $state<BeforeInstallPromptEvent | null>(null);
+let openOnlineHelp = $state<(() => void) | null>(null);
 
 function handleFontSizeChange(size: number): void {
   const clamped = Math.max(8, Math.min(32, size));
@@ -88,9 +90,9 @@ onDestroy(() => {
   {#if variant === null}
     <StartScreen />
   {:else}
-    <Menu {variant} {fontSize} onFontSizeChange={handleFontSizeChange} onInstall={deferredInstallPrompt ? handleInstall : undefined} />
+    <Menu {variant} {fontSize} onFontSizeChange={handleFontSizeChange} onInstall={deferredInstallPrompt ? handleInstall : undefined} onOnlineHelp={openOnlineHelp ?? undefined} />
     {#await hengbandModule then { default: Hengband}}
-      <Hengband {variant} {fontSize} />
+      <Hengband {variant} {fontSize} onReady={({ openOnlineHelp: fn }) => { openOnlineHelp = fn; }} onExited={() => { openOnlineHelp = null; }} />
     {/await}
   {/if}
 </div>

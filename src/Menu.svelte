@@ -6,11 +6,13 @@ const {
   fontSize,
   onFontSizeChange,
   onInstall,
+  onOnlineHelp,
 }: {
   variant: "ja" | "en";
   fontSize: number;
   onFontSizeChange: (size: number) => void;
   onInstall?: () => void;
+  onOnlineHelp?: () => void;
 } = $props();
 
 async function handleFeedbackClick(e: MouseEvent) {
@@ -114,7 +116,11 @@ async function handleFeedbackClick(e: MouseEvent) {
       >{variant === "ja" ? "ヘルプ" : "Help"}</Menubar.Trigger
       ><Menubar.Portal
         ><Menubar.Content class="submenu"
-          ><Menubar.Item
+          ><Menubar.Item disabled={!onOnlineHelp} onclick={onOnlineHelp}
+            >{variant === "ja" ? "オンライン・ヘルプ" : "Online help"
+          }</Menubar.Item
+          ><Menubar.Separator
+          /><Menubar.Item
             ><a href="https://github.com/hanazuki/hengband-web/issues/new" onclick={handleFeedbackClick} target="_blank"
               >{variant === "ja" ? "フィードバックを送信" : "Send feedback"
             }</a
@@ -202,6 +208,11 @@ async function handleFeedbackClick(e: MouseEvent) {
 
   :global([data-menubar-separator]) {
     height: 1lh;
+  }
+
+  :global([data-menubar-item][data-disabled]) {
+    color: var(--bright-black);
+    cursor: default;
   }
 
   :global([data-menubar-sub-trigger]) {
