@@ -9,7 +9,17 @@ import "@xterm/xterm/css/xterm.css";
 import { draculaTheme } from "./dracula";
 import type { HengbandFactory } from "./hengband";
 
-const { variant, fontSize }: { variant: "ja" | "en"; fontSize: number } = $props();
+const {
+  variant,
+  fontSize,
+  onReady,
+  onExited,
+}: {
+  variant: "ja" | "en";
+  fontSize: number;
+  onReady?: (actions: { openOnlineHelp: () => void }) => void;
+  onExited?: () => void;
+} = $props();
 
 const buildId = $derived(
   (variant === "ja"
@@ -44,6 +54,12 @@ onDestroy(() => {
   term?.dispose();
   if (beforeUnload) window.removeEventListener("beforeunload", beforeUnload);
 });
+
+async function openOnlineHelp(): Promise<void> {
+  term?.input("\x1b\x1b\x1b", false);
+  await new Promise<void>((r) => setTimeout(r, 100)); // delay required for unknown reason
+  term?.input("?", false);
+}
 
 onMount(async () => {
   term = new Terminal({ scrollback: 1000, allowProposedApi: true, theme: draculaTheme, fontSize });
@@ -87,6 +103,7 @@ onMount(async () => {
           term.write("\r\n");
         }
         exited = true;
+        onExited?.();
       },
       _web_on_output: (bytes) => {
         const text = decoder.decode(bytes, { stream: true });
@@ -151,6 +168,7 @@ onMount(async () => {
     Promise.resolve(mod.callMain([])).catch((e: unknown) => {
       errorMessage = String(e);
     });
+    onReady?.({ openOnlineHelp });
   } catch (e) {
     errorMessage = String(e);
     term.dispose();
