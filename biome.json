@@ -29,6 +29,16 @@
   },
   "overrides": [
     {
+      "includes": ["misc/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/*.svelte"],
       "linter": {
         "rules": {

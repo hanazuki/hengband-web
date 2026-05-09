@@ -13,7 +13,8 @@
     "lint": "biome check .",
     "lintfix": "biome check --write .",
     "typecheck": "svelte-check --tsconfig ./tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bump-version": "zx misc/bump-version.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
@@ -29,7 +30,8 @@
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
     "vite-plugin-pwa": "^1.3.0",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "zx": "^8.8.5"
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.11.0",
