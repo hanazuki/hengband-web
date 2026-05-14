@@ -43,8 +43,8 @@ function webmanifestPlugin(variants: readonly Variant[]): Plugin {
 
   async function generate(variant: Variant): Promise<string> {
     return new Jsonnet()
-      .tlaString("variant", variant)
-      .tlaCode("icons", await iconsJsonPromise)
+      .tlaString({ variant })
+      .tlaCode({ icons: await iconsJsonPromise })
       .evaluateFile(sourceFile);
   }
 
