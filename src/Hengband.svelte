@@ -1,9 +1,9 @@
 <script lang="ts">
-import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { WebglAddon } from "@xterm/addon-webgl";
 import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
+import { FitAddon } from "./fit-addon";
 import "@xterm/xterm/css/xterm.css";
 import { draculaTheme } from "./dracula";
 import type { HengbandFactory } from "./hengband";
