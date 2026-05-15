@@ -12,7 +12,7 @@ clientsClaim();
 const isolationPlugin: WorkboxPlugin = {
   handlerWillRespond: async ({ request, response }) => {
     const headers = new Headers(response.headers);
-    if (request.mode === "navigate") {
+    if (request.mode === "navigate" || request.destination === "worker") {
       headers.set("Cross-Origin-Opener-Policy", "same-origin");
       headers.set("Cross-Origin-Embedder-Policy", "require-corp");
     }
