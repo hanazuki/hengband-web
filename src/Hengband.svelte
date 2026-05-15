@@ -133,7 +133,7 @@ onMount(async () => {
         );
         term.write("\r\n");
       }
-      window.removeEventListener("beforeunload", beforeUnload);
+      if (beforeUnload) window.removeEventListener("beforeunload", beforeUnload);
       beforeUnload = null;
       exited = true;
       onExited?.();
