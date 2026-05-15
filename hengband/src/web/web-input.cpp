@@ -21,10 +21,10 @@ EM_JS(void, web_term_write_js, (const char *buf, int len), {
 })
 
 EM_JS(int, web_getch_js, (int key_resize), {
-    const i32 = Module.__sharedI32;
-    const u8  = Module.__sharedU8;
+    const i32 = Module._sharedI32;
+    const u8  = Module._sharedU8;
 
-    if (!Module.__nodelay) {
+    if (!Module._nodelay) {
         while (true) {
             const wh = Atomics.load(i32, 1);
             const rh = Atomics.load(i32, 2);
@@ -53,14 +53,14 @@ EM_JS(int, web_getch_js, (int key_resize), {
 })
 
 EM_JS(void, web_nodelay, (int nd), {
-    Module.__nodelay = (nd !== 0);
+    Module._nodelay = (nd !== 0);
 })
 
 // Called once from initscr() to apply the terminal dimensions that the main thread
 // wrote into the SAB before callMain(). Clears resizeFlag so the first getch() does
 // not redundantly return KEY_RESIZE for the initial size.
 EM_JS(void, web_apply_initial_size, (void), {
-    const i32 = Module.__sharedI32;
+    const i32 = Module._sharedI32;
     if (!i32 || Atomics.load(i32, 3) === 0) return; // resizeFlag
     const cols = Atomics.load(i32, 4);               // newCols
     const rows = Atomics.load(i32, 5);               // newRows

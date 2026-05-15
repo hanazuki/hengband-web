@@ -23,8 +23,8 @@ self.onmessage = async (e: MessageEvent) => {
     },
   });
 
-  (mod as unknown as Record<string, unknown>).__sharedI32 = new Int32Array(buffer);
-  (mod as unknown as Record<string, unknown>).__sharedU8 = new Uint8Array(buffer);
+  mod._sharedI32 = new Int32Array(buffer);
+  mod._sharedU8 = new Uint8Array(buffer);
 
   const idbfs = mod.FS.filesystems.IDBFS;
   const mkdirOk = (path: string) => {

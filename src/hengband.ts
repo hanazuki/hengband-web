@@ -15,6 +15,8 @@ export interface EmscriptenFS {
 export interface HengbandModule {
   callMain(args?: string[]): void;
   FS: EmscriptenFS;
+  _sharedI32: Int32Array;
+  _sharedU8: Uint8Array;
 }
 
 export type HengbandFactory = (opts?: HengbandModuleOpts) => Promise<HengbandModule>;
