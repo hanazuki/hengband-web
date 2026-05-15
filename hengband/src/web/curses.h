@@ -3,7 +3,7 @@
  * @brief Minimal ncurses-compatible shim for Emscripten WASM builds.
  *
  * main-gcu.cpp wraps this via: namespace curses { #include <curses.h> }
- * The low-level helpers (web_getch_impl etc.) are also declared globally in
+ * The low-level helpers (web_getch etc.) are also declared globally in
  * system/h-config.h so that bare getch() calls in main-gcu.cpp resolve.
  */
 #pragma once
@@ -13,15 +13,16 @@
 #include <cstring>
 
 extern "C" {
-    int  web_getch_impl(void);
-    void web_getch_setnd(int nd);
+    int  web_getch(void);
+    void web_nodelay(int nd);
     void web_term_write(const char *buf, int len);
+    void web_apply_initial_size(void);
 }
 
 #define USE_GETCH 1
 
-#define getch()        web_getch_impl()
-#define nodelay(w, f)  web_getch_setnd(f)
+#define getch()        web_getch()
+#define nodelay(w, f)  web_nodelay(f)
 #define touchwin(win)  (OK)
 
 typedef unsigned int chtype;
