@@ -64,23 +64,6 @@ async function openOnlineHelp(): Promise<void> {
 }
 
 onMount(async () => {
-  if (!crossOriginIsolated) {
-    if (typeof crossOriginIsolated === "undefined") {
-      // Browser predates cross-origin isolation entirely — no SW will help.
-      errorMessage = "Your browser does not support SharedArrayBuffer.";
-    } else {
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (reg?.active) {
-        // SW is active but still failed to provide isolation — SW bug, don't loop.
-        errorMessage = "Cross-origin isolation could not be established.";
-      } else {
-        // SW not yet active (first visit) — reload to activate it.
-        location.reload();
-      }
-    }
-    return;
-  }
-
   term = new Terminal({ scrollback: 1000, allowProposedApi: true, theme: draculaTheme, fontSize });
   fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
@@ -180,9 +163,7 @@ onMount(async () => {
   }
 
   .error {
-    background: #300;
-    color: #f88;
-    padding: 1rem;
+    color: var(--bright-red);
     font-family: monospace;
     white-space: pre-wrap;
   }
