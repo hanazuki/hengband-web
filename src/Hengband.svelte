@@ -6,7 +6,7 @@ import { onDestroy, onMount } from "svelte";
 import { FitAddon } from "./fit-addon";
 import "@xterm/xterm/css/xterm.css";
 import { draculaTheme } from "./dracula";
-import type { HengbandFactory } from "./hengband";
+import { RingBuffer } from "./hengband";
 import { HengbandUnicodeAddon } from "./hengband-unicode";
 
 const {
@@ -46,12 +46,14 @@ $effect(() => {
   term.options.fontSize = size;
 });
 
+let worker: Worker | null = null;
 let observer: ResizeObserver | null = null;
 let beforeUnload: ((e: BeforeUnloadEvent) => void) | null = null;
 
 onDestroy(() => {
   observer?.disconnect();
   term?.dispose();
+  worker?.terminate();
   if (beforeUnload) window.removeEventListener("beforeunload", beforeUnload);
 });
 
@@ -73,108 +75,72 @@ onMount(async () => {
   await new Promise((resolve) => requestAnimationFrame(resolve));
   fitAddon.fit();
 
-  term.write(variant === "ja" ? "ゲームをダウンロードしています……" : "Downloding the game...");
+  const ring = new RingBuffer();
 
-  try {
-    const { default: createModule } = (await import(/* @vite-ignore */ `${assetBase}.js`)) as {
-      default: HengbandFactory;
-    };
+  term.write(variant === "ja" ? "ゲームをダウンロードしています……" : "Downloading the game...");
+  worker = new Worker(new URL("./hengband-worker.ts", import.meta.url), { type: "module" });
+  worker.onerror = (e) => {
+    errorMessage = e.message;
+  };
 
-    const decoder = new TextDecoder();
-    const mod = await createModule({
-      locateFile: (p) => `${assetBase}${p.replace(/^hengband/, "")}`,
-      noInitialRun: true,
-      onExit: (code) => {
-        if (term) {
-          term.write("\x1b[H\x1b[2J");
-          if (code !== 0) {
-            term.write(
-              variant === "ja"
-                ? `ゲームが異常終了しました。(${code})`
-                : `The game ended abnormally. (${code})`,
-            );
-            term.write("\r\n");
-          }
+  const decoder = new TextDecoder();
+  worker.onmessage = (e) => {
+    if (e.data.type === "output") {
+      const text = decoder.decode(e.data.data, { stream: true });
+      term?.write(text);
+    } else if (e.data.type === "ready") {
+      beforeUnload = (e) => {
+        if (!exited) {
+          e.preventDefault();
+        }
+      };
+      window.addEventListener("beforeunload", beforeUnload);
+
+      onReady?.({ openOnlineHelp });
+    } else if (e.data.type === "exit") {
+      const code: number = e.data.code;
+      if (term) {
+        term.write("\x1b[H\x1b[2J");
+        if (code !== 0) {
           term.write(
             variant === "ja"
-              ? "ゲームを再開するにはページを再読み込みしてください。"
-              : "Reload the page to restart the game.",
+              ? `ゲームが異常終了しました。(${code})`
+              : `The game ended abnormally. (${code})`,
           );
           term.write("\r\n");
         }
-        exited = true;
-        onExited?.();
-      },
-      _web_on_output: (bytes) => {
-        const text = decoder.decode(bytes, { stream: true });
-        term?.write(text);
-      },
-    });
-
-    term.onData((data) => {
-      const bytes = new TextEncoder().encode(data);
-      for (const b of bytes) {
-        mod._web_push_key(b);
+        term.write(
+          variant === "ja"
+            ? "ゲームを再開するにはページを再読み込みしてください。"
+            : "Reload the page to restart the game.",
+        );
+        term.write("\r\n");
       }
-    });
-
-    resizeTerm = () => {
-      fitAddon?.fit();
-      if (term) mod._web_resize_term(term.cols, term.rows);
-    };
-
-    observer = new ResizeObserver(resizeTerm);
-    observer.observe(termContainer);
-
-    // ANGBAND_DIR_SAVE=/lib/save, ANGBAND_DIR_USER=/lib/user, ANGBAND_DIR_BONE=/lib/bone.
-    // These directories contain only excluded files (delete.me, Makefiles) so Emscripten's
-    // preloader never creates them in the VFS. We create them here and mount IDBFS on the
-    // ones that need persistence (save and user); bone stays as volatile MEMFS.
-    const idbfs = mod.FS.filesystems.IDBFS;
-    const mkdirOk = (path: string) => {
-      try {
-        mod.FS.mkdir(path);
-      } catch (e) {
-        if ((e as { errno?: number }).errno !== 20) throw e;
-      }
-    };
-    mkdirOk("/lib/save");
-    mkdirOk("/lib/user");
-    mkdirOk("/lib/bone");
-    // /lib/apex already exists (h_scores.raw preloaded), but that file is just a
-    // placeholder; the game recreates it via fd_make if missing after the IDBFS overlay.
-    if (idbfs) {
-      mod.FS.mount(idbfs, { autoPersist: true }, "/lib/save");
-      mod.FS.mount(idbfs, { autoPersist: true }, "/lib/user");
-      mod.FS.mount(idbfs, { autoPersist: true }, "/lib/apex");
-      mod.FS.mount(idbfs, { autoPersist: true }, "/lib/bone");
-      await new Promise<void>((resolve) => {
-        mod.FS.syncfs(true, (err) => {
-          if (err) console.error("IDBFS initial sync failed:", err);
-          resolve();
-        });
-      });
-    } else {
-      console.warn("IDBFS not available in this build; game saves will not persist");
+      if (beforeUnload) window.removeEventListener("beforeunload", beforeUnload);
+      beforeUnload = null;
+      exited = true;
+      onExited?.();
+    } else if (e.data.type === "error") {
+      errorMessage = e.data.message;
     }
+  };
 
-    beforeUnload = (e) => {
-      if (!exited) {
-        e.preventDefault();
-      }
-    };
-    window.addEventListener("beforeunload", beforeUnload);
+  term.onData((data) => {
+    const bytes = new TextEncoder().encode(data);
+    for (const b of bytes) {
+      ring.pushKey(b);
+    }
+  });
 
-    Promise.resolve(mod.callMain([])).catch((e: unknown) => {
-      errorMessage = String(e);
-    });
-    onReady?.({ openOnlineHelp });
-  } catch (e) {
-    errorMessage = String(e);
-    term.dispose();
-    term = null;
-    throw e;
-  }
+  resizeTerm = () => {
+    fitAddon?.fit();
+    if (term) ring.pushResize(term.cols, term.rows);
+  };
+
+  observer = new ResizeObserver(resizeTerm);
+  observer.observe(termContainer);
+
+  worker.postMessage({ type: "init", assetBase, buffer: ring.buffer });
 });
 </script>
 
@@ -197,9 +163,7 @@ onMount(async () => {
   }
 
   .error {
-    background: #300;
-    color: #f88;
-    padding: 1rem;
+    color: var(--bright-red);
     font-family: monospace;
     white-space: pre-wrap;
   }

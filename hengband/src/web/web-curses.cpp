@@ -60,6 +60,7 @@ static void emit_attr(attr_t attr)
 
 WINDOW *initscr(void)
 {
+    web_apply_initial_size();
     web_color_pairs[0] = {0, 0};
     web_term_write("\x1b[?1049h\x1b[2J\x1b[H", 16);
     return stdscr;
