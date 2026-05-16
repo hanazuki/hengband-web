@@ -35,6 +35,21 @@ test("clicking 日本語 loads the Japanese variant", async ({ page }) => {
   }).toPass({ timeout: 30_000 });
 });
 
+test("ライセンス表示 opens licenses.txt", async ({ page }) => {
+  await page.goto("/#ja");
+  await expect(page.getByRole("menubar")).toBeVisible();
+
+  await page.getByRole("menuitem", { name: "ヘルプ" }).click();
+
+  const [popup] = await Promise.all([
+    page.waitForEvent("popup"),
+    page.getByRole("menuitem", { name: "ライセンス表示" }).click(),
+  ]);
+
+  await expect(popup).toHaveURL(/\/licenses\.txt$/);
+  await expect(popup.locator("body")).toContainText("Hengband Web Port");
+});
+
 test("clicking English loads the English variant", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "English" }).click();
@@ -55,4 +70,19 @@ test("clicking English loads the English variant", async ({ page }) => {
       "data-disabled",
     );
   }).toPass({ timeout: 30_000 });
+});
+
+test("Software licenses opens licenses.txt", async ({ page }) => {
+  await page.goto("/#en");
+  await expect(page.getByRole("menubar")).toBeVisible();
+
+  await page.getByRole("menuitem", { name: "Help" }).click();
+
+  const [popup] = await Promise.all([
+    page.waitForEvent("popup"),
+    page.getByRole("menuitem", { name: "Software licenses" }).click(),
+  ]);
+
+  await expect(popup).toHaveURL(/\/licenses\.txt$/);
+  await expect(popup.locator("body")).toContainText("Hengband Web Port");
 });
