@@ -166,12 +166,9 @@ function wasmVersionedPlugin(): Plugin {
 export default defineConfig({
   plugins: [
     VitePWA({
-      srcDir: "src",
-      filename: "sw.js",
       registerType: "autoUpdate",
       injectRegister: "inline",
-      strategies: "injectManifest",
-      injectManifest: {
+      workbox: {
         maximumFileSizeToCacheInBytes: 10_0000_0000,
         globPatterns: ["**/*.{js,wasm,css,html,data,webmanifest,png,svg}"],
       },
@@ -187,11 +184,6 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
-    headers: {
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Cross-Origin-Resource-Policy": "same-origin",
-    },
   },
   build: {
     target: "esnext",

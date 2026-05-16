@@ -1449,11 +1449,13 @@ DEFAULT_INCLUDES += -I$(top_srcdir)/src/web
 AM_LDFLAGS = \
 	-sEXPORT_ES6=1 \
 	-sMODULARIZE=1 \
+	-sASYNCIFY=1 \
+	-sASYNCIFY_STACK_SIZE=8388608 \
 	-sEXIT_RUNTIME=1 \
 	-sFORCE_FILESYSTEM=1 \
 	-sINITIAL_MEMORY=268435456 \
 	-sALLOW_MEMORY_GROWTH=1 \
-	'-sEXPORTED_FUNCTIONS=_main,_curses_resize' \
+	'-sEXPORTED_FUNCTIONS=_main,_web_push_key,_web_push_string,_web_resize_term' \
 	'-sEXPORTED_RUNTIME_METHODS=callMain,FS' \
 	-lidbfs.js \
 	--preload-file $(top_srcdir)/lib@/lib \
