@@ -27,7 +27,7 @@
     "@vite-pwa/assets-generator": "^1.0.2",
     "jsdom": "^29.1.1",
     "rollup-plugin-license": "^3.7.1",
-    "svelte": "^5.55.5",
+    "svelte": "^5.55.7",
     "svelte-check": "^4.4.8",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
