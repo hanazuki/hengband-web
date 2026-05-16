@@ -12,3 +12,6 @@ tmp/*
 !tmp/.keep
 
 *.wasm
+
+playwright-report/
+test-results/

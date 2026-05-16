@@ -29,7 +29,7 @@
   },
   "overrides": [
     {
-      "includes": ["misc/**"],
+      "includes": ["misc/**", "test/**"],
       "linter": {
         "rules": {
           "style": {
