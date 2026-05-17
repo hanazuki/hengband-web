@@ -40,3 +40,19 @@ declare module "*.yml" {
   const content: any;
   export default content;
 }
+
+declare module "virtual:hengband-xtra/sounds" {
+  export class SoundMap {
+    constructor(map: Record<string, string[]>);
+    entries(): [string, string[]][];
+    pick(key: string): string | null;
+  }
+  export const soundMap: SoundMap;
+}
+
+declare module "virtual:hengband-xtra/music" {
+  export class MusicMap {
+    pick(key: string): string | null;
+  }
+  export const musicMap: MusicMap;
+}

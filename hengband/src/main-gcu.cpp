@@ -178,6 +178,10 @@
 #include <map>
 #include <string>
 #include <string_view>
+#ifdef USE_WEB
+#include "main/scene-table.h"
+#include "web/web-audio.hpp"
+#endif
 
 #ifdef USE_GCU
 
@@ -580,6 +584,10 @@ static errr game_term_xtra_gcu_alive(int v)
  */
 static bool init_sound()
 {
+#ifdef USE_WEB
+    can_use_sound = true;
+    return true;
+#else
     if (can_use_sound) {
         return can_use_sound;
     }
@@ -595,6 +603,7 @@ static bool init_sound()
     /* Sound available */
     can_use_sound = true;
     return can_use_sound;
+#endif
 }
 
 /*
@@ -867,6 +876,19 @@ static errr game_term_xtra_gcu_event(int v)
 /*
  * Hack -- make a sound
  */
+#ifdef USE_WEB
+static errr game_term_xtra_gcu_sound(int v)
+{
+    if (!use_sound) {
+        return 1;
+    }
+    if (v < 0 || v >= enum2i(SoundKind::MAX)) {
+        return 1;
+    }
+    web_play_sound_js(sound_names.at(i2enum<SoundKind>(v)).c_str());
+    return 0;
+}
+#else
 static errr game_term_xtra_gcu_sound(int v)
 {
     /* Sound disabled */
@@ -883,6 +905,7 @@ static errr game_term_xtra_gcu_sound(int v)
     buf.append(sound_files.at(i2enum<SoundKind>(v))).append("\n");
     return system(buf.data()) < 0;
 }
+#endif
 
 static int scale_color(int i, int j, int scale)
 {
@@ -971,6 +994,30 @@ static errr game_term_xtra_gcu(int n, int v)
     /* Make a special sound */
     case TERM_XTRA_SOUND:
         return game_term_xtra_gcu_sound(v);
+
+#ifdef USE_WEB
+    case TERM_XTRA_MUSIC_BASIC:
+    case TERM_XTRA_MUSIC_DUNGEON:
+    case TERM_XTRA_MUSIC_QUEST:
+    case TERM_XTRA_MUSIC_TOWN:
+    case TERM_XTRA_MUSIC_MONSTER:
+    case TERM_XTRA_MUSIC_MUTE:
+        if (use_music) web_play_music_js(n, v);
+        return 0;
+
+    case TERM_XTRA_SCENE: {
+        if (!use_music) return 0;
+        const auto &list = get_scene_type_list(v);
+        std::vector<int> types, vals;
+        for (const auto &s : list) {
+            types.push_back(s.type);
+            vals.push_back(s.val);
+        }
+        web_play_music_scene_js(types.data(), vals.data(),
+                                static_cast<int>(types.size()));
+        return 0;
+    }
+#endif
 
     /* Flush the Curses buffer */
     case TERM_XTRA_FRESH:
@@ -1323,6 +1370,10 @@ errr init_gcu(int argc, char *argv[])
 
 #endif
 
+#ifdef USE_WEB
+    use_sound = arg_sound;
+    use_music = arg_music;
+#else
     /* Handle "arg_sound" */
     if (use_sound != arg_sound) {
         /* Initialize (if needed) */
@@ -1337,6 +1388,7 @@ errr init_gcu(int argc, char *argv[])
         /* Change setting */
         use_sound = arg_sound;
     }
+#endif
 
     /* Try graphics */
     if (arg_graphics) {

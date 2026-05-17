@@ -5,6 +5,9 @@ import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
 import { FitAddon } from "./fit-addon";
 import "@xterm/xterm/css/xterm.css";
+import { musicMap } from "virtual:hengband-xtra/music";
+import { soundMap } from "virtual:hengband-xtra/sounds";
+import { SoundEngine } from "./audio";
 import { draculaTheme } from "./dracula";
 import type { HengbandFactory } from "./hengband";
 import { HengbandUnicodeAddon } from "./hengband-unicode";
@@ -12,11 +15,15 @@ import { HengbandUnicodeAddon } from "./hengband-unicode";
 const {
   variant,
   fontSize,
+  soundEnabled,
+  musicEnabled,
   onReady,
   onExited,
 }: {
   variant: "ja" | "en";
   fontSize: number;
+  soundEnabled: boolean;
+  musicEnabled: boolean;
   onReady?: (actions: { openOnlineHelp: () => void }) => void;
   onExited?: () => void;
 } = $props();
@@ -36,6 +43,7 @@ let exited = $state<boolean>(false);
 let term: Terminal | null = null;
 let fitAddon: FitAddon | null = null;
 let resizeTerm: (() => void) | null = null;
+const engine = new SoundEngine(soundMap, musicMap);
 
 $effect(() => {
   // Always read fontSize first so Svelte registers it as a dependency even when
@@ -46,12 +54,21 @@ $effect(() => {
   term.options.fontSize = size;
 });
 
+$effect(() => {
+  engine.setEffectsEnabled(soundEnabled);
+});
+
+$effect(() => {
+  engine.setMusicEnabled(musicEnabled);
+});
+
 let observer: ResizeObserver | null = null;
 let beforeUnload: ((e: BeforeUnloadEvent) => void) | null = null;
 
 onDestroy(() => {
   observer?.disconnect();
   term?.dispose();
+  engine.dispose();
   if (beforeUnload) window.removeEventListener("beforeunload", beforeUnload);
 });
 
@@ -109,9 +126,18 @@ onMount(async () => {
         const text = decoder.decode(bytes, { stream: true });
         term?.write(text);
       },
+      _web_on_sound: (name) => engine.playSound(name),
+      _web_on_music: (type, val) => engine.playMusic(type, val),
+      _web_on_music_scene: (scene) => engine.playMusicScene(scene),
     });
+    engine.preloadAll();
 
+    let audioUnlocked = false;
     term.onData((data) => {
+      if (!audioUnlocked) {
+        audioUnlocked = true;
+        engine.enableAudio();
+      }
       const bytes = new TextEncoder().encode(data);
       for (const b of bytes) {
         mod._web_push_key(b);

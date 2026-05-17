@@ -1,6 +1,9 @@
 export interface HengbandModuleOpts {
   locateFile?: (path: string) => string;
   _web_on_output?: (bytes: Uint8Array) => void;
+  _web_on_sound?: (name: string) => void;
+  _web_on_music?: (type: number, val: number) => void;
+  _web_on_music_scene?: (scene: [number, number][]) => void;
   noInitialRun?: boolean;
   onExit?: (code: number) => void;
 }

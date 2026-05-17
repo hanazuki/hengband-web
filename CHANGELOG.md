@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Introduce sound effects and background music.
+
 ## v3.0.2.2-Beta+6 (2026-05-16)
 
 - Revert: De-asyncify WASM.
