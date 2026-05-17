@@ -68,6 +68,10 @@ export class SoundEngine {
   private currentMusicGain: GainNode | null = null;
   private musicGeneration = 0;
 
+  private savedMusicPositions = new Map<string, number>();
+  private currentMusicStartTime = 0;
+  private currentMusicStartOffset = 0;
+
   constructor(soundMap: SoundMap, musicMap: MusicMap) {
     this.context = new AudioContext();
     this.soundMap = soundMap;
@@ -180,7 +184,17 @@ export class SoundEngine {
     }
   }
 
+  private saveCurrentMusicPosition(): void {
+    if (this.currentMusicUrl && this.currentMusicSource?.buffer) {
+      const elapsed = this.context.currentTime - this.currentMusicStartTime;
+      const duration = this.currentMusicSource.buffer.duration;
+      const position = (this.currentMusicStartOffset + elapsed) % duration;
+      this.savedMusicPositions.set(this.currentMusicUrl, position);
+    }
+  }
+
   private stopMusic(): void {
+    this.saveCurrentMusicPosition();
     this.musicGeneration++;
     if (this.currentMusicSource && this.currentMusicGain) {
       this.fadeOutAndStop(this.currentMusicSource, this.currentMusicGain);
@@ -203,6 +217,7 @@ export class SoundEngine {
   }
 
   private crossfadeTo(url: string): void {
+    this.saveCurrentMusicPosition();
     if (this.currentMusicSource && this.currentMusicGain) {
       this.fadeOutAndStop(this.currentMusicSource, this.currentMusicGain);
     }
@@ -234,7 +249,9 @@ export class SoundEngine {
     source.buffer = buffer;
     source.loop = true;
     source.connect(gain);
-    source.start();
+
+    const startOffset = this.savedMusicPositions.get(url) ?? 0;
+    source.start(0, startOffset);
 
     const now = this.context.currentTime;
     gain.gain.setValueAtTime(0, now);
@@ -242,6 +259,8 @@ export class SoundEngine {
 
     this.currentMusicSource = source;
     this.currentMusicGain = gain;
+    this.currentMusicStartTime = now;
+    this.currentMusicStartOffset = startOffset;
   }
 
   dispose(): void {
