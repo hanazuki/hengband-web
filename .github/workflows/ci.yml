@@ -213,51 +213,7 @@ jobs:
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
         with:
           subject-path: release/hengband-web.zip
-      - run: cp "$BUNDLE" release/provenance.json
-        env:
-          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
-      - id: create-release
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          script: await require("./.github/scripts/release.cjs")({ github, context, core });
-      - id: deploy
-        if: steps.create-release.outputs.prerelease == 'false'
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
-
-      - run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
-      - run: pnpm test:e2e --project=${{ matrix.browser }}
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
-        with:
-          name: playwright-report-${{ matrix.browser }}
-          path: playwright-report/
-
-  release:
-    needs: [check, build, e2e]
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-slim
-    timeout-minutes: 10
-    permissions:
-      contents: write
-      id-token: write
-      attestations: write
-      pages: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: hengband-web.zip
-          path: release/
-      - id: attest
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
-        with:
-          subject-path: release/hengband-web.zip
-      - run: cp "$BUNDLE" release/provenance.json
+      - run: cp "$BUNDLE" release/hengband-web.zip.sigstore.json
         env:
           BUNDLE: ${{ steps.attest.outputs.bundle-path }}
       - id: create-release
