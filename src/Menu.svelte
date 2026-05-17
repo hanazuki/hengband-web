@@ -4,13 +4,17 @@ import { Menubar } from "bits-ui";
 const {
   variant,
   fontSize,
+  soundEnabled,
   onFontSizeChange,
+  onSoundEnabledChange,
   onInstall,
   onOnlineHelp,
 }: {
   variant: "ja" | "en";
   fontSize: number;
+  soundEnabled: boolean;
   onFontSizeChange: (size: number) => void;
+  onSoundEnabledChange: (enabled: boolean) => void;
   onInstall?: () => void;
   onOnlineHelp?: () => void;
 } = $props();
@@ -113,6 +117,18 @@ async function handleFeedbackClick(e: MouseEvent) {
     ></Menubar.Menu
     ><Menubar.Menu
       ><Menubar.Trigger
+        >{variant === "ja" ? "音声" : "Audio"
+      }</Menubar.Trigger
+      ><Menubar.Portal
+        ><Menubar.Content class="submenu"
+          ><Menubar.CheckboxItem checked={soundEnabled} onCheckedChange={onSoundEnabledChange}
+            >{variant === "ja" ? "効果音" : "Effects"}
+          </Menubar.CheckboxItem
+        ></Menubar.Content
+      ></Menubar.Portal
+    ></Menubar.Menu
+    ><Menubar.Menu
+      ><Menubar.Trigger
       >{variant === "ja" ? "ヘルプ" : "Help"}</Menubar.Trigger
       ><Menubar.Portal
         ><Menubar.Content class="submenu"
@@ -208,6 +224,18 @@ async function handleFeedbackClick(e: MouseEvent) {
 
   :global([data-menubar-separator]) {
     height: 1lh;
+  }
+
+  :global([data-menubar-checkbox-item]) {
+    cursor: pointer;
+
+    &::before {
+      content: "[ ] ";
+    }
+
+    &[data-state="checked"]::before {
+      content: "[x] ";
+    }
   }
 
   :global([data-menubar-item][data-disabled]) {

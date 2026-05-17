@@ -178,6 +178,9 @@
 #include <map>
 #include <string>
 #include <string_view>
+#ifdef USE_WEB
+#include "web/web-audio.hpp"
+#endif
 
 #ifdef USE_GCU
 
@@ -580,6 +583,10 @@ static errr game_term_xtra_gcu_alive(int v)
  */
 static bool init_sound()
 {
+#ifdef USE_WEB
+    can_use_sound = true;
+    return true;
+#else
     if (can_use_sound) {
         return can_use_sound;
     }
@@ -595,6 +602,7 @@ static bool init_sound()
     /* Sound available */
     can_use_sound = true;
     return can_use_sound;
+#endif
 }
 
 /*
@@ -867,6 +875,19 @@ static errr game_term_xtra_gcu_event(int v)
 /*
  * Hack -- make a sound
  */
+#ifdef USE_WEB
+static errr game_term_xtra_gcu_sound(int v)
+{
+    if (!use_sound) {
+        return 1;
+    }
+    if (v < 0 || v >= enum2i(SoundKind::MAX)) {
+        return 1;
+    }
+    web_play_sound_js(sound_names.at(i2enum<SoundKind>(v)).c_str());
+    return 0;
+}
+#else
 static errr game_term_xtra_gcu_sound(int v)
 {
     /* Sound disabled */
@@ -883,6 +904,7 @@ static errr game_term_xtra_gcu_sound(int v)
     buf.append(sound_files.at(i2enum<SoundKind>(v))).append("\n");
     return system(buf.data()) < 0;
 }
+#endif
 
 static int scale_color(int i, int j, int scale)
 {

@@ -1465,6 +1465,7 @@ AM_LDFLAGS = \
 	--exclude-file '*/delete.me' \
 	--exclude-file $(top_srcdir)/lib/xtra
 hengband_SOURCES += \
+	web/web-audio.cpp \
 	web/web-curses.cpp \
 	web/web-input.cpp
 endif

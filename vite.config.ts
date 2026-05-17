@@ -163,6 +163,129 @@ function wasmVersionedPlugin(): Plugin {
   };
 }
 
+function xtraPlugin(): Plugin {
+  const virtualModuleId = "virtual:hengband-xtra/sounds";
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`;
+  const soundCfgPath = path.resolve("hengband/lib/xtra/sound/sound.cfg");
+  const xtraSoundDir = path.resolve("xtra/sound");
+
+  let command: "build" | "serve" = "serve";
+  let soundMap: Record<string, string[]> = {};
+  const fileRefMap = new Map<string, string>();
+
+  function parseSoundCfg(content: string): Record<string, string[]> {
+    const result: Record<string, string[]> = {};
+    let inSection = false;
+    for (const line of content.split("\n")) {
+      const trimmed = line.trim();
+      if (trimmed === "[Sound]") {
+        inSection = true;
+        continue;
+      }
+      if (trimmed.startsWith("[")) {
+        inSection = false;
+        continue;
+      }
+      if (!inSection || !trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq < 0) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const wavs = trimmed
+        .slice(eq + 1)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      if (key && wavs.length > 0) {
+        result[key] = wavs.map((w) => w.replace(/\.wav$/i, ".webm"));
+      }
+    }
+    return result;
+  }
+
+  return {
+    name: "xtra",
+    configResolved(config) {
+      command = config.command;
+    },
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId;
+    },
+    buildStart() {
+      this.addWatchFile(soundCfgPath);
+      soundMap = parseSoundCfg(fs.readFileSync(soundCfgPath, "utf-8"));
+      fileRefMap.clear();
+
+      if (command === "build") {
+        const unique = new Set<string>();
+        for (const files of Object.values(soundMap)) {
+          for (const f of files) unique.add(f);
+        }
+        for (const webm of unique) {
+          const filePath = path.join(xtraSoundDir, webm);
+          if (fs.existsSync(filePath)) {
+            const refId = this.emitFile({
+              type: "asset",
+              name: webm,
+              source: fs.readFileSync(filePath),
+            });
+            fileRefMap.set(webm, refId);
+          }
+        }
+      }
+    },
+    load(id) {
+      if (id !== resolvedVirtualModuleId) return;
+
+      const entries: string[] = [];
+      if (command === "serve") {
+        for (const [key, files] of Object.entries(soundMap)) {
+          const present = files.filter((f) => fs.existsSync(path.join(xtraSoundDir, f)));
+          if (present.length > 0) {
+            entries.push(
+              `  ${JSON.stringify(key)}: [${present.map((f) => JSON.stringify(`/xtra/sound/${f}`)).join(", ")}]`,
+            );
+          }
+        }
+      } else {
+        for (const [key, files] of Object.entries(soundMap)) {
+          const refs = files.filter((f) => fileRefMap.has(f));
+          if (refs.length > 0) {
+            entries.push(
+              `  ${JSON.stringify(key)}: [${refs.map((f) => `import.meta.ROLLUP_FILE_URL_${fileRefMap.get(f)}`).join(", ")}]`,
+            );
+          }
+        }
+      }
+
+      return [
+        "export class SoundMap {",
+        "  #map;",
+        "  constructor(map) { this.#map = map; }",
+        "  entries() { return Object.entries(this.#map); }",
+        "  pick(key) {",
+        "    const arr = this.#map[key];",
+        "    if (!arr || arr.length === 0) return null;",
+        "    return arr[Math.floor(Math.random() * arr.length)];",
+        "  }",
+        "}",
+        `export const soundMap = new SoundMap({\n${entries.join(",\n")}\n});`,
+      ].join("\n");
+    },
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = (req.url ?? "").split("?")[0];
+        const m = /^\/xtra\/sound\/([^/]+\.webm)$/.exec(url);
+        if (!m) return next();
+        const filePath = path.join(xtraSoundDir, m[1]);
+        if (!fs.existsSync(filePath)) return next();
+        res.setHeader("Content-Type", "audio/webm");
+        res.setHeader("Cache-Control", "no-cache");
+        fs.createReadStream(filePath).on("error", next).pipe(res);
+      });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     VitePWA({
@@ -173,7 +296,7 @@ export default defineConfig({
       strategies: "injectManifest",
       injectManifest: {
         maximumFileSizeToCacheInBytes: 10_0000_0000,
-        globPatterns: ["**/*.{js,wasm,css,html,data,webmanifest,png,svg}"],
+        globPatterns: ["**/*.{js,wasm,css,html,data,webmanifest,png,svg,webm}"],
       },
       manifest: false,
       pwaAssets: {
@@ -183,6 +306,7 @@ export default defineConfig({
     gitRevisionPlugin(),
     webmanifestPlugin(VARIANTS),
     wasmVersionedPlugin(),
+    xtraPlugin(),
     svelte(),
   ],
   server: {

@@ -5,6 +5,8 @@ import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
 import { FitAddon } from "./fit-addon";
 import "@xterm/xterm/css/xterm.css";
+import { soundMap } from "virtual:hengband-xtra/sounds";
+import { SoundEngine } from "./audio";
 import { draculaTheme } from "./dracula";
 import type { HengbandFactory } from "./hengband";
 import { HengbandUnicodeAddon } from "./hengband-unicode";
@@ -12,11 +14,13 @@ import { HengbandUnicodeAddon } from "./hengband-unicode";
 const {
   variant,
   fontSize,
+  soundEnabled,
   onReady,
   onExited,
 }: {
   variant: "ja" | "en";
   fontSize: number;
+  soundEnabled: boolean;
   onReady?: (actions: { openOnlineHelp: () => void }) => void;
   onExited?: () => void;
 } = $props();
@@ -36,6 +40,7 @@ let exited = $state<boolean>(false);
 let term: Terminal | null = null;
 let fitAddon: FitAddon | null = null;
 let resizeTerm: (() => void) | null = null;
+const engine = new SoundEngine(soundMap);
 
 $effect(() => {
   // Always read fontSize first so Svelte registers it as a dependency even when
@@ -46,12 +51,21 @@ $effect(() => {
   term.options.fontSize = size;
 });
 
+$effect(() => {
+  if (soundEnabled) {
+    engine.enable();
+  } else {
+    engine.disable();
+  }
+});
+
 let observer: ResizeObserver | null = null;
 let beforeUnload: ((e: BeforeUnloadEvent) => void) | null = null;
 
 onDestroy(() => {
   observer?.disconnect();
   term?.dispose();
+  engine.dispose();
   if (beforeUnload) window.removeEventListener("beforeunload", beforeUnload);
 });
 
@@ -109,9 +123,16 @@ onMount(async () => {
         const text = decoder.decode(bytes, { stream: true });
         term?.write(text);
       },
+      _web_on_sound: (name) => engine.playSound(name),
     });
+    engine.preloadAll();
 
+    let audioResumed = false;
     term.onData((data) => {
+      if (!audioResumed) {
+        audioResumed = true;
+        engine.enable();
+      }
       const bytes = new TextEncoder().encode(data);
       for (const b of bytes) {
         mod._web_push_key(b);
