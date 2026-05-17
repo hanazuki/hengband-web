@@ -54,7 +54,7 @@ module.exports = async ({ github, context, core }) => {
   }
 
   const tagName = tag.tag;
-  const prerelease = tagName.includes("~");
+  const prerelease = /\+.*[a-z]/i.test(tagName);
   core.setOutput("prerelease", String(prerelease));
 
   const release = (await getOrCreateRelease(github, context.repo, tagName, prerelease)).data;
