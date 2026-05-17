@@ -115,7 +115,7 @@ jobs:
           path: xtra/
 
   build:
-    needs: [build-wasm]
+    needs: [build-wasm, build-xtra]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -123,6 +123,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          submodules: recursive
           persist-credentials: false
       - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -138,6 +139,10 @@ jobs:
         with:
           name: wasm-en
           path: wasm/en
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: xtra
+          path: xtra
       - run: pnpm build
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

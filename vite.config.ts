@@ -175,10 +175,6 @@ function xtraPlugin(): Plugin {
   const xtraMusicDir = path.resolve("xtra/music");
 
   let command: "build" | "serve" = "serve";
-  let soundMap: Record<string, string[]> = {};
-  let musicMap: Record<string, string[]> = {};
-  const soundFileRefMap = new Map<string, string>();
-  const musicFileRefMap = new Map<string, string>();
 
   function parseSoundCfg(content: string): Record<string, string[]> {
     const result: Record<string, string[]> = {};
@@ -246,50 +242,27 @@ function xtraPlugin(): Plugin {
       if (id === virtualSoundModuleId) return resolvedVirtualSoundModuleId;
       if (id === virtualMusicModuleId) return resolvedVirtualMusicModuleId;
     },
-    buildStart() {
-      this.addWatchFile(soundCfgPath);
-      this.addWatchFile(musicCfgPath);
-      soundMap = parseSoundCfg(fs.readFileSync(soundCfgPath, "utf-8"));
-      musicMap = parseMusicCfg(fs.readFileSync(musicCfgPath, "utf-8"));
-      soundFileRefMap.clear();
-      musicFileRefMap.clear();
-
-      if (command === "build") {
-        const uniqueSounds = new Set<string>();
-        for (const files of Object.values(soundMap)) {
-          for (const f of files) uniqueSounds.add(f);
-        }
-        for (const webm of uniqueSounds) {
-          const filePath = path.join(xtraSoundDir, webm);
-          if (fs.existsSync(filePath)) {
-            const refId = this.emitFile({
-              type: "asset",
-              name: webm,
-              source: fs.readFileSync(filePath),
-            });
-            soundFileRefMap.set(webm, refId);
-          }
-        }
-
-        const uniqueMusic = new Set<string>();
-        for (const files of Object.values(musicMap)) {
-          for (const f of files) uniqueMusic.add(f);
-        }
-        for (const webm of uniqueMusic) {
-          const filePath = path.join(xtraMusicDir, webm);
-          if (fs.existsSync(filePath)) {
-            const refId = this.emitFile({
-              type: "asset",
-              name: webm,
-              source: fs.readFileSync(filePath),
-            });
-            musicFileRefMap.set(webm, refId);
-          }
-        }
-      }
-    },
     load(id) {
       if (id === resolvedVirtualSoundModuleId) {
+        this.addWatchFile(soundCfgPath);
+        const soundMap = fs.existsSync(soundCfgPath)
+          ? parseSoundCfg(fs.readFileSync(soundCfgPath, "utf-8"))
+          : {};
+
+        const soundFileRefMap = new Map<string, string>();
+        if (command === "build") {
+          const uniqueFiles = new Set(Object.values(soundMap).flat());
+          for (const webm of uniqueFiles) {
+            const filePath = path.join(xtraSoundDir, webm);
+            if (fs.existsSync(filePath)) {
+              soundFileRefMap.set(
+                webm,
+                this.emitFile({ type: "asset", name: webm, source: fs.readFileSync(filePath) }),
+              );
+            }
+          }
+        }
+
         const entries: string[] = [];
         if (command === "serve") {
           for (const [key, files] of Object.entries(soundMap)) {
@@ -327,6 +300,25 @@ function xtraPlugin(): Plugin {
       }
 
       if (id === resolvedVirtualMusicModuleId) {
+        this.addWatchFile(musicCfgPath);
+        const musicMap = fs.existsSync(musicCfgPath)
+          ? parseMusicCfg(fs.readFileSync(musicCfgPath, "utf-8"))
+          : {};
+
+        const musicFileRefMap = new Map<string, string>();
+        if (command === "build") {
+          const uniqueFiles = new Set(Object.values(musicMap).flat());
+          for (const webm of uniqueFiles) {
+            const filePath = path.join(xtraMusicDir, webm);
+            if (fs.existsSync(filePath)) {
+              musicFileRefMap.set(
+                webm,
+                this.emitFile({ type: "asset", name: webm, source: fs.readFileSync(filePath) }),
+              );
+            }
+          }
+        }
+
         const entries: string[] = [];
         if (command === "serve") {
           for (const [key, files] of Object.entries(musicMap)) {
