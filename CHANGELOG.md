@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.0.2.2-Beta+7 (2026-05-17)
+
 - Introduce sound effects and background music.
 
 ## v3.0.2.2-Beta+6 (2026-05-16)
