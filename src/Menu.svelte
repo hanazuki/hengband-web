@@ -1,5 +1,6 @@
 <script lang="ts">
 import { Menubar } from "bits-ui";
+import StepperMenubarItem from "./StepperMenubarItem.svelte";
 
 const {
   variant,
@@ -112,12 +113,9 @@ async function handleFeedbackClick(e: MouseEvent) {
       }</Menubar.Trigger
       ><Menubar.Portal
         ><Menubar.Content class="submenu"
-          ><Menubar.Item
+          ><StepperMenubarItem value={fontSize} min={8} max={32} onChange={onFontSizeChange}
             >{variant === "ja" ? "文字サイズ" : "Font size"
-            }:<button class="font-size" disabled={fontSize <= 8} onclick={() => onFontSizeChange(fontSize - 1)}>-</button
-            ><output>{fontSize}</output
-            ><button class="font-size" disabled={fontSize >= 32} onclick={() => onFontSizeChange(fontSize + 1)}>+</button
-          ></Menubar.Item
+          }</StepperMenubarItem
         ></Menubar.Content
       ></Menubar.Portal
     ></Menubar.Menu
@@ -210,19 +208,6 @@ async function handleFeedbackClick(e: MouseEvent) {
     border-image-source: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><text x="0" y="10" font-family="monospace" font-size="1rem" fill="white">┌─┐</text><text x="0" y="20" font-family="monospace" font-size="1rem" fill="white">│ │</text><text x="0" y="30" font-family="monospace" font-size="1rem" fill="white">└─┘</text></svg>');
     border-image-slice: 10;
     border-image-repeat: repeat;
-
-    & button {
-      &::before { content: "["; }
-      &::after { content: "]"; }
-      margin-inline: 1ch;
-
-      appearance: none;
-      border: none;
-      background: none;
-      color: inherit;
-      font: inherit;
-      cursor: pointer;
-    }
 
     & a[href] {
       text-decoration: none;
