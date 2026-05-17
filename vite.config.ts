@@ -432,6 +432,8 @@ export default defineConfig({
                   readFile("hengband/lib/help/jlicense.txt"),
                   readFile("hengband/THIRD-PARTY-NOTICES.txt"),
                   ...npmParts,
+                  readFile("hengband/lib/xtra/music/readme.txt"),
+                  readFile("hengband/lib/xtra/sound/readme.txt"),
                 ];
                 return parts.join(`\n\n${"=".repeat(40)}\n\n`);
               },
