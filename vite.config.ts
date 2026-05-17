@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -82,26 +82,24 @@ function webmanifestPlugin(variants: readonly Variant[]): Plugin {
   };
 }
 
-/**
- * Emits versioned Emscripten build artifacts (hengband-{hash}.{js,wasm,data}) into the
- * Rollup bundle so VitePWA includes them in the precache manifest. In dev mode, serves the
- * files from wasm/ while accepting the suffixed URLs the app requests.
- *
- * Using filename-based hashing (rather than query parameters) ensures that a non-atomic
- * deployment cannot serve a mismatched set of files: the old JS always requests the old
- * wasm/data by name, and both versions can coexist on the server during the rollover.
- */
 function gitRevisionPlugin(): Plugin {
   return {
     name: "git-revision",
     config() {
-      let revision: string;
-      try {
-        revision = execSync("git rev-parse --short HEAD", { encoding: "utf-8" }).trim();
-      } catch {
-        revision = "unknown";
-      }
-      return { define: { "import.meta.env.VITE_GIT_REVISION": JSON.stringify(revision) } };
+      const revision = (() => {
+        const r = spawnSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf-8" });
+        return r.error || r.status !== 0 ? "unknown" : r.stdout.trim();
+      })();
+      const description = (() => {
+        const r = spawnSync("git", ["describe", "--match", "v*", "--dirty=!"], { encoding: "utf-8" });
+        return r.error || r.status !== 0 ? "unknown" : r.stdout.trim();
+      })();
+      return {
+        define: {
+          "import.meta.env.VITE_GIT_REVISION": JSON.stringify(revision),
+          "import.meta.env.VITE_GIT_DESCRIPTION": JSON.stringify(description),
+        },
+      };
     },
   };
 }

@@ -20,7 +20,7 @@ async function handleFeedbackClick(e: MouseEvent) {
   const anchor = e.currentTarget as HTMLAnchorElement;
 
   const lines = [];
-  lines.push(`- revision: ${import.meta.env.VITE_GIT_REVISION}`);
+  lines.push(`- revision: ${import.meta.env.VITE_GIT_REVISION} (${import.meta.env.VITE_GIT_DESCRIPTION})`);
   const wasmBuildId =
     variant === "ja"
       ? import.meta.env.VITE_WASM_BUILD_ID_JA
