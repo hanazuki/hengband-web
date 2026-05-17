@@ -91,7 +91,9 @@ function gitRevisionPlugin(): Plugin {
         return r.error || r.status !== 0 ? "unknown" : r.stdout.trim();
       })();
       const description = (() => {
-        const r = spawnSync("git", ["describe", "--match", "v*", "--dirty=!"], { encoding: "utf-8" });
+        const r = spawnSync("git", ["describe", "--match", "v*", "--dirty=!"], {
+          encoding: "utf-8",
+        });
         return r.error || r.status !== 0 ? "unknown" : r.stdout.trim();
       })();
       return {
