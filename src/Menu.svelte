@@ -5,16 +5,20 @@ const {
   variant,
   fontSize,
   soundEnabled,
+  musicEnabled,
   onFontSizeChange,
   onSoundEnabledChange,
+  onMusicEnabledChange,
   onInstall,
   onOnlineHelp,
 }: {
   variant: "ja" | "en";
   fontSize: number;
   soundEnabled: boolean;
+  musicEnabled: boolean;
   onFontSizeChange: (size: number) => void;
   onSoundEnabledChange: (enabled: boolean) => void;
+  onMusicEnabledChange: (enabled: boolean) => void;
   onInstall?: () => void;
   onOnlineHelp?: () => void;
 } = $props();
@@ -121,6 +125,9 @@ async function handleFeedbackClick(e: MouseEvent) {
       }</Menubar.Trigger
       ><Menubar.Portal
         ><Menubar.Content class="submenu"
+          ><Menubar.CheckboxItem checked={musicEnabled} onCheckedChange={onMusicEnabledChange}
+            >{variant === "ja" ? "楽曲" : "Music"}
+          </Menubar.CheckboxItem
           ><Menubar.CheckboxItem checked={soundEnabled} onCheckedChange={onSoundEnabledChange}
             >{variant === "ja" ? "効果音" : "Effects"}
           </Menubar.CheckboxItem

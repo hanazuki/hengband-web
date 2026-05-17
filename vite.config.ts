@@ -164,14 +164,21 @@ function wasmVersionedPlugin(): Plugin {
 }
 
 function xtraPlugin(): Plugin {
-  const virtualModuleId = "virtual:hengband-xtra/sounds";
-  const resolvedVirtualModuleId = `\0${virtualModuleId}`;
+  const virtualSoundModuleId = "virtual:hengband-xtra/sounds";
+  const resolvedVirtualSoundModuleId = `\0${virtualSoundModuleId}`;
   const soundCfgPath = path.resolve("hengband/lib/xtra/sound/sound.cfg");
   const xtraSoundDir = path.resolve("xtra/sound");
 
+  const virtualMusicModuleId = "virtual:hengband-xtra/music";
+  const resolvedVirtualMusicModuleId = `\0${virtualMusicModuleId}`;
+  const musicCfgPath = path.resolve("hengband/lib/xtra/music/music.cfg");
+  const xtraMusicDir = path.resolve("xtra/music");
+
   let command: "build" | "serve" = "serve";
   let soundMap: Record<string, string[]> = {};
-  const fileRefMap = new Map<string, string>();
+  let musicMap: Record<string, string[]> = {};
+  const soundFileRefMap = new Map<string, string>();
+  const musicFileRefMap = new Map<string, string>();
 
   function parseSoundCfg(content: string): Record<string, string[]> {
     const result: Record<string, string[]> = {};
@@ -202,25 +209,57 @@ function xtraPlugin(): Plugin {
     return result;
   }
 
+  const MUSIC_SECTIONS = new Set(["Basic", "Town", "Dungeon", "Quest", "Monster"]);
+
+  function parseMusicCfg(content: string): Record<string, string[]> {
+    const result: Record<string, string[]> = {};
+    let inSection = false;
+    for (const line of content.split("\n")) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("[")) {
+        const name = trimmed.slice(1, trimmed.indexOf("]"));
+        inSection = MUSIC_SECTIONS.has(name);
+        continue;
+      }
+      if (!inSection || !trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq < 0) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const mp3s = trimmed
+        .slice(eq + 1)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      if (key && mp3s.length > 0) {
+        result[key] = mp3s.map((f) => f.replace(/\.mp3$/i, ".webm"));
+      }
+    }
+    return result;
+  }
+
   return {
     name: "xtra",
     configResolved(config) {
       command = config.command;
     },
     resolveId(id) {
-      if (id === virtualModuleId) return resolvedVirtualModuleId;
+      if (id === virtualSoundModuleId) return resolvedVirtualSoundModuleId;
+      if (id === virtualMusicModuleId) return resolvedVirtualMusicModuleId;
     },
     buildStart() {
       this.addWatchFile(soundCfgPath);
+      this.addWatchFile(musicCfgPath);
       soundMap = parseSoundCfg(fs.readFileSync(soundCfgPath, "utf-8"));
-      fileRefMap.clear();
+      musicMap = parseMusicCfg(fs.readFileSync(musicCfgPath, "utf-8"));
+      soundFileRefMap.clear();
+      musicFileRefMap.clear();
 
       if (command === "build") {
-        const unique = new Set<string>();
+        const uniqueSounds = new Set<string>();
         for (const files of Object.values(soundMap)) {
-          for (const f of files) unique.add(f);
+          for (const f of files) uniqueSounds.add(f);
         }
-        for (const webm of unique) {
+        for (const webm of uniqueSounds) {
           const filePath = path.join(xtraSoundDir, webm);
           if (fs.existsSync(filePath)) {
             const refId = this.emitFile({
@@ -228,59 +267,123 @@ function xtraPlugin(): Plugin {
               name: webm,
               source: fs.readFileSync(filePath),
             });
-            fileRefMap.set(webm, refId);
+            soundFileRefMap.set(webm, refId);
+          }
+        }
+
+        const uniqueMusic = new Set<string>();
+        for (const files of Object.values(musicMap)) {
+          for (const f of files) uniqueMusic.add(f);
+        }
+        for (const webm of uniqueMusic) {
+          const filePath = path.join(xtraMusicDir, webm);
+          if (fs.existsSync(filePath)) {
+            const refId = this.emitFile({
+              type: "asset",
+              name: webm,
+              source: fs.readFileSync(filePath),
+            });
+            musicFileRefMap.set(webm, refId);
           }
         }
       }
     },
     load(id) {
-      if (id !== resolvedVirtualModuleId) return;
+      if (id === resolvedVirtualSoundModuleId) {
+        const entries: string[] = [];
+        if (command === "serve") {
+          for (const [key, files] of Object.entries(soundMap)) {
+            const present = files.filter((f) => fs.existsSync(path.join(xtraSoundDir, f)));
+            if (present.length > 0) {
+              entries.push(
+                `  ${JSON.stringify(key)}: [${present.map((f) => JSON.stringify(`/xtra/sound/${f}`)).join(", ")}]`,
+              );
+            }
+          }
+        } else {
+          for (const [key, files] of Object.entries(soundMap)) {
+            const refs = files.filter((f) => soundFileRefMap.has(f));
+            if (refs.length > 0) {
+              entries.push(
+                `  ${JSON.stringify(key)}: [${refs.map((f) => `import.meta.ROLLUP_FILE_URL_${soundFileRefMap.get(f)}`).join(", ")}]`,
+              );
+            }
+          }
+        }
 
-      const entries: string[] = [];
-      if (command === "serve") {
-        for (const [key, files] of Object.entries(soundMap)) {
-          const present = files.filter((f) => fs.existsSync(path.join(xtraSoundDir, f)));
-          if (present.length > 0) {
-            entries.push(
-              `  ${JSON.stringify(key)}: [${present.map((f) => JSON.stringify(`/xtra/sound/${f}`)).join(", ")}]`,
-            );
-          }
-        }
-      } else {
-        for (const [key, files] of Object.entries(soundMap)) {
-          const refs = files.filter((f) => fileRefMap.has(f));
-          if (refs.length > 0) {
-            entries.push(
-              `  ${JSON.stringify(key)}: [${refs.map((f) => `import.meta.ROLLUP_FILE_URL_${fileRefMap.get(f)}`).join(", ")}]`,
-            );
-          }
-        }
+        return [
+          "export class SoundMap {",
+          "  #map;",
+          "  constructor(map) { this.#map = map; }",
+          "  entries() { return Object.entries(this.#map); }",
+          "  pick(key) {",
+          "    const arr = this.#map[key];",
+          "    if (!arr || arr.length === 0) return null;",
+          "    return arr[Math.floor(Math.random() * arr.length)];",
+          "  }",
+          "}",
+          `export const soundMap = new SoundMap({\n${entries.join(",\n")}\n});`,
+        ].join("\n");
       }
 
-      return [
-        "export class SoundMap {",
-        "  #map;",
-        "  constructor(map) { this.#map = map; }",
-        "  entries() { return Object.entries(this.#map); }",
-        "  pick(key) {",
-        "    const arr = this.#map[key];",
-        "    if (!arr || arr.length === 0) return null;",
-        "    return arr[Math.floor(Math.random() * arr.length)];",
-        "  }",
-        "}",
-        `export const soundMap = new SoundMap({\n${entries.join(",\n")}\n});`,
-      ].join("\n");
+      if (id === resolvedVirtualMusicModuleId) {
+        const entries: string[] = [];
+        if (command === "serve") {
+          for (const [key, files] of Object.entries(musicMap)) {
+            const present = files.filter((f) => fs.existsSync(path.join(xtraMusicDir, f)));
+            if (present.length > 0) {
+              entries.push(
+                `  ${JSON.stringify(key)}: [${present.map((f) => JSON.stringify(`/xtra/music/${f}`)).join(", ")}]`,
+              );
+            }
+          }
+        } else {
+          for (const [key, files] of Object.entries(musicMap)) {
+            const refs = files.filter((f) => musicFileRefMap.has(f));
+            if (refs.length > 0) {
+              entries.push(
+                `  ${JSON.stringify(key)}: [${refs.map((f) => `import.meta.ROLLUP_FILE_URL_${musicFileRefMap.get(f)}`).join(", ")}]`,
+              );
+            }
+          }
+        }
+
+        return [
+          "export class MusicMap {",
+          "  #map;",
+          "  constructor(map) { this.#map = map; }",
+          "  pick(key) {",
+          "    const arr = this.#map[key];",
+          "    if (!arr || arr.length === 0) return null;",
+          "    return arr[Math.floor(Math.random() * arr.length)];",
+          "  }",
+          "}",
+          `export const musicMap = new MusicMap({\n${entries.join(",\n")}\n});`,
+        ].join("\n");
+      }
     },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = (req.url ?? "").split("?")[0];
-        const m = /^\/xtra\/sound\/([^/]+\.webm)$/.exec(url);
-        if (!m) return next();
-        const filePath = path.join(xtraSoundDir, m[1]);
-        if (!fs.existsSync(filePath)) return next();
-        res.setHeader("Content-Type", "audio/webm");
-        res.setHeader("Cache-Control", "no-cache");
-        fs.createReadStream(filePath).on("error", next).pipe(res);
+        const sm = /^\/xtra\/sound\/([^/]+\.webm)$/.exec(url);
+        if (sm) {
+          const filePath = path.join(xtraSoundDir, sm[1]);
+          if (!fs.existsSync(filePath)) return next();
+          res.setHeader("Content-Type", "audio/webm");
+          res.setHeader("Cache-Control", "no-cache");
+          fs.createReadStream(filePath).on("error", next).pipe(res);
+          return;
+        }
+        const mm = /^\/xtra\/music\/([^/]+\.webm)$/.exec(url);
+        if (mm) {
+          const filePath = path.join(xtraMusicDir, mm[1]);
+          if (!fs.existsSync(filePath)) return next();
+          res.setHeader("Content-Type", "audio/webm");
+          res.setHeader("Cache-Control", "no-cache");
+          fs.createReadStream(filePath).on("error", next).pipe(res);
+          return;
+        }
+        next();
       });
     },
   };

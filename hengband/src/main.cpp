@@ -288,6 +288,7 @@ int main(int argc, char *argv[])
     auto browsing_movie = false;
 #ifdef USE_WEB
     arg_sound = true;
+    arg_music = true;
 #endif
     for (auto i = 1; args && (i < argc); i++) {
         if (argv[i][0] != '-') {

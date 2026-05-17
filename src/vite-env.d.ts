@@ -48,3 +48,10 @@ declare module "virtual:hengband-xtra/sounds" {
   }
   export const soundMap: SoundMap;
 }
+
+declare module "virtual:hengband-xtra/music" {
+  export class MusicMap {
+    pick(key: string): string | null;
+  }
+  export const musicMap: MusicMap;
+}

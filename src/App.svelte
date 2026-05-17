@@ -26,6 +26,7 @@ function parseFragment(hash: string): Variant | null {
 let variant = $state<Variant | null>(parseFragment(location.hash));
 let fontSize = $state(Number(localStorage.getItem("hengband.fontSize")) || 14);
 let soundEnabled = $state(localStorage.getItem("hengband.sound") !== "false");
+let musicEnabled = $state(localStorage.getItem("hengband.music") !== "false");
 let deferredInstallPrompt = $state<BeforeInstallPromptEvent | null>(null);
 let openOnlineHelp = $state<(() => void) | null>(null);
 
@@ -38,6 +39,11 @@ function handleFontSizeChange(size: number): void {
 function handleSoundEnabledChange(enabled: boolean): void {
   soundEnabled = enabled;
   localStorage.setItem("hengband.sound", String(enabled));
+}
+
+function handleMusicEnabledChange(enabled: boolean): void {
+  musicEnabled = enabled;
+  localStorage.setItem("hengband.music", String(enabled));
 }
 
 function handleNavigation(): void {
@@ -96,9 +102,9 @@ onDestroy(() => {
   {#if variant === null}
     <StartScreen />
   {:else}
-    <Menu {variant} {fontSize} {soundEnabled} onFontSizeChange={handleFontSizeChange} onSoundEnabledChange={handleSoundEnabledChange} onInstall={deferredInstallPrompt ? handleInstall : undefined} onOnlineHelp={openOnlineHelp ?? undefined} />
+    <Menu {variant} {fontSize} {soundEnabled} {musicEnabled} onFontSizeChange={handleFontSizeChange} onSoundEnabledChange={handleSoundEnabledChange} onMusicEnabledChange={handleMusicEnabledChange} onInstall={deferredInstallPrompt ? handleInstall : undefined} onOnlineHelp={openOnlineHelp ?? undefined} />
     {#await hengbandModule then { default: Hengband}}
-      <Hengband {variant} {fontSize} {soundEnabled} onReady={({ openOnlineHelp: fn }) => { openOnlineHelp = fn; }} onExited={() => { openOnlineHelp = null; }} />
+      <Hengband {variant} {fontSize} {soundEnabled} {musicEnabled} onReady={({ openOnlineHelp: fn }) => { openOnlineHelp = fn; }} onExited={() => { openOnlineHelp = null; }} />
     {/await}
   {/if}
 </div>

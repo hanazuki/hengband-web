@@ -5,6 +5,7 @@ import { Terminal } from "@xterm/xterm";
 import { onDestroy, onMount } from "svelte";
 import { FitAddon } from "./fit-addon";
 import "@xterm/xterm/css/xterm.css";
+import { musicMap } from "virtual:hengband-xtra/music";
 import { soundMap } from "virtual:hengband-xtra/sounds";
 import { SoundEngine } from "./audio";
 import { draculaTheme } from "./dracula";
@@ -15,12 +16,14 @@ const {
   variant,
   fontSize,
   soundEnabled,
+  musicEnabled,
   onReady,
   onExited,
 }: {
   variant: "ja" | "en";
   fontSize: number;
   soundEnabled: boolean;
+  musicEnabled: boolean;
   onReady?: (actions: { openOnlineHelp: () => void }) => void;
   onExited?: () => void;
 } = $props();
@@ -40,7 +43,7 @@ let exited = $state<boolean>(false);
 let term: Terminal | null = null;
 let fitAddon: FitAddon | null = null;
 let resizeTerm: (() => void) | null = null;
-const engine = new SoundEngine(soundMap);
+const engine = new SoundEngine(soundMap, musicMap);
 
 $effect(() => {
   // Always read fontSize first so Svelte registers it as a dependency even when
@@ -52,11 +55,11 @@ $effect(() => {
 });
 
 $effect(() => {
-  if (soundEnabled) {
-    engine.enable();
-  } else {
-    engine.disable();
-  }
+  engine.setEffectsEnabled(soundEnabled);
+});
+
+$effect(() => {
+  engine.setMusicEnabled(musicEnabled);
 });
 
 let observer: ResizeObserver | null = null;
@@ -124,14 +127,16 @@ onMount(async () => {
         term?.write(text);
       },
       _web_on_sound: (name) => engine.playSound(name),
+      _web_on_music: (type, val) => engine.playMusic(type, val),
+      _web_on_music_scene: (scene) => engine.playMusicScene(scene),
     });
     engine.preloadAll();
 
-    let audioResumed = false;
+    let audioUnlocked = false;
     term.onData((data) => {
-      if (!audioResumed) {
-        audioResumed = true;
-        engine.enable();
+      if (!audioUnlocked) {
+        audioUnlocked = true;
+        engine.enableAudio();
       }
       const bytes = new TextEncoder().encode(data);
       for (const b of bytes) {
