@@ -120,6 +120,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -145,11 +147,21 @@ jobs:
           path: xtra
       - run: pnpm build
       - run: cd dist && zip -r ../hengband-web.zip .
+      - id: attest
+        if: github.event.repository.fork == false
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        with:
+          subject-path: hengband-web.zip
+      - run: |
+          mkdir release
+          mv hengband-web.zip release/
+          if [ -n "$BUNDLE" ]; then cp "$BUNDLE" release/hengband-web.zip.sigstore.json; fi
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: hengband-web
-          path: hengband-web.zip
-          archive: false
+          name: release
+          path: release/
       - if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
@@ -177,9 +189,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: hengband-web.zip
-          path: /tmp/
-      - run: unzip /tmp/hengband-web.zip -d dist/
+          name: release
+          path: release/
+      - run: unzip release/hengband-web.zip -d dist/
       - run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
       - run: pnpm test:e2e --project=${{ matrix.browser }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -196,7 +208,6 @@ jobs:
     permissions:
       contents: write
       id-token: write
-      attestations: write
       pages: write
     environment:
       name: github-pages
@@ -207,15 +218,8 @@ jobs:
           persist-credentials: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: hengband-web.zip
+          name: release
           path: release/
-      - id: attest
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
-        with:
-          subject-path: release/hengband-web.zip
-      - run: cp "$BUNDLE" release/hengband-web.zip.sigstore.json
-        env:
-          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
       - id: create-release
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
