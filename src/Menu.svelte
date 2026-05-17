@@ -10,6 +10,10 @@ const {
   onFontSizeChange,
   onSoundEnabledChange,
   onMusicEnabledChange,
+  musicVolume,
+  effectsVolume,
+  onMusicVolumeChange,
+  onEffectsVolumeChange,
   onInstall,
   onOnlineHelp,
 }: {
@@ -20,6 +24,10 @@ const {
   onFontSizeChange: (size: number) => void;
   onSoundEnabledChange: (enabled: boolean) => void;
   onMusicEnabledChange: (enabled: boolean) => void;
+  musicVolume: number;
+  effectsVolume: number;
+  onMusicVolumeChange: (volume: number) => void;
+  onEffectsVolumeChange: (volume: number) => void;
   onInstall?: () => void;
   onOnlineHelp?: () => void;
 } = $props();
@@ -131,6 +139,18 @@ async function handleFeedbackClick(e: MouseEvent) {
           ><Menubar.CheckboxItem checked={soundEnabled} onCheckedChange={onSoundEnabledChange}
             >{variant === "ja" ? "効果音" : "Effects"}
           </Menubar.CheckboxItem
+          ><Menubar.Separator
+          /><Menubar.Group
+            ><Menubar.GroupHeading
+              >{variant === "ja" ? "音量" : "Volume"
+            }</Menubar.GroupHeading
+            ><StepperMenubarItem value={musicVolume} min={0} max={10} onChange={onMusicVolumeChange}
+              >{variant === "ja" ? "楽曲" : "Music"
+            }</StepperMenubarItem
+            ><StepperMenubarItem value={effectsVolume} min={0} max={10} onChange={onEffectsVolumeChange}
+              >{variant === "ja" ? "効果音" : "Effects"
+            }</StepperMenubarItem
+          ></Menubar.Group
         ></Menubar.Content
       ></Menubar.Portal
     ></Menubar.Menu
@@ -218,6 +238,10 @@ async function handleFeedbackClick(e: MouseEvent) {
 
   :global([data-menubar-separator]) {
     height: 1lh;
+  }
+
+  :global([data-menubar-group-heading]) {
+    color: var(--bright-black);
   }
 
   :global([data-menubar-checkbox-item]) {
