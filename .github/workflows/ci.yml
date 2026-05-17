@@ -19,13 +19,13 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
+      - run: pnpm -r typecheck
       - run: pnpm lint
       - run: pnpm test
 
@@ -77,7 +77,7 @@ jobs:
           key: ccache-${{ runner.os }}-${{ matrix.variant }}-${{ github.sha }}
           restore-keys: ccache-${{ runner.os }}-${{ matrix.variant }}-
       - run: mkdir -p tmp/ccache wasm
-      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: .node-version
@@ -102,7 +102,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - run: sudo apt-get install -y --no-install-recommends ffmpeg
-      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: .node-version
@@ -120,12 +120,14 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+    outputs:
+      asset-artifact-id: ${{ steps.upload-asset.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
           persist-credentials: false
-      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: .node-version
@@ -152,6 +154,15 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           path: dist/
+      - if: startsWith(github.ref, 'refs/tags/v')
+        run: zip -r hengband-web.zip dist/
+      - id: upload-asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hengband-web
+          path: hengband-web.zip
+          archive: false
 
   e2e:
     needs: [build]
@@ -167,7 +178,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: .node-version
@@ -185,17 +196,39 @@ jobs:
           name: playwright-report-${{ matrix.browser }}
           path: playwright-report/
 
-  deploy:
+  release:
     needs: [check, build, e2e]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-slim
     timeout-minutes: 10
     permissions:
-      pages: write
+      contents: write
       id-token: write
+      attestations: write
+      pages: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
-        id: deployment
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.build.outputs.asset-artifact-id }}
+          path: release/
+          merge-multiple: true
+      - id: attest
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        with:
+          subject-path: release/hengband-web.zip
+      - run: cp "$BUNDLE" release/provenance.json
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+      - id: create-release
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: await require("./.github/scripts/release.cjs")({ github, context, core });
+      - id: deploy
+        if: steps.create-release.outputs.prerelease == 'false'
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0

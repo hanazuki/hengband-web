@@ -1,3 +1,7 @@
+packages:
+  - .github/scripts
+
 allowBuilds:
+  '@actions/github-script': true
   '@hanazuki/node-jsonnet': true
   sharp: true
