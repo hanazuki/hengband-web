@@ -27,6 +27,8 @@ let variant = $state<Variant | null>(parseFragment(location.hash));
 let fontSize = $state(Number(localStorage.getItem("hengband.fontSize")) || 14);
 let soundEnabled = $state(localStorage.getItem("hengband.sound") !== "false");
 let musicEnabled = $state(localStorage.getItem("hengband.music") !== "false");
+let musicVolume = $state(Number(localStorage.getItem("hengband.musicVolume") ?? "5"));
+let effectsVolume = $state(Number(localStorage.getItem("hengband.effectsVolume") ?? "5"));
 let deferredInstallPrompt = $state<BeforeInstallPromptEvent | null>(null);
 let openOnlineHelp = $state<(() => void) | null>(null);
 
@@ -44,6 +46,16 @@ function handleSoundEnabledChange(enabled: boolean): void {
 function handleMusicEnabledChange(enabled: boolean): void {
   musicEnabled = enabled;
   localStorage.setItem("hengband.music", String(enabled));
+}
+
+function handleMusicVolumeChange(volume: number): void {
+  musicVolume = volume;
+  localStorage.setItem("hengband.musicVolume", String(volume));
+}
+
+function handleEffectsVolumeChange(volume: number): void {
+  effectsVolume = volume;
+  localStorage.setItem("hengband.effectsVolume", String(volume));
 }
 
 function handleNavigation(): void {
@@ -102,9 +114,9 @@ onDestroy(() => {
   {#if variant === null}
     <StartScreen />
   {:else}
-    <Menu {variant} {fontSize} {soundEnabled} {musicEnabled} onFontSizeChange={handleFontSizeChange} onSoundEnabledChange={handleSoundEnabledChange} onMusicEnabledChange={handleMusicEnabledChange} onInstall={deferredInstallPrompt ? handleInstall : undefined} onOnlineHelp={openOnlineHelp ?? undefined} />
+    <Menu {variant} {fontSize} {soundEnabled} {musicEnabled} {musicVolume} {effectsVolume} onFontSizeChange={handleFontSizeChange} onSoundEnabledChange={handleSoundEnabledChange} onMusicEnabledChange={handleMusicEnabledChange} onMusicVolumeChange={handleMusicVolumeChange} onEffectsVolumeChange={handleEffectsVolumeChange} onInstall={deferredInstallPrompt ? handleInstall : undefined} onOnlineHelp={openOnlineHelp ?? undefined} />
     {#await hengbandModule then { default: Hengband}}
-      <Hengband {variant} {fontSize} {soundEnabled} {musicEnabled} onReady={({ openOnlineHelp: fn }) => { openOnlineHelp = fn; }} onExited={() => { openOnlineHelp = null; }} />
+      <Hengband {variant} {fontSize} {soundEnabled} {musicEnabled} {musicVolume} {effectsVolume} onReady={({ openOnlineHelp: fn }) => { openOnlineHelp = fn; }} onExited={() => { openOnlineHelp = null; }} />
     {/await}
   {/if}
 </div>

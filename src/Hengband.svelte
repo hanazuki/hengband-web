@@ -17,6 +17,8 @@ const {
   fontSize,
   soundEnabled,
   musicEnabled,
+  musicVolume,
+  effectsVolume,
   onReady,
   onExited,
 }: {
@@ -24,6 +26,8 @@ const {
   fontSize: number;
   soundEnabled: boolean;
   musicEnabled: boolean;
+  musicVolume: number;
+  effectsVolume: number;
   onReady?: (actions: { openOnlineHelp: () => void }) => void;
   onExited?: () => void;
 } = $props();
@@ -60,6 +64,14 @@ $effect(() => {
 
 $effect(() => {
   engine.setMusicEnabled(musicEnabled);
+});
+
+$effect(() => {
+  engine.setMusicVolume(musicVolume / 10);
+});
+
+$effect(() => {
+  engine.setEffectsVolume(effectsVolume / 10);
 });
 
 let observer: ResizeObserver | null = null;

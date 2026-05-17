@@ -63,6 +63,11 @@ export class SoundEngine {
   private effectsMasterGain: GainNode;
   private musicMasterGain: GainNode;
 
+  private effectsEnabled = false;
+  private musicEnabled = true;
+  private effectsVolumeLevel = 1.0;
+  private musicVolumeLevel = 1.0;
+
   private currentMusicUrl: string | null = null;
   private currentMusicSource: AudioBufferSourceNode | null = null;
   private currentMusicGain: GainNode | null = null;
@@ -117,8 +122,16 @@ export class SoundEngine {
     await Promise.allSettled(tasks);
   }
 
+  private updateEffectsGain(): void {
+    this.effectsMasterGain.gain.value = this.effectsEnabled ? this.effectsVolumeLevel : 0;
+  }
+
+  private updateMusicGain(): void {
+    this.musicMasterGain.gain.value = this.musicEnabled ? this.musicVolumeLevel : 0;
+  }
+
   playSound(name: string): void {
-    if (this.effectsMasterGain.gain.value === 0) return;
+    if (!this.effectsEnabled) return;
     const buffers = this.bufferCache.get(name);
     if (!buffers || buffers.length === 0) return;
 
@@ -144,7 +157,8 @@ export class SoundEngine {
   }
 
   setEffectsEnabled(enabled: boolean): void {
-    this.effectsMasterGain.gain.value = enabled ? 1 : 0;
+    this.effectsEnabled = enabled;
+    this.updateEffectsGain();
     if (!enabled && this.currentSource) {
       this.currentSource.stop();
       this.currentSource = null;
@@ -152,7 +166,18 @@ export class SoundEngine {
   }
 
   setMusicEnabled(enabled: boolean): void {
-    this.musicMasterGain.gain.value = enabled ? 1 : 0;
+    this.musicEnabled = enabled;
+    this.updateMusicGain();
+  }
+
+  setEffectsVolume(volume: number): void {
+    this.effectsVolumeLevel = volume;
+    this.updateEffectsGain();
+  }
+
+  setMusicVolume(volume: number): void {
+    this.musicVolumeLevel = volume;
+    this.updateMusicGain();
   }
 
   playMusic(type: number, val: number): void {
