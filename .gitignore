@@ -2,6 +2,7 @@ node_modules/
 dist/
 wasm/*
 !wasm/.keep
+xtra
 
 hengband/build/
 hengband/src/hengband.js

@@ -15,6 +15,7 @@
     "typecheck": "svelte-check --tsconfig ./tsconfig.json && tsc --project tsconfig.node.json",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "build:xtra": "zx misc/build-xtra.ts",
     "bump-version": "zx misc/bump-version.ts"
   },
   "devDependencies": {
