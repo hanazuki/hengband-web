@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_GIT_REVISION: string;
+  readonly VITE_GIT_DESCRIPTION: string;
   readonly VITE_WASM_BUILD_ID_JA: string;
   readonly VITE_WASM_BUILD_ID_EN: string;
 }
