@@ -81,7 +81,10 @@ if (prevBaseVersion === null) {
 }
 
 // Confirm
-const prevDisplay = prevBaseVersion === null ? "(none)" : `v${prevBaseVersion}+${counter}${prevSuffix ? `-${prevSuffix}` : ""}`;
+const prevDisplay =
+  prevBaseVersion === null
+    ? "(none)"
+    : `v${prevBaseVersion}+${counter}${prevSuffix ? `-${prevSuffix}` : ""}`;
 console.log(`Prev version: ${prevDisplay}`);
 console.log(`Next version: ${nextVersion}`);
 const answer = await question("Proceed? [y/N] ");
