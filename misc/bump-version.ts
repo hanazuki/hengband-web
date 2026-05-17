@@ -22,11 +22,12 @@ const currentBaseVersion = branchMatch[1]!;
 
 // Previous tag
 let prevBaseVersion: string | null = null;
+let prevSuffix: string | null = null;
 let counter = 0;
 
 try {
   const prevTag = (await $`git describe --tags --abbrev=0`).stdout.trim();
-  const tagMatch = prevTag.match(/^v([^+]+)\+(\d+)(?:-.+)?$/);
+  const tagMatch = prevTag.match(/^v([^+]+)\+(\d+)(?:-(.+))?$/);
   if (!tagMatch) {
     console.error(
       `Error: previous tag '${prevTag}' does not match expected format v{version}+{n}[-info].`,
@@ -35,6 +36,7 @@ try {
   }
   prevBaseVersion = tagMatch[1]!;
   counter = parseInt(tagMatch[2]!, 10);
+  prevSuffix = tagMatch[3] ?? null;
 } catch {
   // No tags yet
 }
@@ -69,7 +71,8 @@ if (prevBaseVersion === null) {
 } else {
   const cmp = compareVersions(prevBaseVersion, currentBaseVersion);
   if (cmp === 0) {
-    nextVersion = `v${currentBaseVersion}+${counter + 1}`;
+    const prevIsPrerelease = prevSuffix !== null && /^(alpha|beta)/i.test(prevSuffix);
+    nextVersion = `v${currentBaseVersion}+${prevIsPrerelease ? counter : counter + 1}`;
   } else if (cmp < 0) {
     nextVersion = `v${currentBaseVersion}+1`;
   } else {
@@ -78,7 +81,7 @@ if (prevBaseVersion === null) {
 }
 
 // Confirm
-const prevDisplay = prevBaseVersion === null ? "(none)" : `v${prevBaseVersion}+${counter}`;
+const prevDisplay = prevBaseVersion === null ? "(none)" : `v${prevBaseVersion}+${counter}${prevSuffix ? `-${prevSuffix}` : ""}`;
 console.log(`Prev version: ${prevDisplay}`);
 console.log(`Next version: ${nextVersion}`);
 const answer = await question("Proceed? [y/N] ");
