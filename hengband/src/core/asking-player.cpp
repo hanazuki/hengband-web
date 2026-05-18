@@ -108,6 +108,7 @@ tl::optional<std::string> askfor(int len, std::string_view initial_value, bool n
         case '\n':
         case '\r':
             return buf;
+        case 0x7F: // Delete
         case '\010': { // Backspace
             color = TERM_WHITE;
             if (pos == 0) {
@@ -120,7 +121,6 @@ tl::optional<std::string> askfor(int len, std::string_view initial_value, bool n
             buf.erase(pos, delete_bytes);
             break;
         }
-        case 0x7F: // Delete
         case KTRL('d'): {
             color = TERM_WHITE;
             if (std::cmp_equal(pos, buf.length())) {

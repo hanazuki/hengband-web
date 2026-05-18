@@ -161,6 +161,7 @@ AutopickSearch get_string_for_search(PlayerType *player_ptr, const AutopickSearc
             }
 
             break;
+        case 0x7F:
         case '\010': { // Backspace
             color = TERM_WHITE;
             if (pos == 0) {
@@ -173,7 +174,6 @@ AutopickSearch get_string_for_search(PlayerType *player_ptr, const AutopickSearc
             buf.erase(pos, delete_bytes);
             break;
         }
-        case 0x7F: // Delete
         case KTRL('d'): {
             color = TERM_WHITE;
             if (std::cmp_equal(pos, buf.length())) {
