@@ -131,7 +131,7 @@ void edit_history(PlayerType *player_ptr)
                 }
 #endif
             }
-        } else if (c == '\010') {
+        } else if (c == 0x7F || c == '\010') {
             x--;
             if (x < 0) {
                 if (y) {

@@ -235,6 +235,6 @@ command_menu_type menu_data[MENU_DATA_NUM] = { { MN_HELP, 0, -1, EC_HELP }, { MN
     { MN_COMMAND_LETTER, 0, -1, -1 }, { MN_CL_AUTOPICK, 1, -1, EC_CL_AUTOPICK }, { MN_CL_DESTROY, 1, -1, EC_CL_DESTROY }, { MN_CL_LEAVE, 1, -1, EC_CL_LEAVE },
     { MN_CL_QUERY, 1, -1, EC_CL_QUERY }, { MN_CL_NO_DISP, 1, -1, EC_CL_NO_DISP },
 
-    { MN_DELETE_CHAR, -1, 0x7F, EC_DELETE_CHAR },
+    { MN_BACKSPACE, -1, 0x7F, EC_BACKSPACE },
 
     { nullptr, -1, -1, 0 } };
