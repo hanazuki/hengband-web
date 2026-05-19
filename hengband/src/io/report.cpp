@@ -13,7 +13,11 @@
 #include "io-dump/character-dump.h"
 #include "io/input-key-acceptor.h"
 #include "mind/mind-elementalist.h"
+#ifdef USE_WEB
+#include "web-http.h"
+#else
 #include "net/http-client.h"
+#endif
 #include "player-base/player-class.h"
 #include "player-info/class-info.h"
 #include "player-info/race-info.h"
@@ -48,7 +52,7 @@ std::string screen_dump;
 #ifdef WORLD_SCORE
 
 #ifdef JP
-constexpr auto SCORE_POST_URL = "http://mars.kmc.gr.jp/~dis/heng_score/register_score.php"; /*!< スコア開示URL */
+constexpr auto SCORE_POST_URL = "https://hengband-scores.hanazuki.dev/register_score.php";
 #endif
 
 static constexpr auto get_score_content_type()

@@ -1467,7 +1467,8 @@ AM_LDFLAGS = \
 hengband_SOURCES += \
 	web/web-audio.cpp \
 	web/web-curses.cpp \
-	web/web-input.cpp
+	web/web-input.cpp \
+	web/web-http.cpp
 endif
 LIBS += $(XFT_LIBS) $(libcurl_LIBS)
 

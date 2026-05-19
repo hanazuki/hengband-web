@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Support sending scores to the score server.
+
 ## v3.0.2.2-Beta+7 (2026-05-17)
 
 - Introduce sound effects and background music.
