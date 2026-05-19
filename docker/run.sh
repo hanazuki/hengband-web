@@ -17,8 +17,6 @@ build_variant() {
         --host=wasm32 \
         --disable-pch \
         --enable-web \
-        --disable-net \
-        --disable-worldscore \
         --without-x \
         --with-libpath=/lib/ \
         --with-varpath=/save/"$variant" \

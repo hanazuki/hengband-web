@@ -111,6 +111,8 @@ fi
 if test "$use_net" = no; then
   AC_DEFINE(DISABLE_NET, 1, [Disable networking support])
   worldscore=no;
+elif test "$use_web" = yes; then
+  AC_DEFINE(DISABLE_NET, 1, [Disable networking support])
 else
   PKG_CHECK_MODULES(libcurl, [libcurl])
 fi
