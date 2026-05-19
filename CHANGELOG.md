@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.0.2.2-Beta+8 (2026-05-19)
+
 - Support sending scores to the score server.
 
 ## v3.0.2.2-Beta+7 (2026-05-17)
