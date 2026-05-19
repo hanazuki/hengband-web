@@ -9,9 +9,7 @@ IMAGE_NAME="hengband-build"
 
 mkdir -p "$CCACHE_DIR" "$WASM_DIR"
 
-if ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
-    docker build --build-arg CI -t "$IMAGE_NAME" "$REPO_ROOT"
-fi
+docker build --build-arg CI -t "$IMAGE_NAME" "$REPO_ROOT"
 exec docker run --rm \
      -u "$(id -u):$(id -g)" \
      --mount type=bind,src="$HENGBAND_SRC",dst=/work \
