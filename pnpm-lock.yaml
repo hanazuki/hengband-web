@@ -37,8 +37,8 @@ importers:
         specifier: ^2.4.14
         version: 2.4.14
       '@hanazuki/node-jsonnet':
-        specifier: ^3.2.0
-        version: 3.2.0
+        specifier: ^3.3.1
+        version: 3.3.1
       '@playwright/test':
         specifier: ^1.60.0
         version: 1.60.0
@@ -775,8 +775,8 @@ packages:
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
 
-  '@hanazuki/node-jsonnet@3.2.0':
-    resolution: {integrity: sha512-lZ6dBezw+CWweuZtN6MSghQnGLasNR7F5HeOXiZdLn2x24WuSq0w4fE3rV+dZCtxgfFA4p7XtFfqn5+74Yi9yA==}
+  '@hanazuki/node-jsonnet@3.3.1':
+    resolution: {integrity: sha512-eNzE8sy9hqIH9K2dG+IYTJStyXFulOiqFmR/9udVEczyQ0gn8bETL1NjIsqHmnIhzAwC/AWE3DmmKoncuL4SQA==}
     engines: {node: '>=14'}
 
   '@img/sharp-darwin-arm64@0.33.5':
@@ -3821,7 +3821,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@hanazuki/node-jsonnet@3.2.0':
+  '@hanazuki/node-jsonnet@3.3.1':
     dependencies:
       bindings: 1.5.0
       cmake-js: 8.0.0
