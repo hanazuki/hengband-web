@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
-    "@hanazuki/node-jsonnet": "^3.2.0",
+    "@hanazuki/node-jsonnet": "^3.3.1",
     "@playwright/test": "^1.60.0",
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.4",
