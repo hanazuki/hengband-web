@@ -13,8 +13,8 @@ function(variant, icons)
     name: _('変愚蛮怒ブラウザ版', 'Hengband Web'),
     short_name: _('変愚蛮怒', 'Hengband'),
     description: _(
-      '変愚蛮怒をブラウザで遊べます。インストールするとオフラインでも遊べます。Chromeではすべてのキー操作が利用可能になります。',
-      'Play Hengband on your browser. Install the app for offline play. Full keyboard control is available on Chrome.',
+      '変愚蛮怒をブラウザで遊べます。インストールするとすべてのキー操作が利用可能になります（Firefoxではうまく動きません）。',
+      'Play Hengband on your browser. When installed, full keyboard control is available (Firefox is not supported).',
     ),
     categories: ['games'],
 
