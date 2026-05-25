@@ -57,10 +57,7 @@ console.log(`\nDone! hengband updated from ${currentBranch} to ${newBranch}.`);
 async function updateChangelog(branch: string) {
   const gitrepoPath = "hengband/.gitrepo";
   const gitrepo = await readFile(gitrepoPath, "utf-8");
-  const updatedGitrepo = gitrepo.replace(
-    /^(\s*branch\s*=\s*)(.+?)\s*$/m,
-    `$1${branch}`,
-  );
+  const updatedGitrepo = gitrepo.replace(/^(\s*branch\s*=\s*)(.+?)\s*$/m, `$1${branch}`);
   if (updatedGitrepo !== gitrepo) {
     await writeFile(gitrepoPath, updatedGitrepo);
   }
