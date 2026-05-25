@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { mkdir, readdir, stat } from "node:fs/promises";
 import { availableParallelism } from "node:os";
 import path from "node:path";

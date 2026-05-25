@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { FitAddon as BaseFitAddon } from "@xterm/addon-fit";
 
 const MAIN_TERM_MIN_COLS = 80;

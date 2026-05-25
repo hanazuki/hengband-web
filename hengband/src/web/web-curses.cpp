@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 /*!
  * @file web-curses.cpp
  * @brief curses shim implementations for the Emscripten web build.

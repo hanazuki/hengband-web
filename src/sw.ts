@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 /// <reference lib="webworker" />
 declare const self: ServiceWorkerGlobalScope;
 

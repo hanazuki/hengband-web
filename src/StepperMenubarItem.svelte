@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband -->
 <script lang="ts">
 import { Menubar } from "bits-ui";
 import type { Snippet } from "svelte";

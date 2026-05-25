@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 #pragma once
 #include <string>
 #include <tl/optional.hpp>

@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband -->
 <script lang="ts">
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { WebglAddon } from "@xterm/addon-webgl";

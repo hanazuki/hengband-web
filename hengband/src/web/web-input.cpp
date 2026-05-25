@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 /*!
  * @file web-input.cpp
  * @brief Key ring buffer, ANSI output bridge, and EMSCRIPTEN_KEEPALIVE exports.

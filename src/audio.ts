@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import type { MusicMap } from "virtual:hengband-xtra/music";
 import type { SoundMap } from "virtual:hengband-xtra/sounds";
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import type { ITerminalAddon, Terminal } from "@xterm/xterm";
 
 // Unicode width provider mirroring Hengband's EUC-JP width logic:

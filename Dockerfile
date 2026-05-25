@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 
 FROM emscripten/emsdk:5.0.7@sha256:4e332f7343b6f66320bf72f7ecc01a3d9f3866721a13b0e5c7b96505d6ab148a
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 set -euo pipefail
 
 DESTDIR=$1

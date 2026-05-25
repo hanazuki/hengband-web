@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 #include <emscripten.h>
 
 EM_JS(void, web_play_sound_js, (const char *name), {

@@ -1,0 +1,19 @@
+version = 1
+SPDX-PackageName = "Hengband Web Port"
+SPDX-PackageDownloadLocation = "https://github.com/hanazuki/hengband-web"
+
+[[annotations]]
+path = "**"
+SPDX-FileCopyrightText = "2026 Kasumi Hanazuki"
+SPDX-License-Identifier = "MIT OR LicenseRef-Moria-Angband"
+
+[[annotations]]
+path = "hengband/**"
+SPDX-FileCopyrightText = "The Hengband contributors and predecessors (Moria, Angband, Zangband)"
+SPDX-License-Identifier = "LicenseRef-Moria-Angband"
+SPDX-FileComment = "See hengband/lib/help/jlicense.txt for details"
+
+[[annotations]]
+path = "hengband/src/web/**"
+SPDX-FileCopyrightText = "2026 Kasumi Hanazuki"
+SPDX-License-Identifier = "MIT OR LicenseRef-Moria-Angband"

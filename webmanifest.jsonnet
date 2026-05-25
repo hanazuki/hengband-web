@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 function(variant, icons)
 
   local _ = function(ja, en)

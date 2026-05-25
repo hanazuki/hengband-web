@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import type { ITheme } from "@xterm/xterm";
 
 export const draculaTheme: ITheme = {

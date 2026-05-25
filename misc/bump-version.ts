@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { readFile, writeFile } from "node:fs/promises";
 import { $, question } from "zx";
 

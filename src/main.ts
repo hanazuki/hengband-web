@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { mount } from "svelte";
 import App from "./App.svelte";
 

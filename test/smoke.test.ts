@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { expect, test } from "@playwright/test";
 
 test("start screen", async ({ page }) => {

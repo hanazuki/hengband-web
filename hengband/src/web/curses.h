@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 /*!
  * @file curses.h
  * @brief Minimal ncurses-compatible shim for Emscripten WASM builds.

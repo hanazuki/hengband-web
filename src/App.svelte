@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband -->
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
 import { draculaTheme } from "./dracula";

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
