@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "build:xtra": "zx misc/build-xtra.ts",
-    "bump-version": "zx misc/bump-version.ts"
+    "bump-version": "zx misc/bump-version.ts",
+    "pull-upstream": "zx misc/pull-upstream.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
