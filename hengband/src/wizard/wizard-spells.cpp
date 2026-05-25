@@ -14,7 +14,6 @@
 #include "grid/grid.h"
 #include "io/gf-descriptions.h"
 #include "io/input-key-acceptor.h"
-#include "mind/mind-blue-mage.h"
 #include "monster-floor/monster-generator.h"
 #include "monster-floor/monster-summon.h"
 #include "monster-floor/place-monster-types.h"
@@ -22,7 +21,7 @@
 #include "mutation/mutation-processor.h"
 #include "object-activation/activation-others.h"
 #include "player-base/player-class.h"
-#include "player-info/bluemage-data-type.h"
+#include "player-info/bluemage-data.h"
 #include "player-info/smith-data-type.h"
 #include "smith/object-smith.h"
 #include "spell-kind/spells-launcher.h"
@@ -210,7 +209,7 @@ void wiz_summon_horde(PlayerType *player_ptr)
     auto pos = p_pos;
     auto attempts = 1000;
     while (--attempts) {
-        pos = scatter(player_ptr, p_pos, 3, PROJECT_NONE);
+        pos = scatter(floor, p_pos, 3, PROJECT_NONE);
         if (floor.is_empty_at(pos) && (pos != p_pos)) {
             break;
         }
@@ -239,7 +238,7 @@ void wiz_teleport_back(PlayerType *player_ptr)
  */
 void wiz_learn_blue_magic_all(PlayerType *player_ptr)
 {
-    auto bluemage_data = PlayerClass(player_ptr).get_specific_data<bluemage_data_type>();
+    auto bluemage_data = PlayerClass(player_ptr).get_specific_data<BluemageData>();
     if (!bluemage_data) {
         return;
     }

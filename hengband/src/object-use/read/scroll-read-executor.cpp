@@ -37,7 +37,7 @@
 #include "store/rumor.h"
 #include "sv-definition/sv-scroll-types.h"
 #include "system/floor/floor-info.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/player-type-definition.h"
 #include "system/redrawing-flags-updater.h"
 #include "timed-effect/timed-effects.h"
@@ -93,7 +93,7 @@ bool ScrollReadExecutor::read()
             k = INVEN_SUB_HAND;
         }
 
-        if (k && curse_weapon_object(this->player_ptr, false, this->player_ptr->inventory[k].get())) {
+        if (k && curse_weapon_object(this->player_ptr, false, *this->player_ptr->inventory[k])) {
             this->ident = true;
         }
 

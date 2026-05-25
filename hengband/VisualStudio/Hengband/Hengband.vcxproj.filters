@@ -947,9 +947,6 @@
     <ClCompile Include="..\..\src\info-reader\json-reader-util.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\info-reader\feature-reader.cpp">
-      <Filter>info-reader</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\info-reader\feature-info-tokens-table.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
@@ -981,6 +978,9 @@
       <Filter>info-reader</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\info-reader\race-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\info-reader\terrain-reader.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\info-reader\general-parser.cpp">
@@ -1334,9 +1334,6 @@
     <ClCompile Include="..\..\src\inventory\floor-item-getter.cpp">
       <Filter>inventory</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\inventory\item-getter.cpp">
-      <Filter>inventory</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\floor\object-scanner.cpp">
       <Filter>floor</Filter>
     </ClCompile>
@@ -1537,9 +1534,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\artifact\fixed-art-generator.cpp">
       <Filter>artifact</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\system\artifact-type-definition.cpp">
-      <Filter>system</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\view\display-store.cpp">
       <Filter>view</Filter>
@@ -1943,9 +1937,6 @@
     <ClCompile Include="..\..\src\main\info-initializer.cpp">
       <Filter>main</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\main\angband-headers.cpp">
-      <Filter>main</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\main\init-error-messages-table.cpp">
       <Filter>main</Filter>
     </ClCompile>
@@ -2150,9 +2141,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\view\display-scores.cpp">
       <Filter>view</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\system\item-entity.cpp">
-      <Filter>system</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\object\object-index-list.cpp">
       <Filter>object</Filter>
@@ -2565,6 +2553,33 @@
     <ClCompile Include="..\..\src\io\macro-configurations-store.cpp">
       <Filter>io</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\player-info\bluemage-data.cpp">
+      <Filter>player-info</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\system\floor\town-records.cpp">
+      <Filter>system\floor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\system\artifact\artifact-definition.cpp">
+      <Filter>system\artifact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\system\artifact\artifact-list.cpp">
+      <Filter>system\artifact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\system\artifact\artifact-record.cpp">
+      <Filter>system\artifact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\system\artifact\artifact-service.cpp">
+      <Filter>system\artifact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\system\item\item-entity.cpp">
+      <Filter>system\item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\autopick\autopick-keys-table.cpp">
+      <Filter>autopick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\info-reader\definition-hash-data.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\combat\shoot.h">
@@ -2703,9 +2718,6 @@
       <Filter>autopick</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\autopick\autopick-dirty-flags.h">
-      <Filter>autopick</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\autopick\autopick-key-flag-process.h">
       <Filter>autopick</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\autopick\autopick-util.h">
@@ -3437,8 +3449,8 @@
     <ClInclude Include="..\..\src\object-enchant\old-ego-extra-values.h">
       <Filter>object-enchant</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\object-enchant\special-object-flags.h">
-      <Filter>object-enchant</Filter>
+    <ClInclude Include="..\..\src\system\item\identification-flags.h">
+      <Filter>system\item</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\object-enchant\trc-types.h">
       <Filter>object-enchant</Filter>
@@ -3644,9 +3656,6 @@
     <ClInclude Include="..\..\src\info-reader\parse-error-types.h">
       <Filter>info-reader</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\info-reader\feature-reader.h">
-      <Filter>info-reader</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\info-reader\feature-info-tokens-table.h">
       <Filter>info-reader</Filter>
     </ClInclude>
@@ -3678,6 +3687,9 @@
       <Filter>info-reader</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\info-reader\race-reader.h">
+      <Filter>info-reader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\info-reader\terrain-reader.h">
       <Filter>info-reader</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\info-reader\general-parser.h">
@@ -3745,9 +3757,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\core\speed-table.h">
       <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\system\item-entity.h">
-      <Filter>system</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\monster\monster-util.h">
       <Filter>monster</Filter>
@@ -4106,9 +4115,6 @@
     <ClInclude Include="..\..\src\inventory\floor-item-getter.h">
       <Filter>inventory</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\inventory\item-getter.h">
-      <Filter>inventory</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\floor\object-scanner.h">
       <Filter>floor</Filter>
     </ClInclude>
@@ -4331,9 +4337,6 @@
     <ClInclude Include="..\..\src\artifact\fixed-art-generator.h">
       <Filter>artifact</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\system\artifact-type-definition.h">
-      <Filter>system</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\view\display-store.h">
       <Filter>view</Filter>
     </ClInclude>
@@ -4483,9 +4486,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\player\player-status-flags.h">
       <Filter>player</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\room\room-types.h">
-      <Filter>room</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\room\lake-types.h">
       <Filter>room</Filter>
@@ -4761,9 +4761,6 @@
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\main\info-initializer.h">
-      <Filter>main</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\main\angband-headers.h">
       <Filter>main</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\main\init-error-messages-table.h">
@@ -5058,7 +5055,7 @@
     <ClInclude Include="..\..\src\timed-effect\player-cut.h">
       <Filter>timed-effect</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\player-info\bluemage-data-type.h">
+    <ClInclude Include="..\..\src\player-info\bluemage-data.h">
       <Filter>player-info</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\player-info\class-specific-data.h">
@@ -5454,6 +5451,9 @@
     <ClInclude Include="..\..\src\system\enums\grid-flow.h">
       <Filter>system\enums</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\system\enums\store-sale-type.h">
+      <Filter>system\enums</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\timed-effect\player-protection.h">
       <Filter>timed-effect</Filter>
     </ClInclude>
@@ -5550,6 +5550,18 @@
     <ClInclude Include="..\..\src\system\enums\terrain\terrain-kind.h">
       <Filter>system\enums\terrain</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\system\enums\terrain\building-type.h">
+      <Filter>system\enums\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\enums\terrain\pattern-tile-type.h">
+      <Filter>system\enums\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\enums\terrain\terrain-conversion-type.h">
+      <Filter>system\enums\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\enums\terrain\trap.h">
+      <Filter>system\enums\terrain</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\system\enums\terrain\wilderness-terrain.h">
       <Filter>system\enums\terrain</Filter>
     </ClInclude>
@@ -5564,6 +5576,27 @@
     </ClInclude>
     <ClInclude Include="..\..\src\io\macro-configurations-store.h">
       <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\floor\town-records.h">
+      <Filter>system\floor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\artifact\artifact-definition.h">
+      <Filter>system\artifact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\artifact\artifact-list.h">
+      <Filter>system\artifact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\artifact\artifact-record.h">
+      <Filter>system\artifact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\artifact\artifact-service.h">
+      <Filter>system\artifact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\system\item\item-entity.h">
+      <Filter>system\item</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\info-reader\definition-hash-data.h">
+      <Filter>info-reader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -5864,6 +5897,12 @@
     </Filter>
     <Filter Include="external-lib\fmt">
       <UniqueIdentifier>{de5173c3-9151-46e9-a937-8861a5a14c00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\artifact">
+      <UniqueIdentifier>{58714fb7-9c67-4cd4-b69f-a5b0d7d7964f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\item">
+      <UniqueIdentifier>{f7624169-a38b-4935-92a4-9334ddd4c76a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

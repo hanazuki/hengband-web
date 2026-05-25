@@ -26,7 +26,7 @@
 #include "spell-kind/spells-launcher.h"
 #include "system/floor/floor-info.h"
 #include "system/grid-type-definition.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/monrace/monrace-definition.h"
 #include "system/monster-entity.h"
 #include "system/player-type-definition.h"
@@ -66,7 +66,7 @@ bool teleport_swap(PlayerType *player_ptr, const Direction &dir)
     const auto &monster = player_ptr->current_floor_ptr->m_list[grid.m_idx];
     auto &monrace = monster.get_monrace();
 
-    (void)set_monster_csleep(player_ptr, grid.m_idx, 0);
+    (void)set_monster_csleep(*player_ptr->current_floor_ptr, grid.m_idx, 0);
 
     if (monrace.resistance_flags.has(MonsterResistanceType::RESIST_TELEPORT)) {
         msg_print(_("テレポートを邪魔された！", "Your teleportation is blocked!"));

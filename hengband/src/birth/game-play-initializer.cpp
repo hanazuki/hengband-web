@@ -13,7 +13,8 @@
 #include "player-info/race-types.h"
 #include "player/digestion-processor.h"
 #include "player/player-spell-status.h"
-#include "system/artifact-type-definition.h"
+#include "system/artifact/artifact-definition.h"
+#include "system/artifact/artifact-record.h"
 #include "system/baseitem/baseitem-definition.h"
 #include "system/baseitem/baseitem-list.h"
 #include "system/building-type-definition.h"
@@ -22,9 +23,10 @@
 #include "system/enums/dungeon/dungeon-id.h"
 #include "system/floor/floor-info.h"
 #include "system/floor/floor-list.h"
+#include "system/floor/town-records.h"
 #include "system/floor/wilderness-grid.h"
 #include "system/inner-game-data.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/monrace/monrace-definition.h"
 #include "system/monrace/monrace-list.h"
 #include "system/player-type-definition.h"
@@ -68,16 +70,16 @@ void player_wipe_without_name(PlayerType *player_ptr)
         player_ptr->inventory[i]->wipe();
     }
 
-    ArtifactList::get_instance().reset_generated_flags();
+    ArtifactRecords::get_instance().reset_all_without_knowledge();
     BaseitemList::get_instance().reset_identification_flags();
     for (auto &[_, monrace] : MonraceList::get_instance()) {
-        if (!monrace.is_valid()) {
+        if (!monrace->is_valid()) {
             continue;
         }
-        monrace.reset_current_numbers();
-        monrace.reset_max_number();
-        monrace.r_pkills = 0;
-        monrace.r_akills = 0;
+        monrace->reset_current_numbers();
+        monrace->reset_max_number();
+        monrace->r_pkills = 0;
+        monrace->r_akills = 0;
     }
 
     player_ptr->food = PY_FOOD_FULL - 1;
@@ -108,13 +110,13 @@ void player_wipe_without_name(PlayerType *player_ptr)
     auto &system = AngbandSystem::get_instance();
     system.set_panic_save(false);
 
-    world.noscore = 0;
+    InnerGameData::get_instance().initialize_no_score();
     world.wizard = false;
     system.set_awaiting_report_score(false);
     player_ptr->pet_follow_distance = PET_FOLLOW_DIST;
     player_ptr->pet_extra_flags = (PF_TELEPORT | PF_ATTACK_SPELL | PF_SUMMON_SPELL);
     DungeonRecords::get_instance().reset_all();
-    player_ptr->visit = 1;
+    TownRecords::get_instance().initialize();
     world.set_wild_mode(false);
     WildernessGrids::get_instance().initialize_position();
 

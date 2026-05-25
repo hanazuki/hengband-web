@@ -236,6 +236,11 @@ const MonraceDefinition &MonraceDefinition::get_next() const
     return MonraceList::get_instance().get_monrace(this->next_r_idx);
 }
 
+std::shared_ptr<const MonraceDefinition> MonraceDefinition::get_next_shared() const
+{
+    return MonraceList::get_instance().get_monrace_shared(this->next_r_idx);
+}
+
 /*!
  * @brief モンスター種族が賞金首の対象かどうかを調べる。日替わり賞金首は対象外。
  * @param unachieved_only true の場合未達成の賞金首のみを対象とする。false の場合達成未達成に関わらずすべての賞金首を対象とする。
@@ -971,9 +976,9 @@ void MonraceDefinition::increment_tkills()
     }
 }
 
-void MonraceDefinition::emplace_final_summon(MonraceId id, int probability, int min_num, int max_num, int radius)
+void MonraceDefinition::emplace_final_summon(MonraceId id, int probability, int min_summon_num, int max_summon_num, int radius)
 {
-    this->final_summons.emplace_back(MonsterSummon(id, probability, min_num, max_num, radius));
+    this->final_summons.emplace_back(MonsterSummon(id, probability, min_summon_num, max_summon_num, radius));
 }
 
 const std::vector<MonsterSummon> &MonraceDefinition::get_final_summons() const

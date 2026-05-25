@@ -9,6 +9,8 @@
 #include "floor/floor-util.h"
 #include "game-option/disturbance-options.h"
 #include "grid/grid.h"
+#include "main/sound-definitions-table.h"
+#include "main/sound-of-music.h"
 #include "mind/mind-mirror-master.h"
 #include "mind/mind-numbers.h"
 #include "mind/mind-warrior.h"
@@ -37,7 +39,7 @@
 #include "system/enums/monrace/monrace-id.h"
 #include "system/floor/floor-info.h"
 #include "system/grid-type-definition.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/monrace/monrace-definition.h"
 #include "system/monster-entity.h"
 #include "system/player-type-definition.h"
@@ -230,10 +232,13 @@ void print_surprise_attack(player_attack_type *pa_ptr)
 {
     if (pa_ptr->backstab) {
         msg_format(_("あなたは冷酷にも眠っている無力な%sを突き刺した！", "You cruelly stab the helpless, sleeping %s!"), pa_ptr->m_name);
+        sound(SoundKind::BACKSTAB_HIT);
     } else if (pa_ptr->surprise_attack) {
         msg_format(_("不意を突いて%sに強烈な一撃を喰らわせた！", "You make surprise attack, and hit %s with a powerful blow!"), pa_ptr->m_name);
+        sound(SoundKind::SURPRISE_HIT);
     } else if (pa_ptr->stab_fleeing) {
         msg_format(_("逃げる%sを背中から突き刺した！", "You backstab the fleeing %s!"), pa_ptr->m_name);
+        sound(SoundKind::FLEEING_HIT);
     } else if (!pa_ptr->monk_attack) {
         msg_format(_("%sを攻撃した。", "You hit %s."), pa_ptr->m_name);
     }
@@ -478,7 +483,7 @@ bool cast_ninja_spell(PlayerType *player_ptr, MindNinjaType spell)
             auto attempts = 1000;
             Pos2D pos(0, 0);
             while (attempts--) {
-                pos = scatter(player_ptr, player_ptr->get_position(), 4, PROJECT_NONE);
+                pos = scatter(*player_ptr->current_floor_ptr, player_ptr->get_position(), 4, PROJECT_NONE);
                 if (!player_ptr->is_located_at(pos)) {
                     break;
                 }

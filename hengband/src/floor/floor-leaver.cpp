@@ -15,13 +15,12 @@
 #include "pet/pet-util.h"
 #include "save/floor-writer.h"
 #include "spell-class/spells-mirror-master.h"
-#include "system/artifact-type-definition.h"
 #include "system/dungeon/dungeon-definition.h"
 #include "system/enums/dungeon/dungeon-id.h"
 #include "system/floor/floor-info.h"
 #include "system/floor/wilderness-grid.h"
 #include "system/grid-type-definition.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/monrace/monrace-definition.h"
 #include "system/monrace/monrace-list.h"
 #include "system/player-type-definition.h"
@@ -154,7 +153,7 @@ static void locate_connected_stairs(PlayerType *player_ptr, FloorType &floor, sa
         const auto &terrain = grid.get_terrain();
         auto ok = false;
         if (fcms->has(FloorChangeMode::UP)) {
-            if (terrain.flags.has_all_of({ TerrainCharacteristics::LESS, TerrainCharacteristics::STAIRS }) && terrain.flags.has_not(TerrainCharacteristics::SPECIAL)) {
+            if (terrain.flags.has_all_of({ TerrainCharacteristics::UP_STAIRS, TerrainCharacteristics::STAIRS }) && terrain.flags.has_not(TerrainCharacteristics::SPECIAL)) {
                 ok = true;
                 if (grid.special && grid.special == sf_ptr->upper_floor_id) {
                     sx = pos.x;
@@ -162,7 +161,7 @@ static void locate_connected_stairs(PlayerType *player_ptr, FloorType &floor, sa
                 }
             }
         } else if (fcms->has(FloorChangeMode::DOWN)) {
-            if (terrain.flags.has_all_of({ TerrainCharacteristics::MORE, TerrainCharacteristics::STAIRS }) && terrain.flags.has_not(TerrainCharacteristics::SPECIAL)) {
+            if (terrain.flags.has_all_of({ TerrainCharacteristics::DOWN_STAIRS, TerrainCharacteristics::STAIRS }) && terrain.flags.has_not(TerrainCharacteristics::SPECIAL)) {
                 ok = true;
                 if (grid.special && grid.special == sf_ptr->lower_floor_id) {
                     sx = pos.x;
@@ -285,7 +284,7 @@ static void preserve_info(PlayerType *player_ptr)
         }
 
         if (o_ptr->is_fixed_artifact()) {
-            o_ptr->get_fixed_artifact().floor_id = 0;
+            o_ptr->set_fixed_artifact_floor_id(tl::nullopt);
         }
     }
 }

@@ -54,14 +54,17 @@
 #include "spell-kind/spells-world.h"
 #include "spell/spells-status.h"
 #include "status/bad-status-setter.h"
-#include "system/artifact-type-definition.h"
+#include "system/artifact/artifact-definition.h"
+#include "system/artifact/artifact-list.h"
+#include "system/artifact/artifact-record.h"
 #include "system/dungeon/dungeon-definition.h"
 #include "system/dungeon/dungeon-list.h"
 #include "system/enums/dungeon/dungeon-id.h"
 #include "system/floor/floor-info.h"
 #include "system/floor/wilderness-grid.h"
 #include "system/grid-type-definition.h"
-#include "system/item-entity.h"
+#include "system/inner-game-data.h"
+#include "system/item/item-entity.h"
 #include "system/monster-entity.h"
 #include "system/redrawing-flags-updater.h"
 #include "system/terrain/terrain-definition.h"
@@ -265,8 +268,7 @@ void wiz_create_named_art(PlayerType *player_ptr)
     }
 
     screen_load();
-    const auto &artifact = ArtifactList::get_instance().get_artifact(*created_fa_id);
-    if (artifact.is_generated) {
+    if (ArtifactRecords::get_instance().get_generated(*created_fa_id)) {
         msg_print("It's already allocated.");
         return;
     }
@@ -798,8 +800,7 @@ void cheat_death(PlayerType *player_ptr)
     }
     player_ptr->age++;
 
-    auto &world = AngbandWorld::get_instance();
-    world.noscore |= 0x0001;
+    InnerGameData::get_instance().add_no_score(0x0001);
     msg_print(_("ウィザードモードに念を送り、死を欺いた。", "You invoke wizard mode and cheat death."));
     msg_erase();
 
@@ -833,7 +834,7 @@ void cheat_death(PlayerType *player_ptr)
         player_ptr->oldpx = 131;
     }
 
-    world.set_wild_mode(false);
+    AngbandWorld::get_instance().set_wild_mode(false);
     player_ptr->leaving = true;
     constexpr auto note = _("                            しかし、生き返った。", "                            but revived.");
     exe_write_diary(floor, DiaryKind::DESCRIPTION, 1, note);

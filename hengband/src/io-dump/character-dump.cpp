@@ -5,13 +5,13 @@
 #include "flavor/flavor-describer.h"
 #include "game-option/birth-options.h"
 #include "game-option/game-play-options.h"
+#include "info-reader/definition-hash-data.h"
 #include "inventory/inventory-slot-types.h"
 #include "io-dump/player-status-dump.h"
 #include "io-dump/special-class-dump.h"
 #include "io/mutations-dump.h"
 #include "io/write-diary.h"
 #include "knowledge/knowledge-quests.h"
-#include "main/angband-headers.h"
 #include "market/arena-entry.h"
 #include "monster/monster-describer.h"
 #include "monster/monster-description-types.h"
@@ -33,7 +33,7 @@
 #include "system/floor/town-info.h"
 #include "system/floor/town-list.h"
 #include "system/inner-game-data.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/monrace/monrace-definition.h"
 #include "system/monrace/monrace-list.h"
 #include "system/monster-entity.h"
@@ -196,14 +196,14 @@ static void dump_aux_options(FILE *fff)
         fmt::print(fff, _("\n 保存モード:         OFF", "\n Preserve Mode:      OFF"));
     }
 
-    if (ironman_small_levels) {
-        fmt::print(fff, _("\n 小さいダンジョン:   ALWAYS", "\n Small Levels:       ALWAYS"));
-    } else if (always_small_levels) {
-        fmt::print(fff, _("\n 小さいダンジョン:   ON", "\n Small Levels:       ON"));
-    } else if (small_levels) {
-        fmt::print(fff, _("\n 小さいダンジョン:   ENABLED", "\n Small Levels:       ENABLED"));
+    if (ironman_smallest_floor) {
+        fmt::print(fff, _("\n (鉄人)最小フロア:   ON", "\n Ironman Smallest Floor:  ON"));
+    } else if (always_small_floor) {
+        fmt::print(fff, _("\n 常に小さめフロア:   ON", "\n Always Small Floor:      ON"));
+    } else if (allow_smallest_floor) {
+        fmt::print(fff, _("\n 最小フロア許可  :   ON", "\n Possible Small Floor:    ON"));
     } else {
-        fmt::print(fff, _("\n 小さいダンジョン:   OFF", "\n Small Levels:       OFF"));
+        fmt::print(fff, _("\n 小さいフロア:       OFF", "\n Small Floor:             OFF"));
     }
 
     if (vanilla_town) {
@@ -228,16 +228,16 @@ static void dump_aux_options(FILE *fff)
         fmt::print(fff, _("\n 悪夢モード:         ON", "\n Nightmare Mode:     ON"));
     }
 
-    if (ironman_empty_levels) {
-        fmt::print(fff, _("\n アリーナ:           ALWAYS", "\n Arena Levels:       ALWAYS"));
-    } else if (empty_levels) {
-        fmt::print(fff, _("\n アリーナ:           ENABLED", "\n Arena Levels:       ENABLED"));
+    if (ironman_force_arena_floor) {
+        fmt::print(fff, _("\n (鉄人)常時アリーナ: ON", "\n Ironman Arena Floor: ON"));
+    } else if (allow_arena_floor) {
+        fmt::print(fff, _("\n アリーナフロア許可: ON", "\n Arena Floor:         ON"));
     } else {
-        fmt::print(fff, _("\n アリーナ:           OFF", "\n Arena Levels:       OFF"));
+        fmt::print(fff, _("\n アリーナフロア許可: OFF", "\n Arena Floor :        OFF"));
     }
 
     fmt::print(fff, "\n");
-    if (AngbandWorld::get_instance().noscore) {
+    if (InnerGameData::get_instance().is_no_score()) {
         fmt::println(fff, _("\n 何か不正なことをしてしまっています。", "\n You have done something illegal."));
     }
 
@@ -301,23 +301,23 @@ static void dump_aux_monsters(FILE *fff)
     auto norm_total = 0;
     for (const auto &[monrace_id, monrace] : monraces) {
         /* Ignore unused index */
-        if (!monrace.is_valid()) {
+        if (!monrace->is_valid()) {
             continue;
         }
 
-        if (monrace.kind_flags.has(MonsterKindType::UNIQUE)) {
-            if (monrace.is_dead_unique()) {
+        if (monrace->kind_flags.has(MonsterKindType::UNIQUE)) {
+            if (monrace->is_dead_unique()) {
                 norm_total++;
 
                 /* Add a unique monster to the list */
-                monrace_ids.push_back(monrace.idx);
+                monrace_ids.push_back(monrace->idx);
             }
 
             continue;
         }
 
-        if (monrace.r_pkills > 0) {
-            norm_total += monrace.r_pkills;
+        if (monrace->r_pkills > 0) {
+            norm_total += monrace->r_pkills;
         }
     }
 
@@ -549,33 +549,6 @@ static void dump_aux_home_museum(PlayerType *player_ptr, FILE *fff)
 }
 
 /*!
- * @brief チェックサム情報を出力
- * @return チェックサム情報の文字列
- */
-static std::string get_check_sum()
-{
-    static constexpr auto headers = {
-        &artifacts_header,
-        &baseitems_header,
-        &class_magics_header,
-        &class_skills_header,
-        &dungeons_header,
-        &egos_header,
-        &monraces_header,
-        &monster_messages_header,
-        &terrains_header,
-        &vaults_header,
-    };
-
-    util::SHA256 sha256;
-    for (const auto *header : headers) {
-        sha256.update(header->digest.data(), header->digest.size());
-    }
-
-    return util::to_string(sha256.digest());
-}
-
-/*!
  * @brief ダンプ出力のメインルーチン
  * @param player_ptr プレイヤーへの参照ポインタ
  * @param fff ファイルポインタ
@@ -606,6 +579,6 @@ void make_character_dump(PlayerType *player_ptr, FILE *fff)
     dump_aux_home_museum(player_ptr, fff);
 
     // ダンプの幅をはみ出さないように48文字目以降を切り捨てる
-    const std::string checksum = get_check_sum().erase(48);
+    const std::string checksum = DefinitionHashData::get_instance().get_check_sum().erase(48);
     fmt::println(fff, _("  [チェックサム: \"{}\"]\n", "  [Check Sum: \"{}\"]\n"), checksum);
 }
