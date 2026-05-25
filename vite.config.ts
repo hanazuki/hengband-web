@@ -429,7 +429,9 @@ export default defineConfig({
                   return dep.licenseText ? `${header}\n\n${dep.licenseText}` : header;
                 });
                 const parts = [
-                  readFile("LICENSE.txt"),
+                  readFile("LICENSE.txt")
+                    .replace("<hengband/lib/help/jlicense.txt>", "下記")
+                    .replace("<hengband/lib/help/jlicense.txt>", "below"),
                   readFile("hengband/lib/help/jlicense.txt"),
                   readFile("hengband/THIRD-PARTY-NOTICES.txt"),
                   ...npmParts,

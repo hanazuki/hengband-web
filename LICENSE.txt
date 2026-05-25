@@ -1,10 +1,12 @@
 「変愚蛮怒ブラウザ版」は「変愚蛮怒」をウェブブラウザで動くように移植した作品です．
-オリジナルの「変愚蛮怒」はMoria/Angband使用許諾によりライセンスされています．
+オリジナルの「変愚蛮怒」はMoria/Angband使用許諾によりライセンスされています
+（詳細については<hengband/lib/help/jlicense.txt>を参照してください）．
 「変愚蛮怒ブラウザ版」で追加改変されたコードは，花月かすみが著作権を有しており，
 MITライセンスおよびMoria/Angband使用許諾のデュアルライセンスのもとに利用可能です．
 
 "Hengband Web Port" is a derived work of "Hengband" ported to run in web browsers.
-The original "Hengband" is licensed under the old Moria/Angband license.
+The original "Hengband" is licensed under the old Moria/Angband license
+(See <hengband/lib/help/jlicense.txt> for the details of the original license).
 The code added/modified in "Hengband Web Port" is copyrighted by Kasumi Hanazuki
 and is available under the dual license of MIT License and Moria/Angband License.
 
