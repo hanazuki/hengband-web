@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.0.2.2-Beta+9 (2026-05-25)
+
 - Clarify software licenses.
 
 ## v3.0.2.2-Beta+8 (2026-05-19)
