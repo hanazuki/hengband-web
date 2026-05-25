@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.0.2.3-Beta+1 (2026-05-25)
+
 - Upgrade base game to 3.0.2.3-Beta
 
 ## v3.0.2.2-Beta+9 (2026-05-25)
