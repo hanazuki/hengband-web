@@ -55,6 +55,24 @@ await updateChangelog(newBranch);
 console.log(`\nDone! hengband updated from ${currentBranch} to ${newBranch}.`);
 
 async function updateChangelog(branch: string) {
+  const gitrepoPath = "hengband/.gitrepo";
+  const gitrepo = await readFile(gitrepoPath, "utf-8");
+  const updatedGitrepo = gitrepo.replace(
+    /^(\s*branch\s*=\s*)(.+?)\s*$/m,
+    `$1${branch}`,
+  );
+  if (updatedGitrepo !== gitrepo) {
+    await writeFile(gitrepoPath, updatedGitrepo);
+  }
+
+  const gitmodulesPath = ".gitmodules";
+  const hengbandGitmodules = await readFile("hengband/.gitmodules", "utf-8");
+  const updatedGitmodules = hengbandGitmodules
+    .replace(/^(\[submodule ")(.+?)("\])/gm, `$1hengband/$2$3`)
+    .replace(/^(\s*path\s*=\s*)(.+)/gm, `$1hengband/$2`);
+  await writeFile(gitmodulesPath, updatedGitmodules);
+  await $`git submodule update --init`;
+
   const changelogPath = "CHANGELOG.md";
   const changelog = await readFile(changelogPath, "utf-8");
   const updatedChangelog = changelog.replace(
@@ -66,6 +84,6 @@ async function updateChangelog(branch: string) {
     process.exit(1);
   }
   await writeFile(changelogPath, updatedChangelog);
-  await $`git add ${changelogPath}`;
+  await $`git add ${gitrepoPath} ${gitmodulesPath} ${changelogPath}`;
   await $`git commit --amend --no-edit`;
 }
