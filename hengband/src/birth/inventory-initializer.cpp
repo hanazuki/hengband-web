@@ -25,7 +25,7 @@
 #include "sv-definition/sv-wand-types.h"
 #include "sv-definition/sv-weapon-types.h"
 #include "system/baseitem/baseitem-list.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include <tuple>
 
 /*!
@@ -33,15 +33,13 @@
  */
 void wield_all(PlayerType *player_ptr)
 {
-    ItemEntity ObjectType_body;
     for (INVENTORY_IDX i_idx = INVEN_PACK - 1; i_idx >= 0; i_idx--) {
-        ItemEntity *o_ptr;
-        o_ptr = player_ptr->inventory[i_idx].get();
-        if (!o_ptr->is_valid()) {
+        const auto &item = *player_ptr->inventory[i_idx];
+        if (!item.is_valid()) {
             continue;
         }
 
-        int slot = wield_slot(player_ptr, o_ptr);
+        int slot = wield_slot(player_ptr, item);
         if (slot < INVEN_MAIN_HAND) {
             continue;
         }
@@ -54,7 +52,7 @@ void wield_all(PlayerType *player_ptr)
             continue;
         }
 
-        wield_slot_item = o_ptr->clone();
+        wield_slot_item = item.clone();
         wield_slot_item.number = 1;
 
         if (i_idx >= 0) {

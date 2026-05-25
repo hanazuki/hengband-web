@@ -22,7 +22,7 @@
 #include "system/enums/grid-count-kind.h"
 #include "system/floor/floor-info.h"
 #include "system/grid-type-definition.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/monster-entity.h"
 #include "system/player-type-definition.h"
 #include "system/redrawing-flags-updater.h"
@@ -182,7 +182,7 @@ void do_cmd_close(PlayerType *player_ptr)
             msg_print(_("モンスターが立ちふさがっている！", "There is a monster in the way!"));
             do_cmd_attack(player_ptr, pos.y, pos.x, HISSATSU_NONE);
         } else {
-            more = exe_close(player_ptr, pos.y, pos.x);
+            more = exe_close(player_ptr, pos);
         }
     }
 

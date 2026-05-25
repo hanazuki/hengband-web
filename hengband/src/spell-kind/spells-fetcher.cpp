@@ -11,7 +11,7 @@
 #include "system/enums/terrain/terrain-characteristics.h"
 #include "system/floor/floor-info.h"
 #include "system/grid-type-definition.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/monrace/monrace-definition.h"
 #include "system/monster-entity.h"
 #include "system/player-type-definition.h"
@@ -143,7 +143,7 @@ bool fetch_monster(PlayerType *player_ptr)
     floor.get_grid(*pos).m_idx = 0;
     floor.get_grid(pos_target).m_idx = m_idx;
     monster.set_position(pos_target);
-    (void)set_monster_csleep(player_ptr, m_idx, 0);
+    (void)set_monster_csleep(floor, m_idx, 0);
     update_monster(player_ptr, m_idx, true);
     lite_spot(player_ptr, *pos);
     lite_spot(player_ptr, pos_target);

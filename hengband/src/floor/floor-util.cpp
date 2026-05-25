@@ -9,13 +9,13 @@
 #include "floor/floor-object.h"
 #include "floor/line-of-sight.h"
 #include "game-option/birth-options.h"
-#include "system/artifact-type-definition.h"
+#include "system/artifact/artifact-definition.h"
 #include "system/dungeon/dungeon-definition.h"
 #include "system/floor/floor-info.h"
 #include "system/floor/town-info.h"
 #include "system/floor/town-list.h"
 #include "system/grid-type-definition.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/monster-entity.h"
 #include "system/player-type-definition.h"
 #include "system/terrain/terrain-definition.h"
@@ -122,7 +122,7 @@ void wipe_o_list(FloorType &floor)
 
         if (!AngbandWorld::get_instance().character_dungeon || preserve_mode) {
             if (item_ptr->is_fixed_artifact() && !item_ptr->is_known()) {
-                item_ptr->get_fixed_artifact().is_generated = false;
+                item_ptr->set_fixed_artifact_generated(false);
             }
         }
 
@@ -145,9 +145,8 @@ void wipe_o_list(FloorType &floor)
  *
  * Currently the "m" parameter is unused.
  */
-Pos2D scatter(PlayerType *player_ptr, const Pos2D &pos, int d, uint32_t mode)
+Pos2D scatter(const FloorType &floor, const Pos2D &pos, int d, uint32_t mode)
 {
-    const auto &floor = *player_ptr->current_floor_ptr;
     while (true) {
         const auto ny = rand_spread(pos.y, d);
         const auto nx = rand_spread(pos.x, d);

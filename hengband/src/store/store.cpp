@@ -14,7 +14,6 @@
 #include "main/sound-of-music.h"
 #include "object-enchant/item-apply-magic.h"
 #include "object-enchant/item-magic-applier.h"
-#include "object-enchant/special-object-flags.h"
 #include "object/object-stack.h"
 #include "object/object-value.h"
 #include "object/tval-types.h"
@@ -29,7 +28,7 @@
 #include "system/floor/town-info.h"
 #include "system/floor/town-list.h"
 #include "system/inner-game-data.h"
-#include "system/item-entity.h"
+#include "system/item/item-entity.h"
 #include "system/player-type-definition.h"
 #include "term/screen-processor.h"
 #include "term/z-form.h"
@@ -379,7 +378,7 @@ static void store_create(PlayerType *player_ptr, short fix_k_idx, StoreSaleType 
         }
 
         item.mark_as_known();
-        item.ident |= IDENT_STORE;
+        item.set_identification_flag(IdentificationFlag::STORE);
         if (tval == ItemKindType::CHEST) {
             continue;
         }
@@ -428,12 +427,12 @@ void store_maintenance(PlayerType *player_ptr, int town_num, StoreSaleType store
     }
 
     const int level = store_level(store_num);
-    const int store_max_keep = (store_num == StoreSaleType::BLACK) ? STORE_MAX_KEEP * (level + 60) / 20 : STORE_MAX_KEEP;
-    const int store_min_keep = (store_num == StoreSaleType::BLACK) ? STORE_MIN_KEEP * (level + 60) / 20 : STORE_MIN_KEEP;
-    const int store_turnover = (store_num == StoreSaleType::BLACK) ? STORE_TURNOVER * (level + 60) / 20 : STORE_TURNOVER;
+    const short store_max_keep = (store_num == StoreSaleType::BLACK) ? STORE_MAX_KEEP * (level + 60) / 20 : STORE_MAX_KEEP;
+    const short store_min_keep = (store_num == StoreSaleType::BLACK) ? STORE_MIN_KEEP * (level + 60) / 20 : STORE_MIN_KEEP;
+    const short store_turnover = (store_num == StoreSaleType::BLACK) ? STORE_TURNOVER * (level + 60) / 20 : STORE_TURNOVER;
     chance = (store_num == StoreSaleType::BLACK) ? chance * (level + 60) / 20 : chance;
 
-    INVENTORY_IDX j = st_ptr->stock_num;
+    auto j = st_ptr->stock_num;
     int remain = store_turnover + std::max(0, j - store_max_keep);
     int turn_over = 1;
     for (int i = 0; i < chance; i++) {

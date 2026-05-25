@@ -34,6 +34,7 @@
 #include "term/screen-processor.h"
 #include "timed-effect/timed-effects.h"
 #include "tracking/lore-tracker.h"
+#include "util/enum-converter.h"
 #include "view/display-lore.h"
 #include "view/display-messages.h"
 #include "window/display-sub-windows.h"
@@ -106,7 +107,7 @@ bool show_gold_on_floor = false;
  */
 static std::string evaluate_monster_exp(PlayerType *player_ptr, const MonsterEntity &monster)
 {
-    const auto &monrace = monster.get_appearance_monrace();
+    const auto &monrace = monster.get_apparent_monrace();
     if ((player_ptr->lev >= PY_MAX_LEVEL) || PlayerRace(player_ptr).equals(PlayerRaceType::ANDROID)) {
         return "**";
     }
@@ -233,7 +234,7 @@ static void describe_grid_monster(PlayerType *player_ptr, GridExamination *ge_pt
 
 static void describe_monster_person(GridExamination *ge_ptr)
 {
-    const auto &monrace = ge_ptr->m_ptr->get_appearance_monrace();
+    const auto &monrace = ge_ptr->m_ptr->get_apparent_monrace();
     ge_ptr->s1 = _("それは", "It is ");
     if (monrace.is_female()) {
         ge_ptr->s1 = _("彼女は", "She is ");
@@ -474,7 +475,7 @@ static std::string decide_target_floor(PlayerType *player_ptr, GridExamination *
     }
 
     if (ge_ptr->terrain_ptr->flags.has(TerrainCharacteristics::BLDG) && !floor.inside_arena) {
-        return buildings[ge_ptr->terrain_ptr->subtype].name;
+        return buildings[enum2i(ge_ptr->terrain_ptr->building_type)].name;
     }
 
     if (ge_ptr->terrain_ptr->flags.has(TerrainCharacteristics::ENTRANCE)) {
