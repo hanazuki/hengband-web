@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.0.2.3-Beta+2 (2026-05-26)
+
 - Auto-focus the terminal on game start and after opening the online help menu.
 - Yield to JavaScript event loop while auto-rolling so that the browser tab does not hang.
 
