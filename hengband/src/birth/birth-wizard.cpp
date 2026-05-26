@@ -46,6 +46,9 @@
 #include "view/display-util.h"
 #include "world/world.h"
 #include <sstream>
+#ifdef USE_WEB
+#include "web/web-yield.hpp"
+#endif
 
 static void display_initial_birth_message(PlayerType *player_ptr)
 {
@@ -406,6 +409,9 @@ static bool display_auto_roller_count(PlayerType *player_ptr, const int col)
         put_str(format("%10d", auto_round), 10, col + 20);
     }
     term_fresh();
+#ifdef USE_WEB
+    web_yield();
+#endif
     inkey_scan = true;
     if (inkey()) {
         get_ahw(player_ptr);
