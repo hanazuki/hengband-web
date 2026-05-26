@@ -89,6 +89,7 @@ async function openOnlineHelp(): Promise<void> {
   term?.input("\x1b\x1b\x1b", false);
   await new Promise<void>((r) => setTimeout(r, 100)); // delay required for unknown reason
   term?.input("?", false);
+  term?.focus();
 }
 
 onMount(async () => {
@@ -102,6 +103,7 @@ onMount(async () => {
   term.open(termContainer);
   await new Promise((resolve) => requestAnimationFrame(resolve));
   fitAddon.fit();
+  term.focus();
 
   term.write(variant === "ja" ? "ゲームをダウンロードしています……" : "Downloding the game...");
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Auto-focus the terminal on game start and after opening the online help menu.
+
 ## v3.0.2.3-Beta+1 (2026-05-25)
 
 - Upgrade base game to 3.0.2.3-Beta
