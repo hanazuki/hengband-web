@@ -41,11 +41,7 @@ async function handleFeedbackClick(e: MouseEvent) {
   lines.push(
     `- revision: ${import.meta.env.VITE_GIT_REVISION} (${import.meta.env.VITE_GIT_DESCRIPTION})`,
   );
-  const wasmBuildId =
-    variant === "ja"
-      ? import.meta.env.VITE_WASM_BUILD_ID_JA
-      : import.meta.env.VITE_WASM_BUILD_ID_EN;
-  lines.push(`- variant: ${variant} (\`${wasmBuildId}\`)`);
+  lines.push(`- variant: ${variant}`);
 
   let highEntropySucceeded = false;
   if (navigator.userAgentData) {

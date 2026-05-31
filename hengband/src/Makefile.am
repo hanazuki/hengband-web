@@ -1461,6 +1461,7 @@ if USE_WEB
 EXEEXT = .js
 DEFAULT_INCLUDES += -I$(top_srcdir)/src/web
 AM_LDFLAGS = \
+	-sENVIRONMENT=web \
 	-sEXPORT_ES6=1 \
 	-sMODULARIZE=1 \
 	-sASYNCIFY=1 \
