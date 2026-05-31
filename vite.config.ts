@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { spawnSync } from "node:child_process";
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { Jsonnet } from "@hanazuki/node-jsonnet";
@@ -103,63 +102,6 @@ function gitRevisionPlugin(): Plugin {
           "import.meta.env.VITE_GIT_DESCRIPTION": JSON.stringify(description),
         },
       };
-    },
-  };
-}
-
-function wasmVersionedPlugin(): Plugin {
-  const wasmDir = path.resolve("wasm");
-  const buildIds: Partial<Record<Variant, string>> = {};
-
-  return {
-    name: "wasm-versioned",
-    config(_, { command }) {
-      const define: Record<string, string> = {};
-      for (const variant of VARIANTS) {
-        if (command === "build") {
-          const wasmFile = path.join(wasmDir, variant, "hengband.wasm");
-          buildIds[variant] = crypto
-            .createHash("sha256")
-            .update(fs.readFileSync(wasmFile))
-            .digest("hex")
-            .slice(0, 8);
-        }
-        define[`import.meta.env.VITE_WASM_BUILD_ID_${variant.toUpperCase()}`] = JSON.stringify(
-          buildIds[variant] ?? "",
-        );
-      }
-      return { define };
-    },
-    generateBundle() {
-      for (const variant of VARIANTS) {
-        const buildId = buildIds[variant];
-        if (!buildId) continue;
-        for (const ext of ["js", "wasm", "data"]) {
-          const src = path.join(wasmDir, variant, `hengband.${ext}`);
-          this.emitFile({
-            type: "asset",
-            fileName: `assets/${variant}/hengband-${buildId}.${ext}`,
-            source: fs.readFileSync(src),
-          });
-        }
-      }
-    },
-    configureServer(server) {
-      const contentTypes: Record<string, string> = {
-        js: "text/javascript; charset=utf-8",
-        wasm: "application/wasm",
-        data: "application/octet-stream",
-      };
-      server.middlewares.use((req, res, next) => {
-        const url = (req.url ?? "").split("?")[0];
-        const match = /^\/assets\/(en|ja)\/hengband\.(js|wasm|data)$/.exec(url);
-        if (!match) return next();
-        const filePath = path.join(wasmDir, match[1], `hengband.${match[2]}`);
-        if (!fs.existsSync(filePath)) return next();
-        res.setHeader("Content-Type", contentTypes[match[2]]);
-        res.setHeader("Cache-Control", "no-cache");
-        fs.createReadStream(filePath).on("error", next).pipe(res);
-      });
     },
   };
 }
@@ -401,10 +343,10 @@ export default defineConfig({
     }),
     gitRevisionPlugin(),
     webmanifestPlugin(VARIANTS),
-    wasmVersionedPlugin(),
     xtraPlugin(),
     svelte(),
   ],
+  assetsInclude: ["wasm/**/*.{data,wasm}"],
   server: {
     port: 5173,
   },

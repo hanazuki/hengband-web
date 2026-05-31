@@ -29,6 +29,9 @@ build_variant() {
 
     rm -rf "$DESTDIR/$variant"
     mkdir -p "$DESTDIR/$variant"
+
+    sed -i 's/:REMOTE_PACKAGE_BASE/:new URL("hengband.data",import.meta.url).href/' src/hengband.js
+
     cp src/hengband.js "$DESTDIR/$variant/"
     cp src/hengband.wasm "$DESTDIR/$variant/"
     if [ -f src/hengband.data ]; then

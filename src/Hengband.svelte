@@ -33,14 +33,6 @@ const {
   onExited?: () => void;
 } = $props();
 
-const buildId = $derived(
-  (variant === "ja"
-    ? import.meta.env.VITE_WASM_BUILD_ID_JA
-    : import.meta.env.VITE_WASM_BUILD_ID_EN) as string,
-);
-const suffix = $derived(buildId ? `-${buildId}` : "");
-const assetBase = $derived(`/assets/${variant}/hengband${suffix}`);
-
 let termContainer: HTMLDivElement;
 let errorMessage = $state<string | null>(null);
 let exited = $state<boolean>(false);
@@ -108,13 +100,12 @@ onMount(async () => {
   term.write(variant === "ja" ? "ゲームをダウンロードしています……" : "Downloding the game...");
 
   try {
-    const { default: createModule } = (await import(/* @vite-ignore */ `${assetBase}.js`)) as {
-      default: HengbandFactory;
-    };
+    const { default: createModule } = (await (variant === "ja"
+      ? import("#wasm/ja/hengband")
+      : import("#wasm/en/hengband"))) as { default: HengbandFactory };
 
     const decoder = new TextDecoder();
     const mod = await createModule({
-      locateFile: (p) => `${assetBase}${p.replace(/^hengband/, "")}`,
       noInitialRun: true,
       onExit: (code) => {
         if (term) {
@@ -218,12 +209,6 @@ onMount(async () => {
   }
 });
 </script>
-
-<svelte:head>
-  <link rel="modulepreload" href="{assetBase}.js" />
-  <link rel="preload" as="fetch" crossorigin="anonymous" href="{assetBase}.wasm" />
-  <link rel="preload" as="fetch" crossorigin="anonymous" href="{assetBase}.data" />
-</svelte:head>
 
 {#if errorMessage}
   <div class="error">{errorMessage}</div>
