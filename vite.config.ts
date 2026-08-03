@@ -329,8 +329,8 @@ export default defineConfig({
     VitePWA({
       srcDir: "src",
       filename: "sw.js",
-      registerType: "autoUpdate",
-      injectRegister: "inline",
+      registerType: "prompt",
+      injectRegister: null,
       strategies: "injectManifest",
       injectManifest: {
         maximumFileSizeToCacheInBytes: 10_0000_0000,

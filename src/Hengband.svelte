@@ -12,6 +12,7 @@ import { SoundEngine } from "./audio";
 import { draculaTheme } from "./dracula";
 import type { HengbandFactory } from "./hengband";
 import { HengbandUnicodeAddon } from "./hengband-unicode";
+import { pwaApplyingUpdate } from "./pwa.svelte";
 
 const {
   variant,
@@ -191,7 +192,9 @@ onMount(async () => {
     }
 
     beforeUnload = (e) => {
-      if (!exited) {
+      // Skip the confirmation if a PWA update is being applied: the user
+      // already confirmed the reload in the update dialog.
+      if (!exited && !pwaApplyingUpdate()) {
         e.preventDefault();
       }
     };

@@ -16,6 +16,7 @@ const {
   onMusicVolumeChange,
   onEffectsVolumeChange,
   onInstall,
+  onUpdate,
   onOnlineHelp,
 }: {
   variant: "ja" | "en";
@@ -30,6 +31,7 @@ const {
   onMusicVolumeChange: (volume: number) => void;
   onEffectsVolumeChange: (volume: number) => void;
   onInstall?: () => void;
+  onUpdate?: () => void;
   onOnlineHelp?: () => void;
 } = $props();
 
@@ -102,14 +104,19 @@ async function handleFeedbackClick(e: MouseEvent) {
   ><Menubar.Root
     >{variant === "ja" ? "変愚蛮怒" : "Hengband"}<Menubar.Menu
       ><Menubar.Trigger
-        >{variant === "ja" ? "ゲーム" : "Game"
-      }</Menubar.Trigger
-      >{#if onInstall}<Menubar.Portal
+        >{#if onUpdate}<span class="badge">★</span>{/if
+      }{variant === "ja" ? "ゲーム" : "Game"
+        }</Menubar.Trigger
+      >{#if onInstall || onUpdate}<Menubar.Portal
           ><Menubar.Content class="submenu"
-            ><Menubar.Item onclick={onInstall}
+            >{#if onInstall}<Menubar.Item onclick={onInstall}
               >{variant === "ja" ? "アプリをインストール…" : "Install app…"
             }</Menubar.Item
-          ></Menubar.Content
+          >{/if}{#if onInstall && onUpdate}<Menubar.Separator
+            />{/if}{#if onUpdate}<Menubar.Item onclick={onUpdate}
+              ><span class="badge">★</span>{variant === "ja" ? "アップデートを適用…" : "Apply update…"
+            }</Menubar.Item
+          >{/if}</Menubar.Content
         ></Menubar.Portal
       >{/if}</Menubar.Menu
     ><Menubar.Menu
