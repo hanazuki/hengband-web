@@ -44,6 +44,7 @@
 #include "target/target-getter.h"
 #include "timed-effect/timed-effects.h"
 #include "util/bit-flags-calculator.h"
+#include "util/string-processor.h"
 #include "view/display-messages.h"
 #include "world/world.h"
 #include <algorithm>
@@ -460,12 +461,12 @@ static bool input_rest_turns()
             return true;
         }
 
-        try {
-            command_arg = static_cast<short>(std::clamp(std::stoi(*rest_turns), 0, 9999));
+        if (const auto value = str_to_int(*rest_turns)) {
+            command_arg = static_cast<short>(std::clamp(*value, 0, 9999));
             return true;
-        } catch (std::invalid_argument const &) {
-            msg_print(_("数値を入力して下さい。", "Please input numeric value."));
         }
+
+        msg_print(_("数値を入力して下さい。", "Please input numeric value."));
     }
 }
 

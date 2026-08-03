@@ -378,14 +378,12 @@ void FileDisplayer::display(bool show_version, std::string_view name_with_tag, i
                     break;
                 }
 
-                try {
-                    line = std::stoi(*ask_result);
+                if (const auto value = str_to_int(*ask_result)) {
+                    line = *value;
                     break;
-                } catch (std::invalid_argument const &) {
-                    prt(_("数値を入力して下さい。", "Please input numeric value."), hgt - 1, 0);
-                } catch (std::out_of_range const &) {
-                    prt(_("入力可能な数値の範囲を超えています。", "Input value overflows the maximum number."), hgt - 1, 0);
                 }
+
+                prt(_("数値を入力して下さい。", "Please input numeric value."), hgt - 1, 0);
             }
 
             break;

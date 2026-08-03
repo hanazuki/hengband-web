@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix crash on ill-formed input when number is expected (rest turns, goto line, etc.)
+
 ## v3.0.2.3-Beta+2 (2026-05-26)
 
 - Auto-focus the terminal on game start and after opening the online help menu.

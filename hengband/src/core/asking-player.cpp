@@ -356,12 +356,10 @@ int input_quantity(int max, std::string_view initial_prompt)
     int amt;
     if (isalpha((*input_amount)[0])) {
         amt = max;
+    } else if (const auto value = str_to_int(*input_amount)) {
+        amt = std::clamp(*value, 0, max);
     } else {
-        try {
-            amt = std::clamp(std::stoi(*input_amount), 0, max);
-        } catch (const std::exception &) {
-            amt = 0;
-        }
+        amt = 0;
     }
 
     if (amt > 0) {
@@ -394,20 +392,17 @@ tl::optional<int> input_integer(std::string_view prompt, int min, int max, int i
             return tl::nullopt;
         }
 
-        try {
-            auto val = std::stoi(*input_str);
-            if ((val < min) || (val > max)) {
-                msg_format(_("%dから%dの間で指定して下さい。", "It must be between %d to %d."), min, max);
-                continue;
-            }
-
-            return val;
-        } catch (std::invalid_argument const &) {
+        const auto val = str_to_int(*input_str);
+        if (!val) {
             msg_print(_("数値を入力して下さい。", "Please input numeric value."));
             continue;
-        } catch (std::out_of_range const &) {
-            msg_print(_("入力可能な数値の範囲を超えています。", "Input value overflows the maximum number."));
+        }
+
+        if ((*val < min) || (*val > max)) {
+            msg_format(_("%dから%dの間で指定して下さい。", "It must be between %d to %d."), min, max);
             continue;
         }
+
+        return *val;
     }
 }
