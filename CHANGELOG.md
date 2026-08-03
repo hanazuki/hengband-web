@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.0.2.3-Beta+3 (2026-08-03)
+
 - Fix crash on ill-formed input when number is expected (rest turns, goto line, etc.)
 - No longer install app updates automatically. A new version now waits until the player accepts it from the menu, so an update cannot interrupt a game in progress.
 
