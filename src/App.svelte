@@ -5,6 +5,7 @@ import { draculaTheme } from "./dracula";
 import Menu from "./Menu.svelte";
 import { applyPwaUpdate, pwaUpdateAvailable } from "./pwa.svelte";
 import StartScreen from "./StartScreen.svelte";
+import UpdateDialog from "./UpdateDialog.svelte";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -33,6 +34,7 @@ let musicVolume = $state(Number(localStorage.getItem("hengband.musicVolume") ?? 
 let effectsVolume = $state(Number(localStorage.getItem("hengband.effectsVolume") ?? "5"));
 let deferredInstallPrompt = $state<BeforeInstallPromptEvent | null>(null);
 let openOnlineHelp = $state<(() => void) | null>(null);
+let updateDialogOpen = $state(false);
 const updateAvailable = $derived(pwaUpdateAvailable());
 
 function handleFontSizeChange(size: number): void {
@@ -88,20 +90,12 @@ async function handleInstall(): Promise<void> {
   }
 }
 
-async function handleUpdate(): Promise<void> {
-  const message =
-    variant === "ja"
-      ? "新しいバージョンを適用するため、アプリを再読み込みします。\n\n" +
-        "保存していないゲームの進行状況は失われます。\n\n" +
-        "また、既存のセーブデータが新しいバージョンと互換でない場合があります。次に新しいゲームを始めるときまでアップデートを見送ることをおすすめします。\n\n" +
-        "続行しますか？"
-      : "The app will reload to apply a new version.\n\n" +
-        "Any unsaved game progress will be lost.\n\n" +
-        "Also, existing save data may not be compatible with the new version. You are advised to defer the update until you start a new game.\n\n" +
-        "Continue?";
-  if (window.confirm(message)) {
-    await applyPwaUpdate();
-  }
+function handleUpdate(): void {
+  updateDialogOpen = true;
+}
+
+function handleUpdateConfirm(): void {
+  void applyPwaUpdate();
 }
 
 $effect(() => {
@@ -134,6 +128,7 @@ onDestroy(() => {
     <StartScreen />
   {:else}
     <Menu {variant} {fontSize} {soundEnabled} {musicEnabled} {musicVolume} {effectsVolume} onFontSizeChange={handleFontSizeChange} onSoundEnabledChange={handleSoundEnabledChange} onMusicEnabledChange={handleMusicEnabledChange} onMusicVolumeChange={handleMusicVolumeChange} onEffectsVolumeChange={handleEffectsVolumeChange} onInstall={deferredInstallPrompt ? handleInstall : undefined} onUpdate={updateAvailable ? handleUpdate : undefined} onOnlineHelp={openOnlineHelp ?? undefined} />
+    <UpdateDialog {variant} bind:open={updateDialogOpen} onConfirm={handleUpdateConfirm} />
     {#await hengbandModule then { default: Hengband}}
       <Hengband {variant} {fontSize} {soundEnabled} {musicEnabled} {musicVolume} {effectsVolume} onReady={({ openOnlineHelp: fn }) => { openOnlineHelp = fn; }} onExited={() => { openOnlineHelp = null; }} />
     {/await}
