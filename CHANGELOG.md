@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Upgrade base game to 3.0.2.4-Beta
+
 ## v3.0.2.3-Beta+3 (2026-08-03)
 
 - Fix crash on ill-formed input when number is expected (rest turns, goto line, etc.)
