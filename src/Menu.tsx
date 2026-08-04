@@ -132,7 +132,7 @@ export function Menu({
 
   return (
     <nav className={styles.menu} id="menu">
-      <Menubar className={styles.menubar}>
+      <Menubar className={styles.menubar} modal={false}>
         <span>{variant === "ja" ? "変愚蛮怒" : "Hengband"}</span>
 
         <BaseMenu.Root>
@@ -177,6 +177,7 @@ export function Menu({
             <BaseMenu.CheckboxItem
               checked={musicEnabled}
               className={styles.checkboxItem}
+              closeOnClick
               onCheckedChange={onMusicEnabledChange}
             >
               {variant === "ja" ? "楽曲" : "Music"}
@@ -184,6 +185,7 @@ export function Menu({
             <BaseMenu.CheckboxItem
               checked={soundEnabled}
               className={styles.checkboxItem}
+              closeOnClick
               onCheckedChange={onSoundEnabledChange}
             >
               {variant === "ja" ? "効果音" : "Effects"}

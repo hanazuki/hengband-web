@@ -1,0 +1,51 @@
+/* SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband */
+.startScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 2lh;
+  font-size: 1rem;
+}
+.title {
+  font-weight: normal;
+  font-size: inherit;
+  text-align: center;
+}
+.title::before,
+.title::after {
+  content: "*****************************************";
+  display: block;
+}
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 1lh;
+}
+.languageChooser {
+  display: flex;
+  gap: 1rem;
+}
+.languageChooser a {
+  display: inline-block;
+  width: 8em;
+  padding-block: 1lh;
+  border: none;
+  color: inherit;
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.languageChooser a::before {
+  content: "[ ";
+}
+.languageChooser a::after {
+  content: " ]";
+}
+.languageChooser a:hover {
+  text-decoration: underline;
+}

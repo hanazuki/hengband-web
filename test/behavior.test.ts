@@ -2,8 +2,11 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 
 async function openMenu(page: Page, name: string): Promise<Locator> {
-  await page.getByRole("menuitem", { name }).click();
-  const content = page.locator("[data-menubar-content]");
+  await page.keyboard.press("Escape");
+  const trigger = page.getByRole("menuitem", { name });
+  await expect(trigger).not.toHaveAttribute("data-popup-open");
+  await trigger.click();
+  const content = page.getByRole("menu");
   await expect(content).toBeVisible();
   return content;
 }
@@ -26,9 +29,7 @@ test("font size is bounded and persists across reloads", async ({ page }) => {
   await page.goto("/#en");
 
   let viewMenu = await openMenu(page, "View");
-  const fontSize = viewMenu.locator("[data-menubar-item]:has(output)", {
-    hasText: "Font size",
-  });
+  const fontSize = viewMenu.getByRole("menuitem").filter({ hasText: "Font size" });
   await expect(fontSize.locator("output")).toHaveText("14");
   await fontSize.getByRole("button", { name: "+" }).click();
 
@@ -43,7 +44,7 @@ test("font size is bounded and persists across reloads", async ({ page }) => {
 
   viewMenu = await openMenu(page, "View");
   await expect(
-    viewMenu.locator("[data-menubar-item]:has(output)", { hasText: "Font size" }).locator("output"),
+    viewMenu.getByRole("menuitem").filter({ hasText: "Font size" }).locator("output"),
   ).toHaveText("15");
 
   await page.evaluate(() => localStorage.setItem("hengband.fontSize", "32"));
@@ -51,7 +52,8 @@ test("font size is bounded and persists across reloads", async ({ page }) => {
   viewMenu = await openMenu(page, "View");
   await expect(
     viewMenu
-      .locator("[data-menubar-item]:has(output)", { hasText: "Font size" })
+      .getByRole("menuitem")
+      .filter({ hasText: "Font size" })
       .getByRole("button", { name: "+" }),
   ).toBeDisabled();
 });
@@ -61,7 +63,7 @@ test("audio settings update and persist", async ({ page }) => {
 
   let audioMenu = await openMenu(page, "Audio");
   const musicToggle = audioMenu.getByRole("menuitemcheckbox", { name: "Music" });
-  await expect(musicToggle).toHaveAttribute("data-state", "checked");
+  await expect(musicToggle).toHaveAttribute("aria-checked", "true");
   await musicToggle.click();
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem("hengband.music")))
@@ -69,19 +71,15 @@ test("audio settings update and persist", async ({ page }) => {
 
   audioMenu = await openMenu(page, "Audio");
   const effectsToggle = audioMenu.getByRole("menuitemcheckbox", { name: "Effects" });
-  await expect(effectsToggle).toHaveAttribute("data-state", "checked");
+  await expect(effectsToggle).toHaveAttribute("aria-checked", "true");
   await effectsToggle.click();
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem("hengband.sound")))
     .toBe("false");
 
   audioMenu = await openMenu(page, "Audio");
-  const musicVolume = audioMenu.locator("[data-menubar-item]:has(output)", {
-    hasText: "Music",
-  });
-  const effectsVolume = audioMenu.locator("[data-menubar-item]:has(output)", {
-    hasText: "Effects",
-  });
+  const musicVolume = audioMenu.getByRole("menuitem").filter({ hasText: "Music" });
+  const effectsVolume = audioMenu.getByRole("menuitem").filter({ hasText: "Effects" });
   await expect(musicVolume.locator("output")).toHaveText("5");
   await expect(effectsVolume.locator("output")).toHaveText("5");
   await musicVolume.getByRole("button", { name: "+" }).click();
@@ -96,25 +94,25 @@ test("audio settings update and persist", async ({ page }) => {
   await page.reload();
   audioMenu = await openMenu(page, "Audio");
   await expect(audioMenu.getByRole("menuitemcheckbox", { name: "Music" })).toHaveAttribute(
-    "data-state",
-    "unchecked",
+    "aria-checked",
+    "false",
   );
   await expect(audioMenu.getByRole("menuitemcheckbox", { name: "Effects" })).toHaveAttribute(
-    "data-state",
-    "unchecked",
+    "aria-checked",
+    "false",
   );
   await expect(
-    audioMenu.locator("[data-menubar-item]:has(output)", { hasText: "Music" }).locator("output"),
+    audioMenu.getByRole("menuitem").filter({ hasText: "Music" }).locator("output"),
   ).toHaveText("6");
   await expect(
-    audioMenu.locator("[data-menubar-item]:has(output)", { hasText: "Effects" }).locator("output"),
+    audioMenu.getByRole("menuitem").filter({ hasText: "Effects" }).locator("output"),
   ).toHaveText("6");
 });
 
 test("the game creates and initializes its terminal", async ({ page }) => {
   await page.goto("/#en");
 
-  const terminal = page.locator(".terminal .xterm");
+  const terminal = page.getByTestId("terminal").locator(".xterm");
   await expect(terminal).toBeVisible({ timeout: 30_000 });
   const helpMenu = await openMenu(page, "Help");
   await expect(helpMenu.getByRole("menuitem", { name: "Online help" })).not.toHaveAttribute(

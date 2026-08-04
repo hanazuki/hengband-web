@@ -11,7 +11,7 @@ export function Hengband(props: HengbandProps) {
   return (
     <>
       {error && <div className={styles.error}>{error}</div>}
-      <div className={styles.terminal} ref={containerRef} />
+      <div className={styles.terminal} data-testid="terminal" ref={containerRef} />
     </>
   );
 }
