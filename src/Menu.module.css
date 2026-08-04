@@ -35,17 +35,16 @@
 }
 
 .popup {
-  padding: 0.5lh 0.5ch;
+  padding: 0.5lh 1.5ch;
   background: var(--bg-color);
   color: var(--fg-color);
   font-family: monospace;
   font-size: 1rem;
   outline: none;
-  border-width: 1lh 1ch;
+  border-color: var(--bg-color);
   border-style: solid;
-  border-image-source: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><text x="0" y="10" font-family="monospace" font-size="1rem" fill="white">┌─┐</text><text x="0" y="20" font-family="monospace" font-size="1rem" fill="white">│ │</text><text x="0" y="30" font-family="monospace" font-size="1rem" fill="white">└─┘</text></svg>');
-  border-image-slice: 10;
-  border-image-repeat: repeat;
+  border-width: 0.5lh 0.5ch;
+  box-shadow: inset 0 0 0 1px currentcolor;
 }
 
 .item,
