@@ -5,13 +5,23 @@ export interface StepperProps {
   value: number;
   min: number;
   max: number;
+  decrementLabel: string;
+  incrementLabel: string;
   onChange(value: number): void;
 }
 
-export function Stepper({ value, min, max, onChange }: StepperProps) {
+export function Stepper({
+  value,
+  min,
+  max,
+  decrementLabel,
+  incrementLabel,
+  onChange,
+}: StepperProps) {
   return (
     <span className={styles.stepper}>
       <button
+        aria-label={decrementLabel}
         disabled={value <= min}
         onClick={(event) => {
           event.stopPropagation();
@@ -23,6 +33,7 @@ export function Stepper({ value, min, max, onChange }: StepperProps) {
       </button>
       <output>{value}</output>
       <button
+        aria-label={incrementLabel}
         disabled={value >= max}
         onClick={(event) => {
           event.stopPropagation();

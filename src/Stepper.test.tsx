@@ -11,13 +11,31 @@ describe("Stepper", () => {
   it("increments and decrements within its bounds", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    const { rerender } = render(<Stepper value={8} min={8} max={10} onChange={onChange} />);
+    const { rerender } = render(
+      <Stepper
+        decrementLabel="Decrease"
+        incrementLabel="Increase"
+        value={8}
+        min={8}
+        max={10}
+        onChange={onChange}
+      />,
+    );
 
-    expect(screen.getByRole("button", { name: "-" })).toBeDisabled();
-    await user.click(screen.getByRole("button", { name: "+" }));
+    expect(screen.getByRole("button", { name: "Decrease" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Increase" }));
     expect(onChange).toHaveBeenCalledWith(9);
 
-    rerender(<Stepper value={10} min={8} max={10} onChange={onChange} />);
-    expect(screen.getByRole("button", { name: "+" })).toBeDisabled();
+    rerender(
+      <Stepper
+        decrementLabel="Decrease"
+        incrementLabel="Increase"
+        value={10}
+        min={8}
+        max={10}
+        onChange={onChange}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Increase" })).toBeDisabled();
   });
 });

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { Menu as BaseMenu } from "@base-ui/react/menu";
 import { Menubar } from "@base-ui/react/menubar";
-import type { MouseEvent, ReactNode } from "react";
+import { type MouseEvent, type ReactNode, useId } from "react";
 import styles from "./Menu.module.css";
 import { Stepper } from "./Stepper";
 
@@ -26,17 +26,29 @@ export interface MenuProps {
 
 interface StepperItemProps {
   children: ReactNode;
+  variant: Variant;
   value: number;
   min: number;
   max: number;
   onChange(value: number): void;
 }
 
-function StepperItem({ children, value, min, max, onChange }: StepperItemProps) {
+function StepperItem({ children, variant, value, min, max, onChange }: StepperItemProps) {
+  const labelId = useId();
+
   return (
-    <BaseMenu.Item className={styles.stepperItem}>
-      <span>{children}:</span>
-      <Stepper value={value} min={min} max={max} onChange={onChange} />
+    <BaseMenu.Item aria-labelledby={labelId} className={styles.stepperItem}>
+      <span>
+        <span id={labelId}>{children}</span>:
+      </span>
+      <Stepper
+        decrementLabel={variant === "ja" ? "小さくする" : "Decrease"}
+        incrementLabel={variant === "ja" ? "大きくする" : "Increase"}
+        value={value}
+        min={min}
+        max={max}
+        onChange={onChange}
+      />
     </BaseMenu.Item>
   );
 }
@@ -163,7 +175,13 @@ export function Menu({
             {variant === "ja" ? "表示" : "View"}
           </BaseMenu.Trigger>
           <MenuContent>
-            <StepperItem value={fontSize} min={8} max={32} onChange={onFontSizeChange}>
+            <StepperItem
+              variant={variant}
+              value={fontSize}
+              min={8}
+              max={32}
+              onChange={onFontSizeChange}
+            >
               {variant === "ja" ? "文字サイズ" : "Font size"}
             </StepperItem>
           </MenuContent>
@@ -195,10 +213,22 @@ export function Menu({
               <BaseMenu.GroupLabel className={styles.groupLabel}>
                 {variant === "ja" ? "音量" : "Volume"}
               </BaseMenu.GroupLabel>
-              <StepperItem value={musicVolume} min={0} max={10} onChange={onMusicVolumeChange}>
+              <StepperItem
+                variant={variant}
+                value={musicVolume}
+                min={0}
+                max={10}
+                onChange={onMusicVolumeChange}
+              >
                 {variant === "ja" ? "楽曲" : "Music"}
               </StepperItem>
-              <StepperItem value={effectsVolume} min={0} max={10} onChange={onEffectsVolumeChange}>
+              <StepperItem
+                variant={variant}
+                value={effectsVolume}
+                min={0}
+                max={10}
+                onChange={onEffectsVolumeChange}
+              >
                 {variant === "ja" ? "効果音" : "Effects"}
               </StepperItem>
             </BaseMenu.Group>

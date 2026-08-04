@@ -43,7 +43,8 @@ describe("Menu", () => {
     const props = renderMenu();
 
     await user.click(screen.getByRole("menuitem", { name: "View" }));
-    const increment = await screen.findByRole("button", { name: "+" });
+    expect(await screen.findByRole("menuitem", { name: "Font size" })).toBeVisible();
+    const increment = await screen.findByRole("button", { name: "Increase" });
     await user.click(increment);
 
     expect(props.onFontSizeChange).toHaveBeenCalledWith(15);
