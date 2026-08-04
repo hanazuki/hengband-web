@@ -38,6 +38,19 @@ describe("Menu", () => {
     expect(screen.getByRole("menuitem", { name: "ヘルプ" })).toBeVisible();
   });
 
+  it.each([
+    ["en", "Game", "Update available"],
+    ["ja", "ゲーム", "アップデートが利用可能です"],
+  ] as const)("labels an available update in %s", async (variant, menuLabel, updateLabel) => {
+    const user = userEvent.setup();
+    renderMenu({ variant, onUpdate: vi.fn() });
+
+    expect(screen.getByRole("img", { name: updateLabel })).toBeVisible();
+    await user.click(screen.getByRole("menuitem", { name: new RegExp(menuLabel) }));
+
+    expect(await screen.findByRole("img", { name: updateLabel })).toBeVisible();
+  });
+
   it("changes a stepped value without closing its menu", async () => {
     const user = userEvent.setup();
     const props = renderMenu();

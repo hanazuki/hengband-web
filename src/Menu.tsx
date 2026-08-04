@@ -57,6 +57,17 @@ interface MenuContentProps {
   children: ReactNode;
 }
 
+function UpdateAvailableIcon({ variant }: { variant: Variant }) {
+  return (
+    <span
+      role="img"
+      aria-label={variant === "ja" ? "アップデートが利用可能です" : "Update available"}
+    >
+      ★
+    </span>
+  );
+}
+
 function MenuContent({ children }: MenuContentProps) {
   return (
     <BaseMenu.Portal>
@@ -149,7 +160,7 @@ export function Menu({
 
         <BaseMenu.Root>
           <BaseMenu.Trigger className={styles.trigger}>
-            {onUpdate && <span className={styles.badge}>★</span>}
+            {onUpdate && <UpdateAvailableIcon variant={variant} />}
             {variant === "ja" ? "ゲーム" : "Game"}
           </BaseMenu.Trigger>
           {(onInstall || onUpdate) && (
@@ -162,7 +173,7 @@ export function Menu({
               {onInstall && onUpdate && <BaseMenu.Separator className={styles.separator} />}
               {onUpdate && (
                 <BaseMenu.Item className={styles.item} onClick={onUpdate}>
-                  <span className={styles.badge}>★</span>
+                  <UpdateAvailableIcon variant={variant} />
                   {variant === "ja" ? "アップデートを適用…" : "Apply update…"}
                 </BaseMenu.Item>
               )}

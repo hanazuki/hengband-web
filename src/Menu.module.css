@@ -92,7 +92,3 @@
 .stepperItem > span:first-child {
   flex: 1;
 }
-
-.badge {
-  color: #ff0;
-}
