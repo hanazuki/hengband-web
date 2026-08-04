@@ -8,6 +8,7 @@ import { generateManifestIconsEntry } from "@vite-pwa/assets-generator/api/gener
 import { instructions } from "@vite-pwa/assets-generator/api/instructions";
 import { minimal2023Preset } from "@vite-pwa/assets-generator/config";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import { run as generateCssModuleTypes } from "happy-css-modules";
 import license from "rollup-plugin-license";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -30,6 +31,29 @@ const assets = {
 
 const VARIANTS = ["ja", "en"] as const;
 type Variant = (typeof VARIANTS)[number];
+
+function happyCssModulesPlugin(): Plugin {
+  const pattern = "src/**/*.module.css";
+  let command: "build" | "serve";
+
+  return {
+    name: "happy-css-modules",
+    apply: (_config, { mode }) => mode !== "test",
+    configResolved(config) {
+      command = config.command;
+    },
+    async buildStart() {
+      if (command === "build") await generateCssModuleTypes({ pattern });
+    },
+    async configureServer(server) {
+      await generateCssModuleTypes({ pattern });
+      const watcher = await generateCssModuleTypes({ pattern, watch: true });
+      server.httpServer?.once("close", () => {
+        void watcher.close();
+      });
+    },
+  };
+}
 
 function webmanifestPlugin(variants: readonly Variant[]): Plugin {
   const sourceFile = path.resolve("webmanifest.jsonnet");
@@ -327,6 +351,7 @@ function xtraPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [
+    happyCssModulesPlugin(),
     VitePWA({
       srcDir: "src",
       filename: "sw.js",
