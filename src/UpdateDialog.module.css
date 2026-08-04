@@ -64,9 +64,9 @@
 }
 
 .button::before {
-  content: "[ ";
+  content: "[ " / "";
 }
 
 .button::after {
-  content: " ]";
+  content: " ]" / "";
 }

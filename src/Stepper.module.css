@@ -9,11 +9,11 @@
 }
 
 .stepper button::before {
-  content: "[";
+  content: "[" / "";
 }
 
 .stepper button::after {
-  content: "]";
+  content: "]" / "";
 }
 
 .stepper button:disabled {

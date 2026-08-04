@@ -22,11 +22,11 @@
 }
 
 .trigger::before {
-  content: "[ ";
+  content: "[ " / "";
 }
 
 .trigger::after {
-  content: " ]";
+  content: " ]" / "";
 }
 
 .positioner {
@@ -69,11 +69,11 @@
 }
 
 .checkboxItem::before {
-  content: "[ ] ";
+  content: "[ ] " / "";
 }
 
 .checkboxItem[data-checked]::before {
-  content: "[x] ";
+  content: "[x] " / "";
 }
 
 .separator {

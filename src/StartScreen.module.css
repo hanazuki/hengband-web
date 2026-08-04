@@ -15,7 +15,7 @@
 }
 .title::before,
 .title::after {
-  content: "*****************************************";
+  content: "*****************************************" / "";
   display: block;
 }
 .message {
@@ -41,10 +41,10 @@
   cursor: pointer;
 }
 .languageChooser a::before {
-  content: "[ ";
+  content: "[ " / "";
 }
 .languageChooser a::after {
-  content: " ]";
+  content: " ]" / "";
 }
 .languageChooser a:hover {
   text-decoration: underline;
