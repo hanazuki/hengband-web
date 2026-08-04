@@ -27,7 +27,7 @@ test("font size is bounded and persists across reloads", async ({ page }) => {
   let viewMenu = await openMenu(page, "View");
   const fontSize = viewMenu.getByRole("menuitem").filter({ hasText: "Font size" });
   await expect(fontSize.locator("output")).toHaveText("14");
-  await fontSize.getByRole("button", { name: "+" }).dispatchEvent("click");
+  await fontSize.getByRole("button", { name: "Increase" }).dispatchEvent("click");
 
   await expect(page.locator("html")).toHaveCSS("font-size", "15px");
   await expect
@@ -50,7 +50,7 @@ test("font size is bounded and persists across reloads", async ({ page }) => {
     viewMenu
       .getByRole("menuitem")
       .filter({ hasText: "Font size" })
-      .getByRole("button", { name: "+" }),
+      .getByRole("button", { name: "Increase" }),
   ).toBeDisabled();
 });
 
@@ -82,8 +82,8 @@ test("audio settings update and persist", async ({ page }) => {
     .filter({ has: page.locator("output"), hasText: "Effects" });
   await expect(musicVolume.locator("output")).toHaveText("5");
   await expect(effectsVolume.locator("output")).toHaveText("5");
-  await musicVolume.getByRole("button", { name: "+" }).dispatchEvent("click");
-  await effectsVolume.getByRole("button", { name: "+" }).dispatchEvent("click");
+  await musicVolume.getByRole("button", { name: "Increase" }).dispatchEvent("click");
+  await effectsVolume.getByRole("button", { name: "Increase" }).dispatchEvent("click");
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem("hengband.musicVolume")))
     .toBe("6");
