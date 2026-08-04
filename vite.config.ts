@@ -3,10 +3,12 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { Jsonnet } from "@hanazuki/node-jsonnet";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
+import babel from "@rolldown/plugin-babel";
 import { generateManifestIconsEntry } from "@vite-pwa/assets-generator/api/generate-manifest-icons-entry";
 import { instructions } from "@vite-pwa/assets-generator/api/instructions";
 import { minimal2023Preset } from "@vite-pwa/assets-generator/config";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import { run as generateCssModuleTypes } from "happy-css-modules";
 import license from "rollup-plugin-license";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -29,6 +31,29 @@ const assets = {
 
 const VARIANTS = ["ja", "en"] as const;
 type Variant = (typeof VARIANTS)[number];
+
+function happyCssModulesPlugin(): Plugin {
+  const pattern = "src/**/*.module.css";
+  let command: "build" | "serve";
+
+  return {
+    name: "happy-css-modules",
+    apply: (_config, { mode }) => mode !== "test",
+    configResolved(config) {
+      command = config.command;
+    },
+    async buildStart() {
+      if (command === "build") await generateCssModuleTypes({ pattern });
+    },
+    async configureServer(server) {
+      await generateCssModuleTypes({ pattern });
+      const watcher = await generateCssModuleTypes({ pattern, watch: true });
+      server.httpServer?.once("close", () => {
+        void watcher.close();
+      });
+    },
+  };
+}
 
 function webmanifestPlugin(variants: readonly Variant[]): Plugin {
   const sourceFile = path.resolve("webmanifest.jsonnet");
@@ -326,6 +351,7 @@ function xtraPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [
+    happyCssModulesPlugin(),
     VitePWA({
       srcDir: "src",
       filename: "sw.js",
@@ -344,7 +370,8 @@ export default defineConfig({
     gitRevisionPlugin(),
     webmanifestPlugin(VARIANTS),
     xtraPlugin(),
-    svelte(),
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
   ],
   assetsInclude: ["wasm/**/*.{data,wasm}"],
   server: {
@@ -389,7 +416,11 @@ export default defineConfig({
     },
   },
   test: {
+    alias: {
+      "#wasm/ja/hengband": path.resolve("src/test/wasm-stub.ts"),
+      "#wasm/en/hengband": path.resolve("src/test/wasm-stub.ts"),
+    },
     environment: "jsdom",
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.{ts,tsx}"],
   },
 });

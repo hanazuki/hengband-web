@@ -1,0 +1,26 @@
+/* SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband */
+.stepper button {
+  appearance: none;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.stepper button::before {
+  content: "[";
+}
+
+.stepper button::after {
+  content: "]";
+}
+
+.stepper button:disabled {
+  color: var(--bright-black);
+  cursor: default;
+}
+
+.stepper output {
+  margin-inline: 1ch;
+}

@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband */
+.terminal {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.error {
+  padding: 1rem;
+  color: #f88;
+  background: #300;
+  font-family: monospace;
+  white-space: pre-wrap;
+}

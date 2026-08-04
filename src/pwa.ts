@@ -1,19 +1,29 @@
 // SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
+
 import { registerSW } from "virtual:pwa-register";
+import { useSyncExternalStore } from "react";
 
 const UPDATE_CHECK_INTERVAL = 60 * 60 * 1000;
-
-let updateAvailable = $state(false);
+let updateAvailable = false;
 let updateServiceWorker: ((reloadPage?: boolean) => Promise<void>) | null = null;
 let registered = false;
-
-// Plain (non-reactive) flag: only read from a DOM event handler, not from markup.
 let applyingUpdate = false;
+const listeners = new Set<() => void>();
 
-export function pwaUpdateAvailable(): boolean {
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+function getSnapshot(): boolean {
   return updateAvailable;
 }
+function emitChange(): void {
+  for (const listener of listeners) listener();
+}
 
+export function usePwaUpdateAvailable(): boolean {
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
 export function pwaApplyingUpdate(): boolean {
   return applyingUpdate;
 }
@@ -21,15 +31,13 @@ export function pwaApplyingUpdate(): boolean {
 export function registerPwa(): void {
   if (registered) return;
   registered = true;
-
   updateServiceWorker = registerSW({
     onNeedRefresh() {
       updateAvailable = true;
+      emitChange();
     },
     onRegisteredSW(_swUrl, registration) {
       if (!registration) return;
-      // Prompt mode only checks for updates at registration time, so poll
-      // periodically. Failures (offline, server down) are not actionable.
       setInterval(() => {
         registration.update().catch(() => {});
       }, UPDATE_CHECK_INTERVAL);
@@ -38,11 +46,6 @@ export function registerPwa(): void {
 }
 
 export async function applyPwaUpdate(): Promise<void> {
-  // The actual reload is triggered asynchronously by vite-plugin-pwa's register
-  // code, in response to the workbox `controlling` event, so this flag must
-  // outlive the awaited call below. If no reload happens (e.g. the new worker
-  // never takes control), clear it after a timeout so the beforeunload guard
-  // isn't disabled forever.
   applyingUpdate = true;
   setTimeout(() => {
     applyingUpdate = false;

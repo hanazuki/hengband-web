@@ -34,11 +34,12 @@ pnpm serve
 
 Other commands:
 
-| Command | Description |
-|---------|-------------|
-| `pnpm build` | Production build → `dist/` |
-| `pnpm serve` | Dev server at `localhost:5173` |
-| `pnpm lint` | Check code with Biome |
-| `pnpm lintfix` | Auto-fix lint/format issues |
-| `pnpm typecheck` | TypeScript + Svelte type check |
-| `pnpm test` | Run unit tests (Vitest) |
+| Command          | Description                                      |
+| ---------------- | ------------------------------------------------ |
+| `pnpm build`     | Production build → `dist/`                       |
+| `pnpm serve`     | Dev server at `localhost:5173`                   |
+| `pnpm lint`      | Check code with Oxlint and Oxfmt                 |
+| `pnpm lintfix`   | Auto-fix lint/format issues                      |
+| `pnpm typecheck` | Generate CSS Module types and check TypeScript   |
+| `pnpm test`      | Run unit tests (Vitest)                          |
+| `pnpm test:e2e`  | Build and run browser tests against Vite preview |
