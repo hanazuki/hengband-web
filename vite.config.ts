@@ -4,7 +4,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { Jsonnet } from "@hanazuki/node-jsonnet";
 import babel from "@rolldown/plugin-babel";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { generateManifestIconsEntry } from "@vite-pwa/assets-generator/api/generate-manifest-icons-entry";
 import { instructions } from "@vite-pwa/assets-generator/api/instructions";
 import { minimal2023Preset } from "@vite-pwa/assets-generator/config";
@@ -348,7 +347,6 @@ export default defineConfig({
     xtraPlugin(),
     react(),
     babel({ presets: [reactCompilerPreset()] }),
-    svelte(),
   ],
   assetsInclude: ["wasm/**/*.{data,wasm}"],
   server: {
