@@ -391,6 +391,10 @@ export default defineConfig({
     },
   },
   test: {
+    alias: {
+      "#wasm/ja/hengband": path.resolve("src/test/wasm-stub.ts"),
+      "#wasm/en/hengband": path.resolve("src/test/wasm-stub.ts"),
+    },
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],
   },
