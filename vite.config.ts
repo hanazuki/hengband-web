@@ -3,10 +3,12 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { Jsonnet } from "@hanazuki/node-jsonnet";
+import babel from "@rolldown/plugin-babel";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { generateManifestIconsEntry } from "@vite-pwa/assets-generator/api/generate-manifest-icons-entry";
 import { instructions } from "@vite-pwa/assets-generator/api/instructions";
 import { minimal2023Preset } from "@vite-pwa/assets-generator/config";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import license from "rollup-plugin-license";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -344,6 +346,8 @@ export default defineConfig({
     gitRevisionPlugin(),
     webmanifestPlugin(VARIANTS),
     xtraPlugin(),
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
     svelte(),
   ],
   assetsInclude: ["wasm/**/*.{data,wasm}"],
@@ -390,6 +394,6 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.{ts,tsx}"],
   },
 });

@@ -6,7 +6,14 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/node_modules", "!**/dist", "!**/*.wasm", "!**/hengband"]
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/*.wasm",
+      "!**/hengband",
+      "!**/*.module.css.d.ts"
+    ]
   },
   "formatter": {
     "enabled": true,
