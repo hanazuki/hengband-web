@@ -12,8 +12,8 @@
     "serve": "pnpm run css:generate && concurrently --kill-others --names css,vite \"pnpm run css:watch\" \"vite\"",
     "css:generate": "hcm 'src/**/*.module.css'",
     "css:watch": "hcm 'src/**/*.module.css' --watch",
-    "lint": "biome check .",
-    "lintfix": "biome check --write .",
+    "lint": "oxlint . && oxfmt --check .",
+    "lintfix": "oxlint --fix . && oxfmt --write .",
     "typecheck": "pnpm run css:generate && tsc --project tsconfig.json && tsc --project tsconfig.node.json",
     "test": "vitest run",
     "test:e2e": "playwright test",
@@ -22,7 +22,6 @@
     "pull-upstream": "zx misc/pull-upstream.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.14",
     "@hanazuki/node-jsonnet": "^3.3.1",
     "@playwright/test": "^1.60.0",
     "@rolldown/plugin-babel": "^0.2.3",
@@ -38,6 +37,8 @@
     "concurrently": "^10.0.4",
     "happy-css-modules": "^5.0.2",
     "jsdom": "^29.1.1",
+    "oxfmt": "^0.62.0",
+    "oxlint": "^1.77.0",
     "postcss": "^8.5.25",
     "rollup-plugin-license": "^3.7.1",
     "typescript": "^6.0.3",

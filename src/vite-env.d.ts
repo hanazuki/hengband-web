@@ -36,7 +36,7 @@ interface StorageEstimate {
 }
 
 declare module "*.yml" {
-  // biome-ignore lint/suspicious/noExplicitAny: YAML content is dynamically typed
+  // oxlint-disable-next-line typescript/no-explicit-any -- YAML content is dynamically typed
   const content: any;
   export default content;
 }
