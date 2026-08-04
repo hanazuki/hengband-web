@@ -39,7 +39,7 @@
     "oxlint": "^1.77.0",
     "postcss": "^8.5.25",
     "rollup-plugin-license": "^3.7.1",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vite": "^8.0.16",
     "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.1.5",
