@@ -13,7 +13,9 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "pnpm run build && vite preview --port 4173",
+    command: process.env.CI
+      ? "vite preview --port 4173"
+      : "pnpm run build && vite preview --port 4173",
     url: "http://localhost:4173",
     reuseExistingServer: false,
   },
