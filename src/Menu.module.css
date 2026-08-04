@@ -1,0 +1,99 @@
+/* SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband */
+.menu {
+  font-family: monospace;
+  font-size: 1rem;
+  border-bottom: 1px solid currentcolor;
+  user-select: none;
+}
+
+.menubar {
+  display: flex;
+  flex-direction: row;
+  gap: 1ch;
+}
+
+.trigger {
+  appearance: none;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.trigger::before {
+  content: "[ ";
+}
+
+.trigger::after {
+  content: " ]";
+}
+
+.positioner {
+  z-index: 10;
+  outline: none;
+}
+
+.popup {
+  padding: 0.5lh 0.5ch;
+  background: var(--bg-color);
+  color: var(--fg-color);
+  font-family: monospace;
+  font-size: 1rem;
+  outline: none;
+  border-width: 1lh 1ch;
+  border-style: solid;
+  border-image-source: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><text x="0" y="10" font-family="monospace" font-size="1rem" fill="white">┌─┐</text><text x="0" y="20" font-family="monospace" font-size="1rem" fill="white">│ │</text><text x="0" y="30" font-family="monospace" font-size="1rem" fill="white">└─┘</text></svg>');
+  border-image-slice: 10;
+  border-image-repeat: repeat;
+}
+
+.item,
+.checkboxItem,
+.linkItem,
+.stepperItem {
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.linkItem {
+  display: block;
+  text-decoration: none;
+}
+
+.item[data-disabled],
+.linkItem[data-disabled] {
+  color: var(--bright-black);
+  cursor: default;
+}
+
+.checkboxItem::before {
+  content: "[ ] ";
+}
+
+.checkboxItem[data-checked]::before {
+  content: "[x] ";
+}
+
+.separator {
+  height: 1lh;
+}
+
+.groupLabel {
+  color: var(--bright-black);
+}
+
+.stepperItem {
+  display: flex;
+  gap: 1ch;
+  align-items: baseline;
+}
+
+.stepperItem > span:first-child {
+  flex: 1;
+}
+
+.badge {
+  color: #ff0;
+}

@@ -51,6 +51,7 @@
     "zx": "^8.8.5"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/addon-web-links": "^0.12.0",
     "@xterm/addon-webgl": "^0.19.0",

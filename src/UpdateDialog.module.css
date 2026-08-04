@@ -1,0 +1,72 @@
+/* SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 50%);
+  z-index: 20;
+}
+
+.viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+}
+
+.popup {
+  max-width: min(60ch, 90vw);
+  padding: 0.5lh 0.5ch;
+  color: var(--fg-color);
+  background: var(--bg-color);
+  font-family: monospace;
+  font-size: 1rem;
+  outline: none;
+  border-width: 1lh 1ch;
+  border-style: solid;
+  border-image-source: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><text x="0" y="10" font-family="monospace" font-size="1rem" fill="white">┌─┐</text><text x="0" y="20" font-family="monospace" font-size="1rem" fill="white">│ │</text><text x="0" y="30" font-family="monospace" font-size="1rem" fill="white">└─┘</text></svg>');
+  border-image-slice: 10;
+  border-image-repeat: repeat;
+}
+
+.title {
+  display: block;
+  margin-bottom: 1lh;
+  font: inherit;
+  font-weight: bold;
+}
+
+.description p {
+  margin-bottom: 1lh;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 1ch;
+}
+
+.changelog {
+  margin-right: auto;
+  color: inherit;
+  cursor: pointer;
+}
+
+.button {
+  appearance: none;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.button::before {
+  content: "[ ";
+}
+
+.button::after {
+  content: " ]";
+}
