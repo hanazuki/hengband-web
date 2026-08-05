@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import styles from "./App.module.css";
 import { draculaTheme } from "./dracula";
 import { Menu, type Variant } from "./Menu";
-import { applyPwaUpdate, pwaApplyingUpdate, usePwaUpdateAvailable } from "./pwa";
+import { applyPwaUpdate, pwaApplyingUpdate, usePwaUpdate } from "./pwa";
 import { StartScreen } from "./StartScreen";
 import { UpdateDialog } from "./UpdateDialog";
 import type { HengbandActions } from "./useHengband";
@@ -75,7 +75,7 @@ export function App() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [openOnlineHelp, setOpenOnlineHelp] = useState<(() => void) | null>(null);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const updateAvailable = usePwaUpdateAvailable();
+  const update = usePwaUpdate();
   useManifest(variant);
 
   useEffect(() => {
@@ -132,11 +132,13 @@ export function App() {
               save("effectsVolume", value, "hengband.effectsVolume")
             }
             onInstall={installPrompt ? () => void install() : undefined}
-            onUpdate={updateAvailable ? () => setUpdateDialogOpen(true) : undefined}
+            onUpdate={update.available ? () => setUpdateDialogOpen(true) : undefined}
             onOnlineHelp={openOnlineHelp ?? undefined}
           />
           <UpdateDialog
             variant={variant}
+            currentVersion={import.meta.env.VITE_GIT_DESCRIPTION}
+            version={update.version}
             open={updateDialogOpen}
             onOpenChange={setUpdateDialogOpen}
             onConfirm={() => void applyPwaUpdate()}

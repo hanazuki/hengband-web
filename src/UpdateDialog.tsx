@@ -6,13 +6,24 @@ import styles from "./UpdateDialog.module.css";
 
 export interface UpdateDialogProps {
   variant: Variant;
+  currentVersion: string;
+  version: string | null;
   open: boolean;
   onOpenChange(open: boolean): void;
   onConfirm(): void;
 }
 
-export function UpdateDialog({ variant, open, onOpenChange, onConfirm }: UpdateDialogProps) {
+export function UpdateDialog({
+  variant,
+  currentVersion,
+  version,
+  open,
+  onOpenChange,
+  onConfirm,
+}: UpdateDialogProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const showSaveCompatibilityWarning =
+    version === null || currentVersion.split("+", 1)[0] !== version.split("+", 1)[0];
 
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
@@ -26,19 +37,25 @@ export function UpdateDialog({ variant, open, onOpenChange, onConfirm }: UpdateD
             <AlertDialog.Description className={styles.description}>
               <p>
                 {variant === "ja"
-                  ? "アプリの新しいバージョンが利用可能です。"
-                  : "A new version of the app is available."}
+                  ? version
+                    ? `アプリの新しいバージョン(${version})が利用可能です。`
+                    : "アプリの新しいバージョンが利用可能です。"
+                  : version
+                    ? `A new version of the app (${version}) is available.`
+                    : "A new version of the app is available."}
               </p>
               <p>
                 {variant === "ja"
                   ? "適用するとプレイ中のゲームは中断され、保存していない進行状況は失われます。"
                   : "Applying it will interrupt the game in progress, and any unsaved progress will be lost."}
               </p>
-              <p>
-                {variant === "ja"
-                  ? "また、既存のセーブデータは新しいバージョンと互換性がない場合があります。次に新しいゲームを始めるときに適用することをおすすめします。"
-                  : "Existing save data may also be incompatible with the new version. We recommend applying the update when you start a new game."}
-              </p>
+              {showSaveCompatibilityWarning && (
+                <p>
+                  {variant === "ja"
+                    ? "既存のセーブデータは新しいバージョンと互換性がない場合があります。次に新しいゲームを始めるときに適用することをおすすめします。"
+                    : "Existing save data may be incompatible with the new version. Consider applying the update when starting a new game."}
+                </p>
+              )}
             </AlertDialog.Description>
             <div className={styles.actions}>
               <a

@@ -8,12 +8,55 @@ import { UpdateDialog } from "./UpdateDialog";
 
 afterEach(cleanup);
 
-function ControlledDialog({ onConfirm = vi.fn() }: { onConfirm?: () => void }) {
+function ControlledDialog({
+  onConfirm = vi.fn(),
+  currentVersion = "v1.2.2+4",
+  version = "v1.2.3+1",
+}: {
+  onConfirm?: () => void;
+  currentVersion?: string;
+  version?: string | null;
+}) {
   const [open, setOpen] = useState(true);
-  return <UpdateDialog variant="en" open={open} onOpenChange={setOpen} onConfirm={onConfirm} />;
+  return (
+    <UpdateDialog
+      variant="en"
+      currentVersion={currentVersion}
+      version={version}
+      open={open}
+      onOpenChange={setOpen}
+      onConfirm={onConfirm}
+    />
+  );
 }
 
 describe("UpdateDialog", () => {
+  it("displays the upcoming version", async () => {
+    render(<ControlledDialog />);
+
+    expect(
+      await screen.findByText("A new version of the app (v1.2.3+1) is available."),
+    ).toBeInTheDocument();
+  });
+
+  it("displays the save compatibility warning when the base version differs", async () => {
+    render(<ControlledDialog />);
+
+    expect(await screen.findByText(/Existing save data may be incompatible/)).toBeVisible();
+  });
+
+  it("hides the save compatibility warning when only the version after + differs", async () => {
+    render(<ControlledDialog currentVersion="v1.2.3+1" version="v1.2.3+2" />);
+
+    expect(screen.queryByText(/Existing save data may be incompatible/)).not.toBeInTheDocument();
+  });
+
+  it("displays the save compatibility warning when the upcoming version is unavailable", async () => {
+    render(<ControlledDialog version={null} />);
+
+    expect(await screen.findByText(/Existing save data may be incompatible/)).toBeVisible();
+  });
+
   it("focuses cancel and closes without confirming", async () => {
     const user = userEvent.setup();
     const onConfirm = vi.fn();
