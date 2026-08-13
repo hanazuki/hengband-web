@@ -20,6 +20,7 @@ function renderMenu(overrides: Partial<MenuProps> = {}) {
     onMusicEnabledChange: vi.fn(),
     onMusicVolumeChange: vi.fn(),
     onEffectsVolumeChange: vi.fn(),
+    onAboutAnalytics: vi.fn(),
     ...overrides,
   };
 
@@ -88,5 +89,18 @@ describe("Menu", () => {
     await user.keyboard("{Escape}");
 
     await waitFor(() => expect(help).toHaveFocus());
+  });
+
+  it.each([
+    ["en", "Help", "About Analytics…"],
+    ["ja", "ヘルプ", "アクセス解析について…"],
+  ] as const)("opens the analytics disclosure in %s", async (variant, helpLabel, itemLabel) => {
+    const user = userEvent.setup();
+    const props = renderMenu({ variant });
+
+    await user.click(screen.getByRole("menuitem", { name: helpLabel }));
+    await user.click(await screen.findByRole("menuitem", { name: itemLabel }));
+
+    expect(props.onAboutAnalytics).toHaveBeenCalledOnce();
   });
 });

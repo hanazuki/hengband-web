@@ -3,8 +3,22 @@ import { expect, test } from "@playwright/test";
 import { openMenu } from "./helpers";
 
 for (const locale of [
-  { hash: "ja", help: "ヘルプ", licenses: "ライセンス表示" },
-  { hash: "en", help: "Help", licenses: "Software licenses" },
+  {
+    hash: "ja",
+    help: "ヘルプ",
+    licenses: "ライセンス表示",
+    analytics: "アクセス解析について…",
+    analyticsTitle: "アクセス解析について",
+    close: "閉じる",
+  },
+  {
+    hash: "en",
+    help: "Help",
+    licenses: "Software licenses",
+    analytics: "About Analytics…",
+    analyticsTitle: "About Analytics",
+    close: "Close",
+  },
 ] as const) {
   test(`${locale.licenses} opens licenses.txt`, async ({ page }) => {
     await page.goto(`/#${locale.hash}`);
@@ -18,6 +32,17 @@ for (const locale of [
 
     await expect(popup).toHaveURL(/\/licenses\.txt$/);
     await expect(popup.locator("body")).toContainText("Hengband Web Port");
+  });
+
+  test(`${locale.analytics} opens the analytics disclosure`, async ({ page }) => {
+    await page.goto(`/#${locale.hash}`);
+    await openMenu(page, locale.help);
+    await page.getByRole("menuitem", { name: locale.analytics }).click();
+
+    const dialog = page.getByRole("dialog", { name: locale.analyticsTitle });
+    await expect(dialog).toContainText("Cloudflare");
+    await dialog.getByRole("button", { name: locale.close }).click();
+    await expect(dialog).not.toBeVisible();
   });
 }
 

@@ -44,11 +44,15 @@
   display: flex;
   flex-direction: row;
   align-items: baseline;
+  justify-content: flex-end;
   gap: 1ch;
 }
 
-.changelog {
+.actionsStart {
   margin-right: auto;
+}
+
+.link {
   color: inherit;
   cursor: pointer;
 }
