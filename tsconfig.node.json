@@ -11,5 +11,11 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "test/**/*.ts", "test/**/*.tsx"]
+  "include": [
+    "vite.config.ts",
+    "vite-plugins/**/*.ts",
+    "playwright.config.ts",
+    "test/**/*.ts",
+    "test/**/*.tsx"
+  ]
 }

@@ -13,6 +13,7 @@ import license from "rollup-plugin-license";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
+import { cloudflareWebAnalytics } from "./vite-plugins/cloudflare-web-analytics";
 
 const assets = {
   ...minimal2023Preset,
@@ -370,6 +371,7 @@ export default defineConfig({
     gitRevisionPlugin(),
     webmanifestPlugin(VARIANTS),
     xtraPlugin(),
+    cloudflareWebAnalytics(process.env.CF_BEACON_TOKEN),
     react(),
     babel({ presets: [reactCompilerPreset()] }),
   ],
@@ -421,6 +423,6 @@ export default defineConfig({
       "#wasm/en/hengband": path.resolve("src/test/wasm-stub.ts"),
     },
     environment: "jsdom",
-    include: ["src/**/*.test.{ts,tsx}"],
+    include: ["src/**/*.test.{ts,tsx}", "vite-plugins/**/*.test.ts"],
   },
 });
