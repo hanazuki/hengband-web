@@ -22,6 +22,7 @@ export interface MenuProps {
   onInstall?(): void;
   onUpdate?(): void;
   onOnlineHelp?(): void;
+  onAboutAnalytics(): void;
 }
 
 interface StepperItemProps {
@@ -93,6 +94,7 @@ export function Menu({
   onInstall,
   onUpdate,
   onOnlineHelp,
+  onAboutAnalytics,
 }: MenuProps) {
   async function handleFeedbackClick(event: MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
@@ -280,6 +282,10 @@ export function Menu({
             >
               {variant === "ja" ? "ライセンス表示" : "Software licenses"}
             </BaseMenu.LinkItem>
+            <BaseMenu.Separator className={styles.separator} />
+            <BaseMenu.Item className={styles.item} onClick={onAboutAnalytics}>
+              {variant === "ja" ? "アクセス解析について…" : "About Analytics…"}
+            </BaseMenu.Item>
           </MenuContent>
         </BaseMenu.Root>
       </Menubar>

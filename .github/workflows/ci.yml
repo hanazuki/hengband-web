@@ -148,6 +148,8 @@ jobs:
           name: xtra
           path: xtra
       - run: pnpm build
+        env:
+          CF_BEACON_TOKEN: ${{ vars.CF_BEACON_TOKEN }}
       - run: cd dist && zip -r ../hengband-web.zip .
       - id: attest
         if: github.event.repository.fork == false

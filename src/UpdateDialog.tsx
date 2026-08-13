@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { useRef } from "react";
+import styles from "./Dialog.module.css";
 import type { Variant } from "./Menu";
-import styles from "./UpdateDialog.module.css";
 
 export interface UpdateDialogProps {
   variant: Variant;
@@ -34,7 +34,7 @@ export function UpdateDialog({
             <AlertDialog.Title className={styles.title}>
               {variant === "ja" ? "アップデート" : "Update"}
             </AlertDialog.Title>
-            <AlertDialog.Description className={styles.description}>
+            <AlertDialog.Description className={styles.description} render={<div />}>
               <p>
                 {variant === "ja"
                   ? version
@@ -59,7 +59,7 @@ export function UpdateDialog({
             </AlertDialog.Description>
             <div className={styles.actions}>
               <a
-                className={styles.changelog}
+                className={`${styles.actionsStart} ${styles.link}`}
                 href="https://github.com/hanazuki/hengband-web/blob/master/CHANGELOG.md"
                 rel="noopener"
                 target="_blank"

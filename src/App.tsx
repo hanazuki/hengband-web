@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { lazy, Suspense, useEffect, useState } from "react";
+import { AboutAnalyticsDialog } from "./AboutAnalyticsDialog";
 import styles from "./App.module.css";
 import { draculaTheme } from "./dracula";
 import { Menu, type Variant } from "./Menu";
@@ -75,6 +76,7 @@ export function App() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [openOnlineHelp, setOpenOnlineHelp] = useState<(() => void) | null>(null);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false);
   const update = usePwaUpdate();
   useManifest(variant);
 
@@ -134,6 +136,12 @@ export function App() {
             onInstall={installPrompt ? () => void install() : undefined}
             onUpdate={update.available ? () => setUpdateDialogOpen(true) : undefined}
             onOnlineHelp={openOnlineHelp ?? undefined}
+            onAboutAnalytics={() => setAnalyticsDialogOpen(true)}
+          />
+          <AboutAnalyticsDialog
+            variant={variant}
+            open={analyticsDialogOpen}
+            onOpenChange={setAnalyticsDialogOpen}
           />
           <UpdateDialog
             variant={variant}
