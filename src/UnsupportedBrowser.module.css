@@ -1,0 +1,18 @@
+/* SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband */
+.container {
+  display: grid;
+  width: min(48rem, calc(100% - 2rem));
+  min-height: 100vh;
+  margin: auto;
+  place-content: center;
+  gap: 1rem;
+  line-height: 1.5;
+}
+
+.headingLine {
+  display: block;
+}
+
+.browsers {
+  padding-inline-start: 2rem;
+}

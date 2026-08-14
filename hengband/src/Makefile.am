@@ -1483,8 +1483,8 @@ AM_LDFLAGS = \
 	-sENVIRONMENT=web \
 	-sEXPORT_ES6=1 \
 	-sMODULARIZE=1 \
-	-sASYNCIFY=1 \
-	-sASYNCIFY_STACK_SIZE=8388608 \
+	-sJSPI=1 \
+	-fwasm-exceptions \
 	-sEXIT_RUNTIME=1 \
 	-sFORCE_FILESYSTEM=1 \
 	-sINITIAL_MEMORY=268435456 \
@@ -1508,6 +1508,10 @@ endif
 LIBS += $(XFT_LIBS) $(libcurl_LIBS)
 
 AM_CXXFLAGS =
+
+if USE_WEB
+AM_CXXFLAGS += -fwasm-exceptions
+endif
 
 if COMPILER_HAVE_EXEC_CHARSET_EUC_JP_MS
 AM_CXXFLAGS += -fexec-charset=euc-jp-ms
