@@ -1,6 +1,26 @@
 // SPDX-License-Identifier: MIT OR LicenseRef-Moria-Angband
 import { expect, test } from "@playwright/test";
 
+test("unsupported browsers do not load the app or register a service worker", async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.WebAssembly = new Proxy(WebAssembly, {
+      has(target, property) {
+        return property === "Suspending" ? false : Reflect.has(target, property);
+      },
+    });
+  });
+
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: /Your browser is not supported/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "English" })).toHaveCount(0);
+  await expect
+    .poll(() =>
+      page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length),
+    )
+    .toBe(0);
+});
+
 test("the start screen offers both game variants", async ({ page }) => {
   await page.goto("/");
 
