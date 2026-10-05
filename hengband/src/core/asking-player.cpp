@@ -356,7 +356,7 @@ int input_quantity(int max, std::string_view initial_prompt)
     int amt;
     if (isalpha((*input_amount)[0])) {
         amt = max;
-    } else if (const auto value = str_to_int(*input_amount)) {
+    } else if (const auto value = str_to_num<int>(*input_amount)) {
         amt = std::clamp(*value, 0, max);
     } else {
         amt = 0;
@@ -392,7 +392,7 @@ tl::optional<int> input_integer(std::string_view prompt, int min, int max, int i
             return tl::nullopt;
         }
 
-        const auto val = str_to_int(*input_str);
+        const auto val = str_to_num<int>(*input_str);
         if (!val) {
             msg_print(_("数値を入力して下さい。", "Please input numeric value."));
             continue;
