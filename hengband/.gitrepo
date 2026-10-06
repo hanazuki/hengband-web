@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/hengband/hengband
-	branch = 3.0.2.4-Beta
-	commit = bf1054199941cb730a0fbb10aef9acb3fdedda89
-	parent = ffe7c047279bb20976f8f89708dd360d89db5e6e
+	branch = 3.0.2.5-Beta
+	commit = 18b10d6ea5fd234c119053e0a209c90aede21fa4
+	parent = c1c47fabb8a48a7df0578777d34be5eb995b718d
 	method = merge
 	cmdver = 0.4.9

@@ -461,7 +461,7 @@ static bool input_rest_turns()
             return true;
         }
 
-        if (const auto value = str_to_int(*rest_turns)) {
+        if (const auto value = str_to_num<int>(*rest_turns)) {
             command_arg = static_cast<short>(std::clamp(*value, 0, 9999));
             return true;
         }
