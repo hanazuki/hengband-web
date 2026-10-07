@@ -193,7 +193,8 @@ async function finalizeImport(ref: string) {
 
   const changelogPath = "CHANGELOG.md";
   const changelog = await readFile(changelogPath, "utf-8");
-  const entry = `- Upgrade base game to ${ref}`;
+  const releaseUrl = `https://github.com/hengband/hengband/releases/tag/${encodeURIComponent(ref)}`;
+  const entry = `- Upgrade base game to [${ref}](${releaseUrl})`;
   const updatedChangelog = changelog.includes(entry)
     ? changelog
     : changelog.replace(/^(## Unreleased\n)/m, `$1\n${entry}\n`);
