@@ -52,7 +52,7 @@ std::string screen_dump;
 #ifdef WORLD_SCORE
 
 #ifdef JP
-constexpr auto SCORE_POST_URL = "https://hengband-scores.hanazuki.dev/register_score.php";
+constexpr auto SCORE_POST_URL = "https://hengband-scores.hanazuki.dev/scores";
 #endif
 
 static constexpr auto get_score_content_type()
