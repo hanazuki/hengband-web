@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Upgrade base game to [3.0.2.6-Beta](https://github.com/hengband/hengband/releases/tag/3.0.2.6-Beta)
+
 ## v3.0.2.5-Beta+1 (2026-10-07)
 
 - Upgrade base game to [3.0.2.5-Beta](https://github.com/hengband/hengband/releases/tag/3.0.2.5-Beta)
