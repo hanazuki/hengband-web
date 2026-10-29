@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Upgrade base game to [3.0.2.6-Beta](https://github.com/hengband/hengband/releases/tag/3.0.2.6-Beta)
 - Switch to WebAssembly JavaScript Promise Integration (JSPI) and native exception handling. Safari users should upgrade to Safari 27 or later.
 
 ## v3.0.2.5-Beta+1 (2026-10-07)
